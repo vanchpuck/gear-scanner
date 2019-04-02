@@ -1,0 +1,11 @@
+{
+  "url":"http://localhost:8088/alpindustria-bd-cyborg.json",
+  "store":"alpindustria.ru",
+  "brand":"Black Diamond",
+  "name":"Кошки Black Diamond Cyborg Pro Crampon",
+  "category":["Альпинистское снаряжение", "Кошки и снегоступы"],
+  "price":19200,
+  "salePrice":null,
+  "currency":"Руб.",
+  "parseError":null
+}

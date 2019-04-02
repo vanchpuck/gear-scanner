@@ -1,0 +1,11 @@
+{
+  "url":"http://localhost:8088/tramontana-petzl-lynx.json",
+  "store":"tramontana.ru",
+  "brand":"Petzl",
+  "name":"Кошки PETZL Lynx",
+  "category":["Альпинизм и скалолазание","Ледовое снаряжение","Кошки"],
+  "price":17590,
+  "salePrice":null,
+  "currency":"Руб.",
+  "parseError":null
+}

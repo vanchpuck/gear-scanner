@@ -1,0 +1,11 @@
+{
+  "url":"http://localhost:8088/alpindustria-cassin-blade-runner-error.json",
+  "store":"alpindustria.ru",
+  "brand":null,
+  "name":null,
+  "category":null,
+  "price":-1,
+  "salePrice":null,
+  "currency":null,
+  "parseError":"Can't parse. Sorry..."
+}

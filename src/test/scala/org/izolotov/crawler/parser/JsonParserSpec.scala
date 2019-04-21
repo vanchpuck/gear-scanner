@@ -22,7 +22,7 @@ class JsonParserSpec extends FlatSpec {
       name = "Кошки Petzl D-Lynx",
       category = Array("Альпинистское снаряжение", "Кошки и снегоступы"),
       price = 13970,
-      salePrice = None,
+      oldPrice = None,
       currency = "Руб."
     )
     assert(expected == actual)

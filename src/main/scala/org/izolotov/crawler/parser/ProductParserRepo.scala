@@ -13,6 +13,7 @@ object ProductParserRepo {
       case "localhost" => JsonParser.parse(url, inStream, charset)
       case AlpindustriaParser.StoreName => AlpindustriaParser.parse(url, inStream, charset)
       case TramontanaParser.StoreName => TramontanaParser.parse(url, inStream, charset)
+      case KantParser.StoreName => KantParser.parse(url, inStream, charset)
     }
   }
 

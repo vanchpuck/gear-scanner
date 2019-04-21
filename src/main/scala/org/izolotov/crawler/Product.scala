@@ -6,6 +6,6 @@ case class Product(url: String,
                    name: String = null,
                    category: Seq[String] = null,
                    price: Int = -1,
-                   salePrice: Option[Int] = None,
+                   oldPrice: Option[Int] = None,
                    currency: String = null,
                    parseError: Option[String] = None)

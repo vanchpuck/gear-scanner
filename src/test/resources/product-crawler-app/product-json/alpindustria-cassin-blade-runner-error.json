@@ -5,7 +5,7 @@
   "name":null,
   "category":null,
   "price":-1,
-  "salePrice":null,
+  "oldPrice":null,
   "currency":null,
   "parseError":"Can't parse. Sorry..."
 }

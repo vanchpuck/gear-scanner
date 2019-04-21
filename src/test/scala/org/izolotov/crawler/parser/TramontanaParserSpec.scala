@@ -35,8 +35,8 @@ class TramontanaParserSpec extends FlatSpec {
       "GRIVEL",
       "Кошки GRIVEL AIR TECH GSB",
       Seq("Альпинизм и скалолазание", "Ледовое снаряжение", "Кошки"),
-      10710,
-      Some(5355),
+      5355,
+      Some(10710),
       "Руб."
     )
     assert(expected == actual)

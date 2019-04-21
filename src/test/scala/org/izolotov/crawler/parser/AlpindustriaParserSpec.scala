@@ -18,8 +18,8 @@ class AlpindustriaParserSpec extends FlatSpec{
       "camp",
       "Кошки Camp Xlc Nanotech N.B. Step In",
       Seq("Альпинистское снаряжение", "Кошки и снегоступы"),
-      12990,
-      Some(7794),
+      7794,
+      Some(12990),
       "Руб."
     )
     assert(expected == actual)

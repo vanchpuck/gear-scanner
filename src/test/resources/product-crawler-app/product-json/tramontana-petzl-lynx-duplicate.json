@@ -5,7 +5,7 @@
   "name":"Кошки PETZL Lynx",
   "category":["Альпинизм и скалолазание","Ледовое снаряжение","Кошки"],
   "price":17590,
-  "salePrice":null,
+  "oldPrice":null,
   "currency":"Руб.",
   "parseError":null
 }

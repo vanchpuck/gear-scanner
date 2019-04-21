@@ -1,11 +1,9 @@
 package org.izolotov.crawler
 
-import java.io.File
 import java.nio.file.{Files, Paths}
 import java.util.concurrent.TimeUnit
 
 import com.holdenkarau.spark.testing.{DatasetSuiteBase, Utils}
-import org.apache.commons.io.FileUtils
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.functions._
 import org.eclipse.jetty.server.Server
@@ -41,7 +39,7 @@ class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAn
     server.start
 
     embeddedElastic = EmbeddedElastic.builder()
-      .withElasticVersion("6.3.1")
+      .withElasticVersion("5.6.8")
       .withSetting(PopularProperties.HTTP_PORT, ProductCrawlerAppSpec.ElasticPort)
       .withSetting(PopularProperties.CLUSTER_NAME, "gear")
       .withStartTimeout(30, TimeUnit.SECONDS)
@@ -114,8 +112,8 @@ class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAn
           brand = "Petzl",
           name = "Кошки PETZL Lynx",
           category = Seq("Альпинизм и скалолазание", "Ледовое снаряжение", "Кошки"),
-          price = 17590,
-          salePrice = Some(15000),
+          price = 15000,
+          oldPrice = Some(17590),
           currency = "Руб."
         )),
         fetchError = None
@@ -159,13 +157,12 @@ class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAn
     val actualCrawled: Dataset[ProductCrawlAttempt] = spark.read.parquet(outputPath)
       .withColumn("responseTime", lit(1L))
       .as[ProductCrawlAttempt]
-
     assertDatasetEquals(expectedCrawled, actualCrawled)
 
     val expectedIndex = Array(
       "{\"url\":\"http://localhost:8088/alpindustria-bd-cyborg.json\",\"store\":\"alpindustria.ru\",\"brand\":\"Black Diamond\",\"name\":\"Кошки Black Diamond Cyborg Pro Crampon\",\"category\":[\"Альпинистское снаряжение\",\"Кошки и снегоступы\"],\"price\":19200,\"currency\":\"Руб.\"}",
       "{\"url\":\"http://localhost:8088/tramontana-petzl-lynx-duplicate.json\",\"store\":\"tramontana.ru\",\"brand\":\"Petzl\",\"name\":\"Кошки PETZL Lynx\",\"category\":[\"Альпинизм и скалолазание\",\"Ледовое снаряжение\",\"Кошки\"],\"price\":17590,\"currency\":\"Руб.\"}",
-      "{\"url\":\"http://localhost:8088/tramontana-petzl-lynx-sale.json\",\"store\":\"tramontana.ru\",\"brand\":\"Petzl\",\"name\":\"Кошки PETZL Lynx\",\"category\":[\"Альпинизм и скалолазание\",\"Ледовое снаряжение\",\"Кошки\"],\"price\":17590,\"salePrice\":15000,\"currency\":\"Руб.\"}",
+      "{\"url\":\"http://localhost:8088/tramontana-petzl-lynx-sale.json\",\"store\":\"tramontana.ru\",\"brand\":\"Petzl\",\"name\":\"Кошки PETZL Lynx\",\"category\":[\"Альпинизм и скалолазание\",\"Ледовое снаряжение\",\"Кошки\"],\"price\":15000,\"oldPrice\":17590,\"currency\":\"Руб.\"}",
       "{\"url\":\"http://localhost:8088/tramontana-petzl-lynx.json\",\"store\":\"tramontana.ru\",\"brand\":\"Petzl\",\"name\":\"Кошки PETZL Lynx\",\"category\":[\"Альпинизм и скалолазание\",\"Ледовое снаряжение\",\"Кошки\"],\"price\":17590,\"currency\":\"Руб.\"}"
     )
 

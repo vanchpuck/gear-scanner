@@ -17,7 +17,6 @@ object PlanetaSportParser extends Parser[Product]{
       val title = doc.select("h1.productHeader").first.ownText
       val brand = doc.select("h1.productHeader b").text
       val category = doc.select("li.breadcrumbs__item a").asScala.drop(1).dropRight(1).map(e => e.text())//.drop(2).map(e => e.text())
-      category.foreach(println)
       val oldPrice: Option[Int] = doc.select("span.oldPrise").text() match {
         case "" => None
         case somePrice => Some(Util.parsePrice(somePrice))

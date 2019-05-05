@@ -160,10 +160,10 @@ class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAn
     assertDatasetEquals(expectedCrawled, actualCrawled)
 
     val expectedIndex = Array(
-      "{\"url\":\"http://localhost:8088/alpindustria-bd-cyborg.json\",\"store\":\"alpindustria.ru\",\"brand\":\"Black Diamond\",\"name\":\"Кошки Black Diamond Cyborg Pro Crampon\",\"category\":[\"Альпинистское снаряжение\",\"Кошки и снегоступы\"],\"price\":19200,\"currency\":\"Руб.\"}",
-      "{\"url\":\"http://localhost:8088/tramontana-petzl-lynx-duplicate.json\",\"store\":\"tramontana.ru\",\"brand\":\"Petzl\",\"name\":\"Кошки PETZL Lynx\",\"category\":[\"Альпинизм и скалолазание\",\"Ледовое снаряжение\",\"Кошки\"],\"price\":17590,\"currency\":\"Руб.\"}",
-      "{\"url\":\"http://localhost:8088/tramontana-petzl-lynx-sale.json\",\"store\":\"tramontana.ru\",\"brand\":\"Petzl\",\"name\":\"Кошки PETZL Lynx\",\"category\":[\"Альпинизм и скалолазание\",\"Ледовое снаряжение\",\"Кошки\"],\"price\":15000,\"oldPrice\":17590,\"currency\":\"Руб.\"}",
-      "{\"url\":\"http://localhost:8088/tramontana-petzl-lynx.json\",\"store\":\"tramontana.ru\",\"brand\":\"Petzl\",\"name\":\"Кошки PETZL Lynx\",\"category\":[\"Альпинизм и скалолазание\",\"Ледовое снаряжение\",\"Кошки\"],\"price\":17590,\"currency\":\"Руб.\"}"
+      "{\"url\":\"http://localhost:8088/alpindustria-bd-cyborg.json\",\"store\":\"alpindustria.ru\",\"brand\":\"Black Diamond\",\"name\":\"Кошки Black Diamond Cyborg Pro Crampon\",\"category\":[\"Альпинистское снаряжение\",\"Кошки и снегоступы\"],\"price\":19200.0,\"currency\":\"Руб.\"}",
+      "{\"url\":\"http://localhost:8088/tramontana-petzl-lynx-duplicate.json\",\"store\":\"tramontana.ru\",\"brand\":\"Petzl\",\"name\":\"Кошки PETZL Lynx\",\"category\":[\"Альпинизм и скалолазание\",\"Ледовое снаряжение\",\"Кошки\"],\"price\":17590.0,\"currency\":\"Руб.\"}",
+      "{\"url\":\"http://localhost:8088/tramontana-petzl-lynx-sale.json\",\"store\":\"tramontana.ru\",\"brand\":\"Petzl\",\"name\":\"Кошки PETZL Lynx\",\"category\":[\"Альпинизм и скалолазание\",\"Ледовое снаряжение\",\"Кошки\"],\"price\":15000.0,\"oldPrice\":17590.0,\"currency\":\"Руб.\"}",
+      "{\"url\":\"http://localhost:8088/tramontana-petzl-lynx.json\",\"store\":\"tramontana.ru\",\"brand\":\"Petzl\",\"name\":\"Кошки PETZL Lynx\",\"category\":[\"Альпинизм и скалолазание\",\"Ледовое снаряжение\",\"Кошки\"],\"price\":17590.0,\"currency\":\"Руб.\"}"
     )
 
     val actualIndex = embeddedElastic.fetchAllDocuments(ProductCrawlerAppSpec.ElasticIndexName).toArray

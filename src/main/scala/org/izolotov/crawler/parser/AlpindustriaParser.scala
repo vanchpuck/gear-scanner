@@ -20,11 +20,11 @@ object AlpindustriaParser extends Parser[Product] {
       val title = doc.select(".product_main-title").first.text
       val brand = doc.select(".product_pat-label img[title]").first.attr("title")
       val category = doc.select("div.breadcrumbs a").asScala.drop(1).map(e => e.text())
-      val salePrice: Option[Int] = doc.select("span.product_pri").text match {
+      val salePrice: Option[Float] = doc.select("span.product_pri").text match {
         case "" => None
         case somePrice => Some(Util.parsePrice(somePrice))
       }
-      val (price: Int, oldPrice: Option[Int]) = salePrice match {
+      val (price: Float, oldPrice: Option[Float]) = salePrice match {
         case Some(sale) => (sale, Some(Util.parsePrice(doc.select("span.product_striked").text())))
         case None => (Util.parsePrice(doc.select("span.product_pri_all").text()), None)
       }

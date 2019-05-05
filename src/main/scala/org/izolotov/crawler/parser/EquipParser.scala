@@ -18,7 +18,7 @@ object EquipParser extends Parser[Product] {
       val title = doc.select("h1").first.text
       val brand = doc.select("div.brand span").text
       val category = doc.select("div.side-b a").asScala.drop(2).map(e => e.text())
-      val oldPrice: Option[Int] = doc.select("div.with_old_price span.old_product_price_in").first() match {
+      val oldPrice: Option[Float] = doc.select("div.with_old_price span.old_product_price_in").first() match {
         case null => None
         case somePrice => Some(Util.parsePrice(somePrice.ownText()))
       }

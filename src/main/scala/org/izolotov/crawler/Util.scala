@@ -11,8 +11,8 @@ object Util {
 //    Try(priceStr.replaceAll("[^0-9]", "").toInt)
 //  }
 
-  def parsePrice(priceStr: String): Int = {
-    priceStr.replaceAll("[^0-9]", "").toInt
+  def parsePrice(priceStr: String): Float = {
+    priceStr.replaceAll("[^0-9,.]", "").toFloat
   }
 
 }

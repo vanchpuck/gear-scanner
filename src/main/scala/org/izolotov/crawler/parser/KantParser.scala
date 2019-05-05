@@ -17,8 +17,8 @@ object KantParser extends Parser[Product] {
       val title = doc.select("div.kant__product__fixed__title").first().ownText()
       val brand = doc.select("div.kant__product__detail-item > span:containsOwn(Бренд) + span").text()
       val category = doc.select(".list_links > li > a").asScala.drop(1).map(_.ownText())
-      val price: Int = Util.parsePrice(doc.select("span.kant__product__price__new").first().text)
-      val oldPrice: Option[Int] = doc.select("span.kant__product__price__old").first match {
+      val price: Float = Util.parsePrice(doc.select("span.kant__product__price__new").first().text)
+      val oldPrice: Option[Float] = doc.select("span.kant__product__price__old").first match {
         case null => None
         case price => Some(Util.parsePrice(price.text))
       }

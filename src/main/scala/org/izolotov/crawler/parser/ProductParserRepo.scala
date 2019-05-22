@@ -11,6 +11,7 @@ object ProductParserRepo {
     // TODO add default case
     host match {
       case "localhost" => JsonParser.parse(url, inStream, charset)
+      case "127.0.0.1" => JsonParser.parse(url, inStream, charset)
       case AlpindustriaParser.StoreName => AlpindustriaParser.parse(url, inStream, charset)
       case TramontanaParser.StoreName => TramontanaParser.parse(url, inStream, charset)
       case KantParser.StoreName => KantParser.parse(url, inStream, charset)

@@ -11,6 +11,8 @@ object ProductCrawlerApp {
   val UrlsPathArgKey = "urls-path"
   val UserAgentArgKey = "user-agent"
   val FetcherDelayArgKey = "fetcher-delay"
+  val FetcherTimeoutArgKey = "fetcher-timeout"
+  val PartitionsNumber = "partitions-number"
   val CrawledOutputPathArgKey = "crawled-output-path"
   val CrawledOutputFormatArgKey = "crawled-output-format"
   val ElasticNodesArgKey = "elastic-nodes"
@@ -29,6 +31,8 @@ object ProductCrawlerApp {
     options.addOption("u", UrlsPathArgKey, true, "Path to file containing URL for crawling")
     options.addOption("a", UserAgentArgKey, true, "User agent string")
     options.addOption("d", FetcherDelayArgKey, true, "Fetcher delay in milliseconds")
+    options.addOption("t", FetcherTimeoutArgKey, true, "Fetcher timeout in milliseconds")
+    options.addOption("p", PartitionsNumber, true, "Number of partitions the URLs will be partitioned on before being crawled")
     options.addOption("c", CrawledOutputPathArgKey, true, "Crawled data output path")
     options.addOption("f", CrawledOutputFormatArgKey, true, "Crawled data output format")
     options.addOption("n", ElasticNodesArgKey, true, "List of Elasticsearch nodes to connect to")
@@ -44,7 +48,12 @@ object ProductCrawlerApp {
       .option("delimiter", "\t")
       .option("header", true)
       .csv(cmd.getOptionValue(UrlsPathArgKey)).as[UncrawledURL]
-    val crawled  = new ProductCrawler(cmd.getOptionValue(UserAgentArgKey), cmd.getOptionValue(FetcherDelayArgKey).toLong)
+    val crawled  = new ProductCrawler(
+      cmd.getOptionValue(PartitionsNumber).toInt,
+      cmd.getOptionValue(UserAgentArgKey),
+      cmd.getOptionValue(FetcherTimeoutArgKey).toLong,
+      cmd.getOptionValue(FetcherDelayArgKey).toLong
+    )
       .crawl(urls)
       .persist()
 

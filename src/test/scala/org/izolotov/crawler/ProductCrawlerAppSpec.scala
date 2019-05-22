@@ -66,6 +66,7 @@ class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAn
       "--urls-path", this.getClass.getClassLoader.getResource("product-crawler-app/input-urls/urls.csv").getPath,
       "--user-agent", "NoNameYetBot/0.1",
       "--fetcher-delay", "10",
+      "--fetcher-timeout", "2000",
       "--crawled-output-path", outputDir,
       "--crawled-output-format", "parquet",
       "--elastic-nodes", s"localhost:${ProductCrawlerAppSpec.ElasticPort}"

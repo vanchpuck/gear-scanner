@@ -1,6 +1,5 @@
 package org.izolotov.crawler
 
-import java.net.URL
 import java.util.concurrent.{LinkedBlockingQueue, TimeUnit}
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -12,7 +11,11 @@ import org.izolotov.crawler.parser.ProductParserRepo
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-class CrawlQueue(urls: Iterable[UncrawledURL],
+object CrawlQueue {
+  case class HostURL(url: String, host: String)
+}
+
+class CrawlQueue(urls: Iterable[CrawlQueue.HostURL],
                  httpClient: CloseableHttpClient,
                  defaultFetchDelay: Long,
                  fetchTimeout: Long) extends Iterator[ProductCrawlAttempt]{
@@ -24,7 +27,7 @@ class CrawlQueue(urls: Iterable[UncrawledURL],
   val resultQueue = new LinkedBlockingQueue[ProductCrawlAttempt]()
 
   urls
-    .groupBy(unfetched => new URL(unfetched.url).getHost)
+    .groupBy(_.host)
     .mapValues(entry => entry.iterator)
     .iterator
     .foreach{ group =>

@@ -9,6 +9,7 @@ import org.scalatest.{BeforeAndAfter, FlatSpec}
 import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization
 import CrawlQueueSpec._
+import org.izolotov.crawler.CrawlQueue.HostURL
 object CrawlQueueSpec {
   val Port = 8082
 
@@ -46,8 +47,8 @@ class CrawlQueueSpec extends FlatSpec with BeforeAndAfter {
 
   it should "crawl different hosts in parallel" in {
     val uncrawled = Seq(
-      UncrawledURL(s"http://localhost:${Port}/product"),
-      UncrawledURL(s"http://127.0.0.1:${Port}/product")
+      HostURL(s"http://localhost:${Port}/product", "localhost"),
+      HostURL(s"http://127.0.0.1:${Port}/product", "127.0.0.1")
     )
 
     val startTime = System.currentTimeMillis()
@@ -60,13 +61,13 @@ class CrawlQueueSpec extends FlatSpec with BeforeAndAfter {
 
   it should "crawl all provided urls" in {
     val uncrawled = Seq(
-      UncrawledURL(s"http://localhost:${Port}/product"),
-      UncrawledURL(s"http://localhost:${Port}/product"),
-      UncrawledURL(s"http://localhost:${Port}/product"),
-      UncrawledURL(s"http://localhost:${Port}/product"),
-      UncrawledURL(s"http://127.0.0.1:${Port}/product"),
-      UncrawledURL(s"http://127.0.0.1:${Port}/product"),
-      UncrawledURL(s"http://127.0.0.1:${Port}/product")
+      HostURL(s"http://localhost:${Port}/product", "localhost"),
+      HostURL(s"http://localhost:${Port}/product", "localhost"),
+      HostURL(s"http://localhost:${Port}/product", "localhost"),
+      HostURL(s"http://localhost:${Port}/product", "localhost"),
+      HostURL(s"http://127.0.0.1:${Port}/product", "127.0.0.1"),
+      HostURL(s"http://127.0.0.1:${Port}/product", "127.0.0.1"),
+      HostURL(s"http://127.0.0.1:${Port}/product", "127.0.0.1")
     )
 
     val actual = new CrawlQueue(uncrawled, HttpClients.createDefault(), 100L, 1000L).toList

@@ -32,6 +32,7 @@ class CrawlQueue(urls: Iterable[CrawlQueue.HostURL],
     .iterator
     .foreach{ group =>
     val future = Future{
+      // TODO close fetchers
       val fetcher = new DelayFetcher(httpClient, defaultFetchDelay)
       val host = group._1
       group._2.map{ unfetched =>
@@ -75,6 +76,7 @@ class CrawlQueue(urls: Iterable[CrawlQueue.HostURL],
 
   override def hasNext: Boolean = {
     this.synchronized {
+      // TODO maybe we should close fether here !!!
       return !(crawlCounter.get() == 0 && resultQueue.peek() == null)
     }
   }

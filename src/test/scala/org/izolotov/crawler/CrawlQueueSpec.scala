@@ -10,6 +10,7 @@ import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization
 import CrawlQueueSpec._
 import org.izolotov.crawler.CrawlQueue.HostURL
+
 object CrawlQueueSpec {
   val Port = 8082
 

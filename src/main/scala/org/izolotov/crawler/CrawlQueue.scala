@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import org.apache.commons.httpclient.HttpStatus
 import org.apache.http.entity.ContentType
 import org.apache.http.impl.client.CloseableHttpClient
-import org.izolotov.crawler.parser.ProductParserRepo
+import org.izolotov.crawler.parser.product.ProductParserRepo
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -32,6 +32,7 @@ class CrawlQueue(urls: Iterable[CrawlQueue.HostURL],
     .iterator
     .foreach{ group =>
     val future = Future{
+      // TODO close fetchers
       val fetcher = new DelayFetcher(httpClient, defaultFetchDelay)
       val host = group._1
       group._2.map{ unfetched =>
@@ -75,6 +76,7 @@ class CrawlQueue(urls: Iterable[CrawlQueue.HostURL],
 
   override def hasNext: Boolean = {
     this.synchronized {
+      // TODO maybe we should close fether here !!!
       return !(crawlCounter.get() == 0 && resultQueue.peek() == null)
     }
   }

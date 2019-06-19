@@ -49,7 +49,7 @@ object ProductCrawlerApp {
       .option("header", true)
       .csv(cmd.getOptionValue(UrlsPathArgKey)).as[UncrawledURL]
     val crawled  = new ProductCrawler(
-      cmd.getOptionValue(PartitionsNumber).toInt,
+      Option(cmd.getOptionValue(PartitionsNumber)).getOrElse("1").toInt,
       cmd.getOptionValue(UserAgentArgKey),
       cmd.getOptionValue(FetcherTimeoutArgKey).toLong,
       cmd.getOptionValue(FetcherDelayArgKey).toLong

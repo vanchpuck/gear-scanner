@@ -23,7 +23,7 @@ import static com.google.common.base.Preconditions.checkState;
  * This implementation allows to fetch URLs with specified delay between
  * the termination of one fetching and the commencement of the next.
  */
-public class DelayFetcher implements Fetcher, Closeable {
+public class DelayFetcher implements Fetcher<CloseableHttpResponse>, Closeable {
 
     private static class DelayUrl implements Delayed {
         final String url;

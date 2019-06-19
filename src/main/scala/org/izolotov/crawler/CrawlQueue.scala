@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import org.apache.commons.httpclient.HttpStatus
 import org.apache.http.entity.ContentType
 import org.apache.http.impl.client.CloseableHttpClient
-import org.izolotov.crawler.parser.ProductParserRepo
+import org.izolotov.crawler.parser.product.ProductParserRepo
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}

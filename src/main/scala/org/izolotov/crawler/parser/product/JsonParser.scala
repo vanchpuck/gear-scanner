@@ -7,7 +7,7 @@ import java.nio.charset.Charset
 import io.circe.generic.semiauto.deriveDecoder
 import io.circe.parser
 import org.apache.commons.io.IOUtils
-import org.izolotov.crawler.Product
+//import Product
 import org.izolotov.crawler.parser.Parser
 
 object JsonParser extends Parser[Product] {

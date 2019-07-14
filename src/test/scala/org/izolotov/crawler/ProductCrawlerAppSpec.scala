@@ -9,6 +9,7 @@ import org.apache.spark.sql.functions._
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.handler.{ContextHandler, ResourceHandler}
 import org.eclipse.jetty.util.resource.Resource
+import org.izolotov.crawler.parser.product.Product
 import org.scalatest.{BeforeAndAfter, FlatSpec}
 import pl.allegro.tech.embeddedelasticsearch.{EmbeddedElastic, PopularProperties}
 

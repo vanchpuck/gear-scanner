@@ -6,16 +6,12 @@ import java.util.concurrent.atomic.AtomicInteger
 import org.apache.commons.httpclient.HttpStatus
 import org.apache.http.entity.ContentType
 import org.apache.http.impl.client.CloseableHttpClient
-import org.izolotov.crawler.parser.product.ProductParserRepo
+import org.izolotov.crawler.parser.product.{Product, ProductParserRepo}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-object CrawlQueue {
-  case class HostURL(url: String, host: String)
-}
-
-class CrawlQueue(urls: Iterable[CrawlQueue.HostURL],
+class CrawlQueue(urls: Iterable[HostURL],
                  httpClient: CloseableHttpClient,
                  defaultFetchDelay: Long,
                  fetchTimeout: Long) extends Iterator[ProductCrawlAttempt]{
@@ -23,8 +19,12 @@ class CrawlQueue(urls: Iterable[CrawlQueue.HostURL],
   import scala.compat.java8.OptionConverters._
   import ExecutionContext.Implicits.global
 
-  val crawlCounter = new AtomicInteger(urls.size)
-  val resultQueue = new LinkedBlockingQueue[ProductCrawlAttempt]()
+  var crawlCounter: AtomicInteger = null
+  var resultQueue: LinkedBlockingQueue[ProductCrawlAttempt] = null
+  this.synchronized {
+    crawlCounter = new AtomicInteger(urls.size)
+    resultQueue = new LinkedBlockingQueue[ProductCrawlAttempt]()
+  }
 
   urls
     .groupBy(_.host)

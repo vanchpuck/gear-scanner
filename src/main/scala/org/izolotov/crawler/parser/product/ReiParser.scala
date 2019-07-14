@@ -4,7 +4,6 @@ import java.io.InputStream
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.izolotov.crawler.Product
 import org.izolotov.crawler.parser.Parser
 
 object ReiParser extends Parser[Product] {

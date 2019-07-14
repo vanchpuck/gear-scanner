@@ -6,6 +6,7 @@ import java.nio.charset.Charset
 
 import crawlercommons.sitemaps.SiteMapParser
 import org.apache.commons.io.IOUtils
+import org.izolotov.crawler.parser.Parser
 
 object SitemapParser extends Parser[Seq[SiteMap]]{
 

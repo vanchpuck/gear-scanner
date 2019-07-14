@@ -18,7 +18,8 @@ case class ProductCrawler(partitionsNum: Int,
   def crawl(urls: Dataset[UncrawledURL]): Dataset[ProductCrawlAttempt] = {
     // TODO handle errors during URL object construction
     import spark.implicits._
-    urls.map(url => CrawlQueue.HostURL(url.url, new URL(url.url).getHost)).repartition(partitionsNum, $"host")
+    urls.map(url => HostURL(url.url, new URL(url.url).getHost))
+      .repartition(partitionsNum, $"host")
       .mapPartitions{
         iterator =>
           val httpClient = HttpClients.custom()

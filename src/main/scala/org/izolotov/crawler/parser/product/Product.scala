@@ -1,4 +1,4 @@
-package org.izolotov.crawler
+package org.izolotov.crawler.parser.product
 
 case class Product(url: String,
                    store: String,

@@ -4,7 +4,7 @@ import java.io.InputStream
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.Parser
-import org.izolotov.crawler.{Currency, Product}
+import org.izolotov.crawler.Currency
 import org.json4s.jackson.JsonMethods
 import org.jsoup.Jsoup
 

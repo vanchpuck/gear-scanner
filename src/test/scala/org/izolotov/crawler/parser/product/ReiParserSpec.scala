@@ -2,7 +2,6 @@ package org.izolotov.crawler.parser.product
 
 import java.nio.charset.Charset
 
-import org.izolotov.crawler.Product
 import org.izolotov.crawler.parser.product.ReiParserSpec._
 import org.scalatest.FlatSpec
 

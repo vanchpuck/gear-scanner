@@ -71,7 +71,7 @@ class CrawlQueueSpec extends FlatSpec with BeforeAndAfter {
       HostURL(s"http://127.0.0.1:${Port}/product", "127.0.0.1")
     )
 
-    val actual = new CrawlQueue(uncrawled, HttpClients.createDefault(), 100L, 1000L).toList
+    val actual = new CrawlQueue(uncrawled, HttpClients.createDefault(), 100L, 1000L)
     assert(actual.size == 7)
     actual.foreach(
       item =>

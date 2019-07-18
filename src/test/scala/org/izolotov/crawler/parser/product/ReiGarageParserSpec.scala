@@ -7,7 +7,7 @@ import org.scalatest.FlatSpec
 
 object ReiGarageParserSpec {
   val ResourceDir = "parser/product/rei-garage-parser"
-  val Host = "rei.com"
+  val Host = "www.rei.com"
   val Parser = ReiGarageParser
 }
 

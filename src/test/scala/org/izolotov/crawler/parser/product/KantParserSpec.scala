@@ -13,7 +13,7 @@ class KantParserSpec extends FlatSpec {
     val actual = KantParser.parse("http://kant.ru/crampons.html", inStream, Charset.forName("UTF-8"))
     val expected = Product(
       "http://kant.ru/crampons.html",
-      "kant.ru",
+      "www.kant.ru",
       "BLACK DIAMOND",
       "Кошки BLACK DIAMOND Cyborg Pro Crampons No Color",
       Seq("Туризм", "Альпинистское снаряжение", "Кошки альпинистские"),
@@ -29,7 +29,7 @@ class KantParserSpec extends FlatSpec {
     val actual = KantParser.parse("http://kant.ru/aircontact.html", inStream, Charset.forName("UTF-8"))
     val expected = Product(
       "http://kant.ru/aircontact.html",
-      "kant.ru",
+      "www.kant.ru",
       "Deuter",
       "Рюкзак Deuter 2018-19 Aircontact 75 + 10 arctic-navy",
       Seq("Туризм"),
@@ -45,7 +45,7 @@ class KantParserSpec extends FlatSpec {
     val actual = KantParser.parse("http://kant.ru/crampons.html", inStream, Charset.forName("UTF-8"))
     val expected = Product(
       "http://kant.ru/crampons.html",
-      "kant.ru",
+      "www.kant.ru",
       null,
       null,
       null,

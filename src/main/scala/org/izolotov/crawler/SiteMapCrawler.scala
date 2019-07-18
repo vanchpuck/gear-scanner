@@ -30,9 +30,9 @@ case class SiteMapCrawler(userAgent: String,
           setSocketTimeout(socketTimeout).
           build())
         .build()
-      val fetcher = new DelayFetcher(httpClient, delay)
+      val fetcher = new DelayFetcher(httpClient)
       urls.map(siteMapURL => siteMapURL.url).map(url => {
-        val attempt = fetcher.fetch(url)
+        val attempt = fetcher.fetch(url, delay)
         attempt.getResponse.asScala match {
           case Some(response: CloseableHttpResponse) =>
             val content = response.getEntity.getContent

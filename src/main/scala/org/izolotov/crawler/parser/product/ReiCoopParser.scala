@@ -10,7 +10,7 @@ import org.jsoup.Jsoup
 
 object ReiCoopParser extends Parser[Product] {
 
-  val StoreName = "rei.com"
+  val StoreName = "www.rei.com"
 
   override def parse(url: String, inStream: InputStream, charset: Charset): Product = {
     implicit val formats = org.json4s.DefaultFormats

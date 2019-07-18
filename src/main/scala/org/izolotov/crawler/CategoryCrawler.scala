@@ -2,7 +2,7 @@ package org.izolotov.crawler
 
 import java.net.URL
 
-import org.apache.http.client.config.RequestConfig
+import org.apache.http.client.config.{CookieSpecs, RequestConfig}
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
@@ -37,15 +37,16 @@ class CategoryCrawler(partitionsNum: Int,
           .setUserAgent(userAgent)
           .setConnectionManager(new PoolingHttpClientConnectionManager)
           .setDefaultRequestConfig(RequestConfig.custom()
+            .setCookieSpec(CookieSpecs.STANDARD)
             .setRedirectsEnabled(false)
             .setConnectionRequestTimeout(connectionRequestTimeout)
             .setConnectTimeout(connectionTimeout)
             .setSocketTimeout(socketTimeout)
             .build())
           .build()
-        val fetcher = new DelayFetcher(httpClient, fetchDelay)
+        val fetcher = new DelayFetcher(httpClient)
         // TODO host could be queried in parallel to increase the throughput
-        hostURLs.map(uncrawled => new CategoryCrawlQueue(uncrawled.url, fetcher, fetchTimeout))
+        hostURLs.map(uncrawled => new CategoryCrawlQueue(uncrawled.url, fetcher, fetchDelay, fetchTimeout))
           .flatMap(urls => urls)
       }
   }

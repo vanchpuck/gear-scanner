@@ -9,9 +9,9 @@ import org.izolotov.crawler.parser.category.Category
 import scala.compat.java8.OptionConverters._
 import scala.util.Try
 
-class CategoryCrawlQueue(pageURL: String, fetcher: DelayFetcher, fetchTimeout: Long = Long.MaxValue) extends Iterable[Option[String]] {
+class CategoryCrawlQueue(pageURL: String, fetcher: DelayFetcher, fetchDelay: Long, fetchTimeout: Long = Long.MaxValue) extends Iterable[Option[String]] {
 
-  class CategoryIterator(pageURL: String, fetcher: DelayFetcher, fetchTimeout: Long) extends Iterator[Iterable[Option[String]]] {
+  class CategoryIterator(pageURL: String, fetcher: DelayFetcher, fetchDelay: Long, fetchTimeout: Long) extends Iterator[Iterable[Option[String]]] {
     val host = new URL(pageURL).getHost
     var nextURL: Option[String] = Option(pageURL)
     var nextCategory: Category = null//parsePage(currentURL)
@@ -42,7 +42,7 @@ class CategoryCrawlQueue(pageURL: String, fetcher: DelayFetcher, fetchTimeout: L
   }
 
   val baseURL: URL = new URL(new URL(pageURL), "/")
-  val categoryIterator = new CategoryIterator(pageURL, fetcher, fetchTimeout)
+  val categoryIterator = new CategoryIterator(pageURL, fetcher, fetchDelay, fetchTimeout)
 
   override def iterator: Iterator[Option[String]] = {
     categoryIterator.flatten

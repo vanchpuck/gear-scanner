@@ -8,7 +8,7 @@ import org.izolotov.crawler.parser.Parser
 
 object ReiParser extends Parser[Product] {
 
-  val StoreName = "rei.com"
+  val StoreName = "www.rei.com"
 
   override def parse(url: String, inStream: InputStream, charset: Charset): Product = {
     val file = new URL(url).getFile

@@ -4,7 +4,7 @@ import java.io.InputStream
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.Parser
-import org.izolotov.crawler.{Currency, Product, Util}
+import org.izolotov.crawler.{Currency, Util}
 import org.jsoup.Jsoup
 
 object TramontanaParser extends Parser[Product] {
@@ -25,7 +25,7 @@ object TramontanaParser extends Parser[Product] {
       val price: Float = Util.parsePrice(doc.select("#product-price").first.text())
       Product(url, StoreName, brand, title, category, price, oldPrice, Currency.Rub.toString)
     } catch {
-      case exc => Product(url = url, store = StoreName, parseError = Some(exc.toString))
+      case exc: Exception => Product(url = url, store = StoreName, parseError = Some(exc.toString))
     }
   }
 }

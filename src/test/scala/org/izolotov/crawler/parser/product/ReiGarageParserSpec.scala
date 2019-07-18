@@ -2,13 +2,12 @@ package org.izolotov.crawler.parser.product
 
 import java.nio.charset.Charset
 
-import org.izolotov.crawler.Product
 import org.izolotov.crawler.parser.product.ReiGarageParserSpec._
 import org.scalatest.FlatSpec
 
 object ReiGarageParserSpec {
   val ResourceDir = "parser/product/rei-garage-parser"
-  val Host = "rei.com"
+  val Host = "www.rei.com"
   val Parser = ReiGarageParser
 }
 

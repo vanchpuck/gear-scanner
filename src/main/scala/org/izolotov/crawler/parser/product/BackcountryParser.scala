@@ -4,12 +4,12 @@ import java.io.InputStream
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.Parser
-import org.izolotov.crawler.{Currency, Product, Util}
+import org.izolotov.crawler.{Currency, Util}
 import org.jsoup.Jsoup
 
 object BackcountryParser extends Parser[Product] {
 
-  val StoreName = "backcountry.com"
+  val StoreName = "www.backcountry.com"
 
   /**
     * This implementation sets the NullPointerException error message if some mandatory of fields is absent

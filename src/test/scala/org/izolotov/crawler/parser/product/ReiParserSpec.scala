@@ -2,12 +2,11 @@ package org.izolotov.crawler.parser.product
 
 import java.nio.charset.Charset
 
-import org.izolotov.crawler.Product
 import org.izolotov.crawler.parser.product.ReiParserSpec._
 import org.scalatest.FlatSpec
 
 object ReiParserSpec {
-  val Host = "rei.com"
+  val Host = "www.rei.com"
   val Parser = ReiParser
 }
 

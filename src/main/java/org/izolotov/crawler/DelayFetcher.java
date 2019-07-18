@@ -4,45 +4,48 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.Callable;
-import java.util.concurrent.DelayQueue;
-import java.util.concurrent.Delayed;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 
-/**
- * This implementation allows to fetch URLs with specified delay between
- * the termination of one fetching and the commencement of the next.
- */
-public class DelayFetcher implements Fetcher<CloseableHttpResponse>, Closeable {
+public class DelayFetcher implements Fetcher<CloseableHttpResponse> {
 
-    private static class DelayUrl implements Delayed {
-        final String url;
-        final long nextFetchTime;
+    private final Lock delayLock = new ReentrantLock();
+    private final Lock fetcherLock = new ReentrantLock();
+    private final Condition lockedForTimeout = delayLock.newCondition();
 
-        DelayUrl(String url, long nextFetchTime) {
-            this.url = url;
-            this.nextFetchTime = nextFetchTime;
+    private volatile long prevFetchTime = 0;
+
+    private class Delayer implements Runnable {
+
+        private final long delay;
+
+        public Delayer(long delay) {
+            this.delay = delay;
         }
 
         @Override
-        public long getDelay(TimeUnit unit) {
-            long res = nextFetchTime - System.currentTimeMillis();
-            return unit.convert(res, TimeUnit.MILLISECONDS);
-        }
-
-        @Override
-        public int compareTo(Delayed o) {
-            return 0;
+        public void run() {
+            delayLock.lock();
+            try {
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException("Delay thread interrupted", e);
+                }
+            } finally {
+                lockedForTimeout.signal();
+                delayLock.unlock();
+            }
         }
     }
 
@@ -74,84 +77,60 @@ public class DelayFetcher implements Fetcher<CloseableHttpResponse>, Closeable {
     }
 
     private final CloseableHttpClient httpClient;
-    private final DelayQueue<DelayUrl> queue;
     private final ExecutorService executor;
-    private long nextFetchTime;
-    private long delay;
 
-    /**
-     * Creates fetcher with no delay configured
-     * @param httpClient {@link CloseableHttpClient} to send http requests
-     */
     public DelayFetcher(@Nonnull CloseableHttpClient httpClient) {
-        this(httpClient, 0L);
-    }
-
-    public DelayFetcher(@Nonnull CloseableHttpClient httpClient, long delay) {
         this.httpClient = httpClient;
-        this.queue = new DelayQueue<>();
-        this.nextFetchTime = 0;
-        this.delay = delay;
         this.executor = Executors.newSingleThreadExecutor();
     }
 
-    /**
-     * Waits the delay time and starts the fetching. Fetching started
-     * immediately on first method invocation.
-     * @param url url to fetch
-     * @return raw response
-     */
-    public FetchAttempt<CloseableHttpResponse> fetch(String url) {
-        return fetch(url, Long.MAX_VALUE);
-    }
-
-    /**
-     * Waits the delay time and starts the fetching.
-     * Fetching started immediately on first method invocation.
-     * @param url url to fetch
-     * @param timeout fetching timeout
-     * @return raw response
-     */
-    public FetchAttempt<CloseableHttpResponse> fetch(String url, long timeout) {
-        checkArgument(timeout >= 0, "Timeout can't be negative");
-        checkNotNull(url, "Seed can't be null");
-        checkState(!executor.isShutdown(), "Fetcher has been closed");
-
-        queue.add(new DelayUrl(url, nextFetchTime));
-        Worker worker = null;
-        try {
-            worker = new Worker(queue.take().url);
-            System.out.println("Hit "+url);
-            return executor.submit(worker).get(timeout, TimeUnit.MILLISECONDS);
-        } catch (Exception exc) {
-            if (worker != null) {
-                worker.abort();
-            }
-            return new FetchAttempt(url, exc);
-        }
-        finally {
-            nextFetchTime = System.currentTimeMillis() + delay;
-        }
-    }
-
-    /**
-     * Sets the delay between the termination of one
-     * execution and the commencement of the next
-     * @param delay delay in millis
-     */
-    public void setDelay(@Nonnegative long delay) {
-        checkArgument(delay >= 0, "Fetch delay can't be negative");
-        this.nextFetchTime = nextFetchTime + (delay - this.delay);
-        this.delay = delay;
-    }
-
-    public long getDelay() {
-        return delay;
-    }
-
     @Override
-    public void close() {
-        executor.shutdownNow();
+    public FetchAttempt<CloseableHttpResponse> fetch(String url) {
+        return fetch(url, 0L, Long.MAX_VALUE);
+    }
+
+    public FetchAttempt<CloseableHttpResponse> fetch(String url, long delay) {
+        return fetch(url, delay, Long.MAX_VALUE);
+    }
+
+    public FetchAttempt<CloseableHttpResponse> fetch(String url, long delay, long timeout) {
+        fetcherLock.lock();
+        try {
+            delayLock.lock();
+            long nextFetchTime = prevFetchTime + delay;
+            long remainingDelay = nextFetchTime - System.currentTimeMillis();
+            if (System.currentTimeMillis() < nextFetchTime) {
+                new Thread(new Delayer(remainingDelay)).start();
+            }
+            while (System.currentTimeMillis() < nextFetchTime) {
+                try {
+                    // Use the timed await just to be sure the deadlock will not arise
+                    lockedForTimeout.await(remainingDelay, TimeUnit.MILLISECONDS);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException("Thread interrupted during delay pause", e);
+                }
+            }
+            try {
+                checkArgument(timeout >= 0, "Timeout can't be negative");
+                checkNotNull(url, "Seed can't be null");
+                Worker worker = null;
+                try {
+                    worker = new Worker(url);
+                    System.out.println("Hit "+url);
+                    return executor.submit(worker).get(timeout, TimeUnit.MILLISECONDS);
+                } catch (Exception exc) {
+                    if (worker != null) {
+                        worker.abort();
+                    }
+                    return new FetchAttempt(url, exc);
+                }
+            } finally {
+                prevFetchTime = System.currentTimeMillis();
+                delayLock.unlock();
+            }
+        } finally {
+            fetcherLock.unlock();
+        }
     }
 
 }

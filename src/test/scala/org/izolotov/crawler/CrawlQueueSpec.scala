@@ -9,7 +9,7 @@ import org.scalatest.{BeforeAndAfter, FlatSpec}
 import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization
 import CrawlQueueSpec._
-import org.izolotov.crawler.CrawlQueue.HostURL
+import org.izolotov.crawler.parser.product.Product
 
 object CrawlQueueSpec {
   val Port = 8082
@@ -71,7 +71,7 @@ class CrawlQueueSpec extends FlatSpec with BeforeAndAfter {
       HostURL(s"http://127.0.0.1:${Port}/product", "127.0.0.1")
     )
 
-    val actual = new CrawlQueue(uncrawled, HttpClients.createDefault(), 100L, 1000L).toList
+    val actual = new CrawlQueue(uncrawled, HttpClients.createDefault(), 100L, 1000L)
     assert(actual.size == 7)
     actual.foreach(
       item =>

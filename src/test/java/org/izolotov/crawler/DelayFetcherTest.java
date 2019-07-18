@@ -1,6 +1,5 @@
 package org.izolotov.crawler;
 
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -18,8 +17,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.greaterThan;
@@ -30,6 +37,7 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class DelayFetcherTest {
 
@@ -83,9 +91,9 @@ public class DelayFetcherTest {
     @Test
     public void successFetchTest() throws Exception {
         String[] urls = {REGULAR_URL, REGULAR_URL, REGULAR_URL, REGULAR_URL, REGULAR_URL};
-        DelayFetcher fetcher = new DelayFetcher(httpClient, 200L);
+        DelayFetcher fetcher = new DelayFetcher(httpClient);
         for (String url : urls) {
-            FetchAttempt<CloseableHttpResponse> actual = fetcher.fetch(url);
+            FetchAttempt<CloseableHttpResponse> actual = fetcher.fetch(url, 200L);
             assertThat(actual.getUrl(), is(url));
             assertThat(EntityUtils.toString(actual.getResponse().get().getEntity()), is(DUMMY_CONTENT));
             assertThat(actual.getException(), is(Optional.empty()));
@@ -108,11 +116,12 @@ public class DelayFetcherTest {
     @Test
     public void firstFetchNoDelayTest() throws Exception {
         final long delay = 3000L;
-        DelayFetcher fetcher = new DelayFetcher(httpClient, delay);
+        DelayFetcher fetcher = new DelayFetcher(httpClient);
         long startTime = System.currentTimeMillis();
-        fetcher.fetch(DELAY_URL);
+        FetchAttempt<CloseableHttpResponse> response = fetcher.fetch(DELAY_URL, delay);
         long elapsedTime = System.currentTimeMillis() - startTime;
         assertThat("There must be no delay on first fetch", elapsedTime, lessThan(delay));
+        response.getResponse().get().close();
     }
 
     @Test
@@ -121,37 +130,80 @@ public class DelayFetcherTest {
         long prevFetchTime = System.currentTimeMillis();
         long currFetchTime;
         long sinceLastFetch;
+        long delay = 0;
 
         String[] urls = {REGULAR_URL, REGULAR_URL, REGULAR_URL};
         for (String url : urls) {
-            FetchAttempt<CloseableHttpResponse> response = fetcher.fetch(url);
+            FetchAttempt<CloseableHttpResponse> response = fetcher.fetch(url, delay);
             currFetchTime = System.currentTimeMillis();
             sinceLastFetch = currFetchTime - prevFetchTime;
             prevFetchTime = currFetchTime;
             response.getResponse().get().close();
 
             assertThat("Time delay since last fetch should be greater or equal to fetch delay set",
-                    sinceLastFetch, greaterThanOrEqualTo(fetcher.getDelay() + response.getResponseTime().get()));
+                    sinceLastFetch, greaterThanOrEqualTo(delay + response.getResponseTime().get()));
 
-            fetcher.setDelay(fetcher.getDelay()+200L);
+            delay+=200L;
 
         }
     }
 
     @Test
-    public void timeoutTest() throws Exception {
-        final long timeout = 500L;
-        DelayFetcher fetcher = new DelayFetcher(httpClient, 100L);
-        assertFalse("The non delayed page fetching must not be terminated by timeout",
-                getFetchException(fetcher, REGULAR_URL, timeout).isPresent());
-        assertThat("The delayed page fetching must be terminated by timeout",
-                getFetchException(fetcher, DELAY_URL, timeout).get(), instanceOf(TimeoutException.class));
-        assertFalse("The timeout occurred must not affect the following fetching",
-                getFetchException(fetcher, REGULAR_URL, timeout).isPresent());
+    public void multipleThreadsDelayTest() throws Exception {
+        final long delay = 50L;
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+        final DelayFetcher fetcher = new DelayFetcher(httpClient);
+        Callable<Boolean> callable = () -> {
+            FetchAttempt<CloseableHttpResponse> response = fetcher.fetch(REGULAR_URL);
+            response.getResponse().get().close();
+            long startTime = System.currentTimeMillis();
+            response = fetcher.fetch(REGULAR_URL, delay);
+            long elapsedTime = System.currentTimeMillis() - startTime;
+            response.getResponse().get().close();
+            return elapsedTime >= delay + response.getResponseTime().get();
+        };
+        List<Future<Boolean>> futures = Stream.of(callable, callable, callable)
+                .map(task -> executor.submit(task)).collect(Collectors.toList());
+        executor.shutdown();
+        executor.awaitTermination(10000L, TimeUnit.MILLISECONDS);
+        for (Future<Boolean> future : futures) {
+            assertTrue("The elapsed time should be >= than the delay and response time on multithreading environment",
+                    future.get());
+        }
+
     }
 
-    private static Optional<Exception> getFetchException(DelayFetcher fetcher , String url, long timeout) throws Exception {
-        FetchAttempt<CloseableHttpResponse> attempt = fetcher.fetch(url, timeout);
+    @Test
+    public void noDelayTest() throws Exception {
+        long delay = 1000L;
+        DelayFetcher fetcher = new DelayFetcher(httpClient);
+        FetchAttempt<CloseableHttpResponse> response = fetcher.fetch(REGULAR_URL);
+        response.getResponse().get().close();
+        Thread.sleep(delay + 100L);
+        long startTime = System.currentTimeMillis();
+        response = fetcher.fetch(REGULAR_URL, delay);
+        long elapsedTime = System.currentTimeMillis() - startTime;
+        response.getResponse().get().close();
+
+        assertTrue("The additional Delay should not arise if interval between fetches is greater than delay ",
+                elapsedTime < delay);
+    }
+
+    @Test
+    public void timeoutTest() throws Exception {
+        final long timeout = 500L;
+        final long delay = 500L;
+        DelayFetcher fetcher = new DelayFetcher(httpClient);
+        assertFalse("The non delayed page fetching must not be terminated by timeout",
+                getFetchException(fetcher, REGULAR_URL, delay, timeout).isPresent());
+        assertThat("The delayed page fetching must be terminated by timeout",
+                getFetchException(fetcher, DELAY_URL, delay, timeout).get(), instanceOf(TimeoutException.class));
+        assertFalse("The timeout occurred must not affect the following fetching",
+                getFetchException(fetcher, REGULAR_URL, delay, timeout).isPresent());
+    }
+
+    private static Optional<Exception> getFetchException(DelayFetcher fetcher, String url, long delay, long timeout) throws Exception {
+        FetchAttempt<CloseableHttpResponse> attempt = fetcher.fetch(url, delay, timeout);
         Optional<Exception> exc = attempt.getException();
         if (attempt.getResponse().isPresent()) {
             attempt.getResponse().get().close();
@@ -178,12 +230,6 @@ public class DelayFetcherTest {
         DelayFetcher fetcher = new DelayFetcher(httpClient);
         FetchAttempt<CloseableHttpResponse> response = fetcher.fetch(MALFORMED_URL);
         assertThat(response.getException().get(), instanceOf(IllegalArgumentException.class));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void negativeDelayTest() throws Exception {
-        DelayFetcher fetcher = new DelayFetcher(httpClient);
-        fetcher.setDelay(-1L);
     }
 
 }

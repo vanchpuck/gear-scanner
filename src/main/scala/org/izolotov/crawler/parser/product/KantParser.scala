@@ -4,12 +4,12 @@ import java.io.InputStream
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.Parser
-import org.izolotov.crawler.{Currency, Product, Util}
+import org.izolotov.crawler.{Currency, Util}
 import org.jsoup.Jsoup
 
 object KantParser extends Parser[Product] {
 
-  val StoreName = "kant.ru"
+  val StoreName = "www.kant.ru"
 
   override def parse(url: String, inStream: InputStream, charset: Charset): Product = {
     import scala.collection.JavaConverters._

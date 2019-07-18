@@ -2,7 +2,6 @@ package org.izolotov.crawler.parser.product
 
 import java.nio.charset.Charset
 
-import org.izolotov.crawler.Product
 import org.scalatest.FlatSpec
 
 // TODO handle the case where there is no item in stock

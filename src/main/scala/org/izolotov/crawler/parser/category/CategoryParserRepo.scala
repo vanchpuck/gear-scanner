@@ -1,23 +1,20 @@
-package org.izolotov.crawler.parser.product
+package org.izolotov.crawler.parser.category
 
 import java.io.InputStream
 import java.nio.charset.Charset
 
-object ProductParserRepo {
+object CategoryParserRepo {
 
-  def parse(host: String, url: String, inStream: InputStream, charset: Charset): Product = {
+  def parse(host: String, url: String, inStream: InputStream, charset: Charset): Category = {
     // TODO add default case
     host match {
-      case "localhost" => JsonParser.parse(url, inStream, charset)
-      case "127.0.0.1" => JsonParser.parse(url, inStream, charset)
       case AlpindustriaParser.StoreName => AlpindustriaParser.parse(url, inStream, charset)
       case TramontanaParser.StoreName => TramontanaParser.parse(url, inStream, charset)
       case KantParser.StoreName => KantParser.parse(url, inStream, charset)
       case EquipParser.StoreName => EquipParser.parse(url, inStream, charset)
-      case PlanetaSportParser.StoreName => PlanetaSportParser.parse(url, inStream, charset)
       case SportMarafonParser.StoreName => SportMarafonParser.parse(url, inStream, charset)
       case BackcountryParser.StoreName => BackcountryParser.parse(url, inStream, charset)
-      case ReiParser.StoreName => ReiParser.parse(url, inStream, charset)
+      case ReiCoopParser.StoreName => ReiCoopParser.parse(url, inStream, charset)
     }
   }
 

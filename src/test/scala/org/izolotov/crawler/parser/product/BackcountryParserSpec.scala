@@ -2,13 +2,12 @@ package org.izolotov.crawler.parser.product
 
 import java.nio.charset.Charset
 
-import org.izolotov.crawler.Product
 import org.izolotov.crawler.parser.product.BackcountryParserSpec._
 import org.scalatest.FlatSpec
 
 object BackcountryParserSpec {
   val ResourceDir = "parser/product/backcountry-parser"
-  val Host = "backcountry.com"
+  val Host = "www.backcountry.com"
   val Parser = BackcountryParser
 }
 

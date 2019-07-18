@@ -4,14 +4,14 @@ import java.io.InputStream
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.Parser
-import org.izolotov.crawler.{Currency, Product}
+import org.izolotov.crawler.Currency
 import org.json4s._
 import org.json4s.jackson.JsonMethods
 import org.jsoup.Jsoup
 
 object ReiGarageParser extends Parser[Product] {
 
-  val StoreName = "rei.com"
+  val StoreName = "www.rei.com"
 
   override def parse(url: String, inStream: InputStream, charset: Charset): Product = {
     implicit val formats = org.json4s.DefaultFormats

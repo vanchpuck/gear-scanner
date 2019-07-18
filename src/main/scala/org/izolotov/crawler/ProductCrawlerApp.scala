@@ -4,9 +4,11 @@ import java.time.format.DateTimeFormatter
 import java.time.{LocalDateTime, ZoneId}
 
 import org.apache.commons.cli.{BasicParser, Options}
+import org.apache.commons.httpclient.HttpStatus
+import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 
-object ProductCrawlerApp {
+object ProductCrawlerApp extends Logging {
 
   val UrlsPathArgKey = "urls-path"
   val UserAgentArgKey = "user-agent"
@@ -18,6 +20,7 @@ object ProductCrawlerApp {
   val ElasticNodesArgKey = "elastic-nodes"
   val ElasticAuthUser = "elastic-user"
   val ElasticAuthPassword = "elastic-password"
+  val ThreadsNumber = "threads-number"
 
   lazy implicit val Spark = SparkSession.builder
     .appName("SiteMap crawler app")
@@ -38,25 +41,31 @@ object ProductCrawlerApp {
     options.addOption("n", ElasticNodesArgKey, true, "List of Elasticsearch nodes to connect to")
     options.addOption("U", ElasticAuthUser, true, "Elasticsearch user name")
     options.addOption("P", ElasticAuthPassword, true, "Elasticsearch password")
+    options.addOption("T", ThreadsNumber, true, "Number of threads in the crawl queue")
     val parser = new BasicParser
     val cmd = parser.parse(options, args)
 
     val currTimestamp: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC"))
     val outPath = s"${cmd.getOptionValue(CrawledOutputPathArgKey)}/${currTimestamp.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
 
+    logInfo(s"Reading URLs")
     val urls = Spark.read
       .option("delimiter", "\t")
       .option("header", true)
       .csv(cmd.getOptionValue(UrlsPathArgKey)).as[UncrawledURL]
+
+    logInfo(s"Starting the crawling")
     val crawled  = new ProductCrawler(
       Option(cmd.getOptionValue(PartitionsNumber)).getOrElse("1").toInt,
       cmd.getOptionValue(UserAgentArgKey),
-      cmd.getOptionValue(FetcherTimeoutArgKey).toLong,
-      cmd.getOptionValue(FetcherDelayArgKey).toLong
+      Option(cmd.getOptionValue(FetcherTimeoutArgKey)).map(_.toLong).getOrElse(Long.MaxValue),
+      cmd.getOptionValue(FetcherDelayArgKey).toLong,
+      Option(cmd.getOptionValue(ThreadsNumber)).map(_.toInt).getOrElse(Runtime.getRuntime.availableProcessors())
     )
       .crawl(urls)
       .persist()
 
+    logInfo(s"Persisting the crawled products")
     crawled.write
       .format(cmd.getOptionValue(CrawledOutputFormatArgKey))
       .save(outPath)
@@ -69,9 +78,10 @@ object ProductCrawlerApp {
       Option(cmd.getOptionValue(ElasticAuthUser)).map(user => ("es.net.http.auth.user" -> user)) ++
       Option(cmd.getOptionValue(ElasticAuthPassword)).map(password => ("es.net.http.auth.pass" -> password))
 
+    logInfo(s"Sending the crawled products to Elasticsearch")
     // TODO consider duplicates
     crawled
-      .filter($"httpCode" === 200 && $"fetchError".isNull && $"document.parseError".isNull)
+      .filter($"httpCode" === HttpStatus.SC_OK && $"fetchError".isNull && $"document.parseError".isNull)
       .select("document.*")
       .saveToEs(
         "gear/products",

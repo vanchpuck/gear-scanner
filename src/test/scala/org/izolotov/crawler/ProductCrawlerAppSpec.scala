@@ -60,7 +60,7 @@ class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAn
     }
   }
 
-  it should "successfully crawl specified web pages" in {
+  ignore should "successfully crawl specified web pages" in {
     import spark.implicits._
     val outputDir = s"${Utils.createTempDir().getPath}/output"
     ProductCrawlerApp.main(Array(

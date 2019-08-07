@@ -37,7 +37,7 @@ class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAn
     resourceHandler.setBaseResource(Resource.newClassPathResource("/product-crawler-app/product-json"))
     contextHandler.setHandler(resourceHandler)
     server.setHandler(contextHandler)
-    server.start
+    server.start 
 
     embeddedElastic = EmbeddedElastic.builder()
       .withElasticVersion("5.6.8")

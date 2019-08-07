@@ -137,13 +137,13 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>9.4.2.v20170220</version>
+            <version>9.4.17.v20190418</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-util</artifactId>
-            <version>9.4.2.v20170220</version>
+            <version>9.4.17.v20190418</version>
             <scope>test</scope>
         </dependency>
         <dependency>

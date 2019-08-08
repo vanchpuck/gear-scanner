@@ -50,8 +50,7 @@ class EquipParserSpec extends FlatSpec {
       "http://localhost/shop?mode=product&product_id=2756400",
       "http://localhost/shop?mode=product&product_id=2725600"
     )
-    category.productURLs.map(url => url.get.toString).foreach(println)
-//    assert(category.productURLs.map(url => url.get.toString) == expected)
+    assert(category.productURLs.map(url => url.get.toString) == expected)
   }
 
 }

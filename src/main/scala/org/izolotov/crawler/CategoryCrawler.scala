@@ -20,7 +20,7 @@ class CategoryCrawler(partitionsNum: Int,
                       socketTimeout: Int = Int.MaxValue) {
 
   def crawl(urls: Dataset[UncrawledURL]): Dataset[Option[String]] = {
-    import urls.sparkSession.implicits._
+    import urls.sparkSession.implicits._ 
 
     val userAgent = this.userAgent
     val fetchTimeout = this.fetchTimeout

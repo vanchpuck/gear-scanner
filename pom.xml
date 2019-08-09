@@ -108,7 +108,11 @@
             <artifactId>scalap</artifactId>
             <version>${scala.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.audienceproject</groupId>
+            <artifactId>spark-dynamodb_${scala.binary.version}</artifactId>
+            <version>0.4.3</version>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>

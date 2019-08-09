@@ -18,14 +18,14 @@ object ReiCoopParser extends Parser[Product] {
       val doc = Jsoup.parse(inStream, charset.name(), url)
       val data = doc.select("script[type=application/ld+json]").first.data()
       val dataMap = JsonMethods.parse(data).extract[Map[String, Any]]
-      val title = dataMap("name").toString
-      val brand = dataMap("brand").asInstanceOf[Map[String, String]]("name")
+      val title = Option(dataMap("name").toString)
+      val brand = Option(dataMap("brand").asInstanceOf[Map[String, String]]("name"))
       val metaData = doc.select("script[data-client-store=page-meta-data]").first.data()
       val metaDataMap = JsonMethods.parse(metaData).extract[Map[String, Any]]
       val category = metaDataMap("productCategoryPath").toString.split('|').drop(1)
-      val price = metaDataMap("displayPrice").toString.toFloat
+      val price = Option(metaDataMap("displayPrice").toString.toFloat)
       val oldPrice = None
-      Product(url, StoreName, brand, title, category, price, oldPrice, Currency.USD.toString)
+      Product(url, StoreName, brand, title, category, price, oldPrice, Some(Currency.USD.toString))
     } catch {
       case e: Exception => new Product(url = url, store = StoreName, parseError = Some(e.toString))
     }

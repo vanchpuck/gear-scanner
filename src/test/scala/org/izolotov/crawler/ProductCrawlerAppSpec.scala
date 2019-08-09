@@ -81,11 +81,11 @@ class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAn
         document = Some(Product(
           url = "http://localhost:8088/tramontana-petzl-lynx.json",
           store = "tramontana.ru",
-          brand = "Petzl",
-          name = "Кошки PETZL Lynx",
+          brand = Some("Petzl"),
+          name = Some("Кошки PETZL Lynx"),
           category = Seq("Альпинизм и скалолазание", "Ледовое снаряжение", "Кошки"),
-          price = 17590,
-          currency = "Руб."
+          price = Some(17590),
+          currency = Some("Руб.")
         )),
         fetchError = None
       ),
@@ -96,11 +96,11 @@ class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAn
         document = Some(Product(
           url = "http://localhost:8088/tramontana-petzl-lynx-duplicate.json",
           store = "tramontana.ru",
-          brand = "Petzl",
-          name = "Кошки PETZL Lynx",
+          brand = Some("Petzl"),
+          name = Some("Кошки PETZL Lynx"),
           category = Seq("Альпинизм и скалолазание", "Ледовое снаряжение", "Кошки"),
-          price = 17590,
-          currency = "Руб."
+          price = Some(17590),
+          currency = Some("Руб.")
         )),
         fetchError = None
       ),
@@ -111,12 +111,12 @@ class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAn
         document = Some(Product(
           url = "http://localhost:8088/tramontana-petzl-lynx-sale.json",
           store = "tramontana.ru",
-          brand = "Petzl",
-          name = "Кошки PETZL Lynx",
+          brand = Some("Petzl"),
+          name = Some("Кошки PETZL Lynx"),
           category = Seq("Альпинизм и скалолазание", "Ледовое снаряжение", "Кошки"),
-          price = 15000,
+          price = Some(15000),
           oldPrice = Some(17590),
-          currency = "Руб."
+          currency = Some("Руб.")
         )),
         fetchError = None
       ),
@@ -127,11 +127,11 @@ class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAn
         document = Some(Product(
           url = "http://localhost:8088/alpindustria-bd-cyborg.json",
           store = "alpindustria.ru",
-          brand = "Black Diamond",
-          name = "Кошки Black Diamond Cyborg Pro Crampon",
+          brand = Some("Black Diamond"),
+          name = Some("Кошки Black Diamond Cyborg Pro Crampon"),
           category = Seq("Альпинистское снаряжение", "Кошки и снегоступы"),
-          price = 19200,
-          currency = "Руб."
+          price = Some(19200),
+          currency = Some("Руб.")
         )),
         fetchError = None
       ),

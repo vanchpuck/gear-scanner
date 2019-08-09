@@ -20,13 +20,13 @@ object ReiGarageParser extends Parser[Product] {
       val data = doc.select("script#page-data").first.data()
       val map = JsonMethods.parse(data).extract[Map[String, Any]]
       val product = map("product").asInstanceOf[Map[String, Any]]
-      val title = product("cleanTitle").toString
-      val brand = product("brand").asInstanceOf[Map[String, String]]("label")
+      val title = Option(product("cleanTitle").toString)
+      val brand = Option(product("brand").asInstanceOf[Map[String, String]]("label"))
       val category = product("categories").asInstanceOf[List[Map[String, Any]]].head("path").asInstanceOf[List[Map[String, String]]]
         .map(cat => cat("label")).drop(1)
-      val price = product("displayPrice").asInstanceOf[Map[String, Double]]("min").toFloat
+      val price = Option(product("displayPrice").asInstanceOf[Map[String, Double]]("min").toFloat)
       val oldPrice = Option(product("displayPrice").asInstanceOf[Map[String, Double]]("compareAt").toFloat)
-      Product(url, StoreName, brand, title, category, price, oldPrice, Currency.USD.toString)
+      Product(url, StoreName, brand, title, category, price, oldPrice, Some(Currency.USD.toString))
     } catch {
       case e: Exception => new Product(url = url, store = StoreName, parseError = Some(e.toString))
     }

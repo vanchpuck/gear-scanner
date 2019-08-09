@@ -15,12 +15,12 @@ class TramontanaParserSpec extends FlatSpec {
     val expected = new Product(
       "http://tramontana.ru/crampon.html",
       "tramontana.ru",
-      "Black Diamond",
-      "Кошки BLACK DIAMOND CYBORG Clip",
+      Some("Black Diamond"),
+      Some("Кошки BLACK DIAMOND CYBORG Clip"),
       Seq("Альпинизм и скалолазание", "Ледовое снаряжение", "Кошки"),
-      17630,
+      Some(17630),
       None,
-      "Руб."
+      Some("Руб.")
     )
     assert(expected == actual)
   }
@@ -31,12 +31,12 @@ class TramontanaParserSpec extends FlatSpec {
     val expected = new Product(
       "http://tramontana.ru/crampon.html",
       "tramontana.ru",
-      "GRIVEL",
-      "Кошки GRIVEL AIR TECH GSB",
+      Some("GRIVEL"),
+      Some("Кошки GRIVEL AIR TECH GSB"),
       Seq("Альпинизм и скалолазание", "Ледовое снаряжение", "Кошки"),
-      5355,
+      Some(5355),
       Some(10710),
-      "Руб."
+      Some("Руб.")
     )
     assert(expected == actual)
   }
@@ -47,12 +47,12 @@ class TramontanaParserSpec extends FlatSpec {
     val expected = new Product(
       "http://tramontana.ru/crampon.html",
       "tramontana.ru",
-      null,
-      null,
-      null,
-      -1,
       None,
-      null,
+      None,
+      Seq.empty,
+      None,
+      None,
+      None,
       Some("java.lang.NullPointerException")
     )
     assert(expected == actual)

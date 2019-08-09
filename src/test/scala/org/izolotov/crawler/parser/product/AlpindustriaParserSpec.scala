@@ -14,12 +14,12 @@ class AlpindustriaParserSpec extends FlatSpec{
     val expected = Product(
       "http://alpindustria.ru/crampon.html",
       "alpindustria.ru",
-      "camp",
-      "Кошки Camp Xlc Nanotech N.B. Step In",
+      Some("camp"),
+      Some("Кошки Camp Xlc Nanotech N.B. Step In"),
       Seq("Альпинистское снаряжение", "Кошки и снегоступы"),
-      7794,
+      Some(7794),
       Some(12990),
-      "Руб."
+      Some("Руб.")
     )
     assert(expected == actual)
   }
@@ -30,12 +30,12 @@ class AlpindustriaParserSpec extends FlatSpec{
     val expected = Product(
       "http://alpindustria.ru/crampon.html",
       "alpindustria.ru",
-      "petzl",
-      "Кошки Lynx",
+      Some("petzl"),
+      Some("Кошки Lynx"),
       Seq("Альпинистское снаряжение", "Кошки и снегоступы"),
-      17590,
+      Some(17590),
       None,
-      "Руб."
+      Some("Руб.")
     )
     assert(expected == actual)
   }
@@ -46,12 +46,12 @@ class AlpindustriaParserSpec extends FlatSpec{
     val expected = new Product(
       "http://alpindustria.ru/crampon.html",
       "alpindustria.ru",
-      null,
-      null,
-      null,
-      -1,
       None,
-      null,
+      None,
+      Seq.empty,
+      None,
+      None,
+      None,
       Some("java.lang.NullPointerException")
     )
     assert(expected == actual)

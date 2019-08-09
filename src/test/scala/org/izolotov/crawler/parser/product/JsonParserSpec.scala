@@ -17,17 +17,17 @@ class JsonParserSpec extends FlatSpec {
     val expected = new Product(
       url = "https://alpindustria.ru/petzl-d-lynx",
       store = "alpindustria.ru",
-      brand = "Petzl",
-      name = "Кошки Petzl D-Lynx",
+      brand = Some("Petzl"),
+      name = Some("Кошки Petzl D-Lynx"),
       category = Array("Альпинистское снаряжение", "Кошки и снегоступы"),
-      price = 13970,
+      price = Some(13970),
       oldPrice = None,
-      currency = "Руб."
+      currency = Some("Руб.")
     )
     assert(expected == actual)
   }
 
-  it should "not parse invalid Product json" in {
+  it should "Use the None value for the absent fields" in {
     val actual = JsonParser.parse(
       "https://tramontana.ru/petzl-lynx",
       getClass.getClassLoader.getResourceAsStream("parser/product/json-parser/tramontana-petzl-lynx-no-currency.json"),
@@ -35,7 +35,8 @@ class JsonParserSpec extends FlatSpec {
     )
     assert(actual.url == "https://tramontana.ru/petzl-lynx")
     assert(actual.store == "tramontana.ru")
-    assert(actual.parseError.isDefined)
+    // The currency field is absent
+    assert(actual.currency.isEmpty)
   }
 
 }

@@ -20,12 +20,12 @@ class ReiParserSpec extends FlatSpec{
     val expected = Product(
       "https://www.rei.com/rei-garage/product.html",
       Host,
-      "Black Diamond",
-      "ATC-Guide Belay Device",
+      Some("Black Diamond"),
+      Some("ATC-Guide Belay Device"),
       Seq("Climbing", "Climbing Hardware", "Belay and Rappel Devices"),
-      23.73F,
+      Some(23.73F),
       Some(29.95F),
-      "USD"
+      Some("USD")
     )
     assert(expected == actual)
   }
@@ -36,12 +36,12 @@ class ReiParserSpec extends FlatSpec{
     val expected = Product(
       "https://www.rei.com/product.html",
       Host,
-      "Petzl",
-      "Lynx Leverlock Modular Crampons",
+      Some("Petzl"),
+      Some("Lynx Leverlock Modular Crampons"),
       Seq("Climbing", "Mountaineering Gear", "Crampons", "Ice Climbing Crampons"),
-      249.95F,
+      Some(249.95F),
       None,
-      "USD"
+      Some("USD")
     )
     assert(expected == actual)
   }

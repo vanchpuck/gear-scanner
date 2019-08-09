@@ -21,12 +21,12 @@ class ReiGarageParserSpec extends FlatSpec {
     val expected = Product(
       "http://product.html",
       Host,
-      "Black Diamond",
-      "ATC-Guide Belay Device",
+      Some("Black Diamond"),
+      Some("ATC-Guide Belay Device"),
       Seq("Climbing", "Climbing Hardware", "Belay and Rappel Devices"),
-      23.73F,
+      Some(23.73F),
       Some(29.95F),
-      "USD"
+      Some("USD")
     )
     assert(expected == actual)
   }
@@ -37,12 +37,12 @@ class ReiGarageParserSpec extends FlatSpec {
     val expected = new Product(
       "http://product.html",
       Host,
-      null,
-      null,
-      null,
-      -1,
       None,
-      null,
+      None,
+      Seq.empty,
+      None,
+      None,
+      None,
       Some("java.util.NoSuchElementException: key not found: cleanTitle")
     )
     assert(expected == actual)

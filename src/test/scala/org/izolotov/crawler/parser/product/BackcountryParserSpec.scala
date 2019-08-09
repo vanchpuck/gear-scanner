@@ -21,12 +21,12 @@ class BackcountryParserSpec extends FlatSpec {
     val expected = Product(
       "http://product.html",
       Host,
-      "Black Diamond",
-      "Serac Strap Crampon",
+      Some("Black Diamond"),
+      Some("Serac Strap Crampon"),
       Seq("Climb", "Ice Climbing", "Ice Climbing Crampons"),
-      179.95F,
+      Some(179.95F),
       Some(184.95F),
-      "USD"
+      Some("USD")
     )
     assert(expected == actual)
   }
@@ -37,12 +37,12 @@ class BackcountryParserSpec extends FlatSpec {
     val expected = Product(
       "http://product.html",
       Host,
-      "Grivel",
-      "G12 Crampon",
+      Some("Grivel"),
+      Some("G12 Crampon"),
       Seq("Climb", "Ice Climbing", "Ice Climbing Crampons"),
-      174.95F,
+      Some(174.95F),
       None,
-      "USD"
+      Some("USD")
     )
     assert(expected == actual)
   }
@@ -53,12 +53,12 @@ class BackcountryParserSpec extends FlatSpec {
     val expected = new Product(
       "http://product.html",
       Host,
-      null,
-      null,
-      null,
-      -1,
       None,
-      null,
+      None,
+      Seq.empty,
+      None,
+      None,
+      None,
       Some("java.lang.NullPointerException")
     )
     assert(expected == actual)

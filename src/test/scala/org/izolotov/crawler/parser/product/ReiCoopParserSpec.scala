@@ -21,12 +21,12 @@ class ReiCoopParserSpec extends FlatSpec {
     val expected = Product(
       "http://product.html",
       Host,
-      "Petzl",
-      "Lynx Leverlock Modular Crampons",
+      Some("Petzl"),
+      Some("Lynx Leverlock Modular Crampons"),
       Seq("Climbing", "Mountaineering Gear", "Crampons", "Ice Climbing Crampons"),
-      249.95F,
+      Some(249.95F),
       None,
-      "USD"
+      Some("USD")
     )
     assert(expected == actual)
   }
@@ -37,12 +37,12 @@ class ReiCoopParserSpec extends FlatSpec {
     val expected = new Product(
       "http://product.html",
       Host,
-      null,
-      null,
-      null,
-      -1,
       None,
-      null,
+      None,
+      Seq.empty,
+      None,
+      None,
+      None,
       Some("java.lang.NullPointerException")
     )
     assert(expected == actual)

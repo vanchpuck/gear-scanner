@@ -2,10 +2,10 @@ package org.izolotov.crawler.parser.product
 
 case class Product(url: String,
                    store: String,
-                   brand: String = null,
-                   name: String = null,
-                   category: Seq[String] = null,
-                   price: Float = -1,
+                   brand: Option[String] = None,
+                   name: Option[String] = None,
+                   category: Seq[String] = Seq.empty,
+                   price: Option[Float] = None,
                    oldPrice: Option[Float] = None,
-                   currency: String = null,
+                   currency: Option[String] = None,
                    parseError: Option[String] = None)

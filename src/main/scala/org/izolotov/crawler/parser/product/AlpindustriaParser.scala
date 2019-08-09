@@ -18,8 +18,8 @@ object AlpindustriaParser extends Parser[Product] {
     import scala.collection.JavaConverters._
     try {
       val doc = Jsoup.parse(inStream, charset.name(), url)
-      val title = doc.select(".product_main-title").first.text
-      val brand = doc.select(".product_pat-label img[title]").first.attr("title")
+      val title = Option(doc.select(".product_main-title").first.text)
+      val brand = Option(doc.select(".product_pat-label img[title]").first.attr("title"))
       val category = doc.select("div.breadcrumbs a").asScala.drop(1).map(e => e.text())
       val salePrice: Option[Float] = doc.select("span.product_pri").text match {
         case "" => None
@@ -29,7 +29,7 @@ object AlpindustriaParser extends Parser[Product] {
         case Some(sale) => (sale, Some(Util.parsePrice(doc.select("span.product_striked").text())))
         case None => (Util.parsePrice(doc.select("span.product_pri_all").text()), None)
       }
-      Product(url, StoreName, brand, title, category, price, oldPrice, Currency.Rub.toString)
+      Product(url, StoreName, brand, title, category, Option(price), oldPrice, Some(Currency.Rub.toString))
     } catch {
       case e: Exception => new Product(url = url, store = StoreName, parseError = Some(e.toString))
     }

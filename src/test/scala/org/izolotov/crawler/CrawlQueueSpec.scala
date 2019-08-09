@@ -23,7 +23,7 @@ object CrawlQueueSpec {
     override def handle(target: String, baseRequest: Request, request: HttpServletRequest, response: HttpServletResponse): Unit = {
       implicit val formats = DefaultFormats
       val dummyProduct =
-        Product(baseRequest.getRequestURL.toString, "store", "brand", "name", Seq("category"), 1F, None, Currency.Rub.toString, None)
+        Product(baseRequest.getRequestURL.toString, "store", Some("brand"), Some("name"), Seq("category"), Some(1F), None, Some(Currency.Rub.toString), None)
       response.setContentType("text/plain;charset=utf-8")
       response.setStatus(HttpServletResponse.SC_OK)
       response.getWriter.print(Serialization.write(dummyProduct))
@@ -75,7 +75,7 @@ class CrawlQueueSpec extends FlatSpec with BeforeAndAfter {
     assert(actual.size == 7)
     actual.foreach(
       item =>
-        assert(item.document.get == Product(item.url, "store", "brand", "name", Seq("category"), 1F, None, Currency.Rub.toString, None))
+        assert(item.document.get == Product(item.url, "store", Some("brand"), Some("name"), Seq("category"), Some(1F), None, Some(Currency.Rub.toString), None))
     )
   }
 

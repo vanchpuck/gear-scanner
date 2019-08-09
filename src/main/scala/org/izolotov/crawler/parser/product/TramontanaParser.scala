@@ -15,15 +15,15 @@ object TramontanaParser extends Parser[Product] {
     import scala.collection.JavaConverters._
     try {
       val doc = Jsoup.parse(inStream, charset.name(), url)
-      val brand = doc.select("#product-all-brands > span").first.text()
-      val title = doc.select("h1.text-uppercase").first.text()
+      val brand = Option(doc.select("#product-all-brands > span").first.text())
+      val title = Option(doc.select("h1.text-uppercase").first.text())
       val category = doc.select(".breadcrumb-item").asScala.map(e => e.text())
       val oldPrice: Option[Float] = doc.select("#product-old-price").text() match {
         case "" => None
         case price => Some(Util.parsePrice(price))
       }
-      val price: Float = Util.parsePrice(doc.select("#product-price").first.text())
-      Product(url, StoreName, brand, title, category, price, oldPrice, Currency.Rub.toString)
+      val price: Option[Float] = Option(Util.parsePrice(doc.select("#product-price").first.text()))
+      Product(url, StoreName, brand, title, category, price, oldPrice, Some(Currency.Rub.toString))
     } catch {
       case exc: Exception => Product(url = url, store = StoreName, parseError = Some(exc.toString))
     }

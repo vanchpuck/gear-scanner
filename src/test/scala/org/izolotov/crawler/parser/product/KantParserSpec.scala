@@ -14,12 +14,12 @@ class KantParserSpec extends FlatSpec {
     val expected = Product(
       "http://kant.ru/crampons.html",
       "www.kant.ru",
-      "BLACK DIAMOND",
-      "Кошки BLACK DIAMOND Cyborg Pro Crampons No Color",
+      Some("BLACK DIAMOND"),
+      Some("Кошки BLACK DIAMOND Cyborg Pro Crampons No Color"),
       Seq("Туризм", "Альпинистское снаряжение", "Кошки альпинистские"),
-      20590,
+      Some(20590),
       None,
-      "Руб."
+      Some("Руб.")
     )
     assert(expected == actual)
   }
@@ -30,12 +30,12 @@ class KantParserSpec extends FlatSpec {
     val expected = Product(
       "http://kant.ru/aircontact.html",
       "www.kant.ru",
-      "Deuter",
-      "Рюкзак Deuter 2018-19 Aircontact 75 + 10 arctic-navy",
+      Some("Deuter"),
+      Some("Рюкзак Deuter 2018-19 Aircontact 75 + 10 arctic-navy"),
       Seq("Туризм"),
-      14472,
+      Some(14472),
       Some(18090),
-      "Руб."
+      Some("Руб.")
     )
     assert(expected == actual)
   }
@@ -46,12 +46,12 @@ class KantParserSpec extends FlatSpec {
     val expected = Product(
       "http://kant.ru/crampons.html",
       "www.kant.ru",
-      null,
-      null,
-      null,
-      -1,
       None,
-      null,
+      None,
+      Seq.empty,
+      None,
+      None,
+      None,
       Some("java.lang.NullPointerException")
     )
     assert(expected == actual)

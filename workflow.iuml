@@ -1,0 +1,10 @@
+@startuml
+cloud Internet
+agent GearScanner
+database DynamoDB
+storage S3
+GearScanner <--> Internet : 1. Crawl the product URLs
+GearScanner --> DynamoDB : 2. Store the crawling results
+GearScanner --> S3 : 3. Archive the crawling results
+GearScanner --> S3 : 4. Archive the crawling errors
+@enduml

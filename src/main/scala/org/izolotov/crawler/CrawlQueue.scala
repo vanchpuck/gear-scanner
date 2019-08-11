@@ -1,5 +1,7 @@
 package org.izolotov.crawler
 
+import java.sql.Timestamp
+import java.time.Clock
 import java.util.concurrent.{Executors, LinkedBlockingQueue, TimeUnit}
 
 import org.apache.commons.httpclient.HttpStatus
@@ -14,7 +16,7 @@ class CrawlQueue(urls: Iterable[HostURL],
                  httpClient: CloseableHttpClient,
                  defaultFetchDelay: Long,
                  fetchTimeout: Long = Long.MaxValue,
-                 threadNum: Int = 1) extends Iterator[ProductCrawlAttempt]{
+                 threadNum: Int = 1)(implicit clock: Clock) extends Iterator[ProductCrawlAttempt]{
 
   import scala.compat.java8.OptionConverters._
   implicit val ec = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(threadNum))
@@ -33,6 +35,7 @@ class CrawlQueue(urls: Iterable[HostURL],
       val fetcher = new DelayFetcher(httpClient)
       val host = group._1
       group._2.map{ unfetched =>
+        val timestamp = Timestamp.from(clock.instant())
         try {
           val attempt = fetcher.fetch(unfetched.url, defaultFetchDelay, fetchTimeout)
           attempt.getResponse.asScala
@@ -46,7 +49,7 @@ class CrawlQueue(urls: Iterable[HostURL],
                   } else {
                     None
                   }
-                  new ProductCrawlAttempt(unfetched.url, Some(responseCode), Option(attempt.getResponseTime.get), None, doc)
+                  new ProductCrawlAttempt(unfetched.url, timestamp, Some(responseCode), Option(attempt.getResponseTime.get), None, doc)
                 } finally {
                   content.close()
                   response.close()
@@ -55,6 +58,7 @@ class CrawlQueue(urls: Iterable[HostURL],
             .getOrElse(
               new ProductCrawlAttempt(
                 unfetched.url,
+                timestamp,
                 None,
                 attempt.getResponseTime.asScala.map(rt => rt.toLong),
                 attempt.getException.asScala.map(exc => exc.toString),
@@ -62,7 +66,7 @@ class CrawlQueue(urls: Iterable[HostURL],
               )
             )
         } catch {
-          case e: Throwable => new ProductCrawlAttempt(unfetched.url, None, None, Some(e.toString), None)
+          case e: Throwable => new ProductCrawlAttempt(unfetched.url, timestamp, None, None, Some(e.toString), None)
         }
       }
     }

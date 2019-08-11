@@ -1,5 +1,6 @@
 package org.izolotov.crawler
 
+import java.time.{Clock, Instant, ZoneId}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import org.apache.http.impl.client.HttpClients
@@ -33,6 +34,8 @@ object CrawlQueueSpec {
 }
 
 class CrawlQueueSpec extends FlatSpec with BeforeAndAfter {
+
+  implicit val clock = Clock.fixed(Instant.now(), ZoneId.systemDefault())
 
   var server: Server = null
 

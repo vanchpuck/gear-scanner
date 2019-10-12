@@ -3,6 +3,8 @@ package org.izolotov.crawler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -53,17 +55,23 @@ public class DelayFetcher implements Fetcher<CloseableHttpResponse> {
 
         private final String url;
         private final HttpGet httpGet;
+        private final HttpContext httpContext;
 
         Worker(String url) {
+            this(url, null);
+        }
+
+        Worker(String url, HttpContext httpContext) {
             this.url = url;
             this.httpGet = new HttpGet(url);
+            this.httpContext = httpContext;
         }
 
         @Override
         public FetchAttempt<CloseableHttpResponse> call() throws Exception {
             long startTime = System.currentTimeMillis();
             try {
-                CloseableHttpResponse response = httpClient.execute(httpGet);
+                CloseableHttpResponse response = httpClient.execute(httpGet, httpContext);
                 long elapsedTime = System.currentTimeMillis() - startTime;
                 return new FetchAttempt<>(url, elapsedTime, response);
             } catch (IOException e) {
@@ -94,6 +102,10 @@ public class DelayFetcher implements Fetcher<CloseableHttpResponse> {
     }
 
     public FetchAttempt<CloseableHttpResponse> fetch(String url, long delay, long timeout) {
+        return fetch(url, delay, timeout, null);
+    }
+
+    public FetchAttempt<CloseableHttpResponse> fetch(String url, long delay, long timeout, HttpContext httpContext) {
         fetcherLock.lock();
         try {
             delayLock.lock();
@@ -115,7 +127,7 @@ public class DelayFetcher implements Fetcher<CloseableHttpResponse> {
                 checkNotNull(url, "Seed can't be null");
                 Worker worker = null;
                 try {
-                    worker = new Worker(url);
+                    worker = new Worker(url, httpContext);
                     System.out.println("Hit "+url);
                     return executor.submit(worker).get(timeout, TimeUnit.MILLISECONDS);
                 } catch (Exception exc) {

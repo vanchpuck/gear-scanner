@@ -8,6 +8,11 @@ import org.apache.commons.cli.{BasicParser, Options}
 import org.apache.commons.httpclient.HttpStatus
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
+import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.constructor.Constructor
+import org.yaml.snakeyaml.introspector.BeanAccess
+
+import scala.collection.JavaConverters._
 
 object ProductCrawlerApp extends Logging {
 
@@ -24,6 +29,8 @@ object ProductCrawlerApp extends Logging {
   val ThreadsNumberArgKey = "threads-number"
   val TableRegionArgKey = "table-region"
   val TableNameArgKey = "table-name"
+
+  val CrawlConfFileName = "crawl-conf.yml"
 
   val OutDirFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
 
@@ -62,6 +69,14 @@ object ProductCrawlerApp extends Logging {
     val crawledOutPath = s"${cmd.getOptionValue(CrawledOutputPathArgKey)}/${currTimestamp.format(OutDirFormatter)}"
     val errorsOutPath = s"${cmd.getOptionValue(ErrorsOutputPathArgKey)}/${currTimestamp.format(OutDirFormatter)}"
 
+    // TODO make it possible to pass conf file as a parameter
+    logInfo(s"Reading the host crawl settins")
+    val yaml = new Yaml(new Constructor(classOf[HostCrawlConfiguration]))
+    yaml.setBeanAccess(BeanAccess.FIELD)
+    val inputStream = this.getClass().getClassLoader().getResourceAsStream(CrawlConfFileName);
+    val crawlConf = yaml.load(inputStream).asInstanceOf[HostCrawlConfiguration]
+    println(crawlConf.hosts.asScala)
+
     logInfo(s"Reading URLs")
     val urls = Spark.read
       .option("delimiter", "\t")
@@ -74,7 +89,8 @@ object ProductCrawlerApp extends Logging {
       cmd.getOptionValue(UserAgentArgKey),
       Option(cmd.getOptionValue(FetcherTimeoutArgKey)).map(_.toLong).getOrElse(Long.MaxValue),
       cmd.getOptionValue(FetcherDelayArgKey).toLong,
-      Option(cmd.getOptionValue(ThreadsNumberArgKey)).map(_.toInt).getOrElse(Runtime.getRuntime.availableProcessors())
+      Option(cmd.getOptionValue(ThreadsNumberArgKey)).map(_.toInt).getOrElse(Runtime.getRuntime.availableProcessors()),
+      hostConf = crawlConf.getHostsAsScala
     )
       .crawl(urls)
       .persist()

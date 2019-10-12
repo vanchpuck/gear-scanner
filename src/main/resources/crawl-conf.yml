@@ -1,0 +1,4 @@
+hosts:
+  www.trekkinn.com:
+    cookies:
+      id_pais: 164

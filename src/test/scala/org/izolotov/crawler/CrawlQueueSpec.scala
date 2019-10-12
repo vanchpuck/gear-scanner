@@ -20,11 +20,16 @@ object CrawlQueueSpec {
   val Host1PetzlVasak = s"http://localhost:${Port}/petzl-vasak"
   val Host2GrivelRambo = s"http://127.0.0.1:${Port}/grivel-rambo"
 
+  val TestCookie = "test_cookie"
+  val ProductName = "name"
+  val CookieProductName = "cookie_name"
+
   object RequestHandler extends AbstractHandler {
     override def handle(target: String, baseRequest: Request, request: HttpServletRequest, response: HttpServletResponse): Unit = {
       implicit val formats = DefaultFormats
+      val name = if (request.getHeader("Cookie") == s"$TestCookie=true") CookieProductName else ProductName
       val dummyProduct =
-        Product(baseRequest.getRequestURL.toString, "store", Some("brand"), Some("name"), Seq("category"), Some(1F), None, Some(Currency.Rub.toString), None)
+        Product(baseRequest.getRequestURL.toString, "store", Some("brand"), Some(name), Seq("category"), Some(1F), None, Some(Currency.Rub.toString), None)
       response.setContentType("text/plain;charset=utf-8")
       response.setStatus(HttpServletResponse.SC_OK)
       response.getWriter.print(Serialization.write(dummyProduct))
@@ -78,7 +83,19 @@ class CrawlQueueSpec extends FlatSpec with BeforeAndAfter {
     assert(actual.size == 7)
     actual.foreach(
       item =>
-        assert(item.document.get == Product(item.url, "store", Some("brand"), Some("name"), Seq("category"), Some(1F), None, Some(Currency.Rub.toString), None))
+        assert(item.document.get == Product(item.url, "store", Some("brand"), Some(ProductName), Seq("category"), Some(1F), None, Some(Currency.Rub.toString), None))
+    )
+  }
+
+  it should "send cookie with request if the config specified" in {
+    val uncrawled = Seq(
+      HostURL(s"http://localhost:${Port}/product", "localhost")
+    )
+    val hostConf: Map[String, CrawlConfiguration] = Map("localhost" -> new CrawlConfiguration(Map(TestCookie -> "true")))
+    val actual = new CrawlQueue(uncrawled, HttpClients.createDefault(), 100L, 10000L, hostConf = hostConf)
+    actual.foreach(
+      item =>
+        assert(item.document.get == Product(item.url, "store", Some("brand"), Some(CookieProductName), Seq("category"), Some(1F), None, Some(Currency.Rub.toString), None))
     )
   }
 

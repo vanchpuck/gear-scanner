@@ -3,16 +3,16 @@ package org.izolotov.crawler.parser.product
 import java.nio.charset.Charset
 
 import org.scalatest.FlatSpec
-import EquipParserSpec._
+import TrekkinnParserSpec._
 
 
-object EquipParserSpec {
-  val ResourceDir = "parser/product/equip-parser"
-  val Host = "equip.ru"
-  val Parser = EquipParser
+object TrekkinnParserSpec {
+  val ResourceDir = "parser/product/trekkinn-parser"
+  val Host = "www.trekkinn.com"
+  val Parser = TrekkinnParser
 }
 
-class EquipParserSpec extends FlatSpec{
+class TrekkinnParserSpec extends FlatSpec {
 
   it should "parse product page with no sale price" in {
     val inStream = this.getClass.getClassLoader.getResourceAsStream(s"${ResourceDir}/full-price.html")
@@ -21,9 +21,9 @@ class EquipParserSpec extends FlatSpec{
       "http://product.html",
       Host,
       Some("Petzl"),
-      Some("Каска STRATO VENT HI-VIZ"),
-      Seq(),
-      Some(9350F),
+      Some("Petzl Lynx Leverlock Universel"),
+      Seq("Товары для ходьбы", "Кошки"),
+      Some(12789.95F),
       None,
       Some("Руб."),
       None
@@ -37,11 +37,11 @@ class EquipParserSpec extends FlatSpec{
     val expected = Product(
       "http://product.html",
       Host,
-      Some("Petzl"),
-      Some("Фонарь REACTIK"),
-      Seq(),
-      Some(4990F),
-      Some(5940F),
+      Some("Odlo"),
+      Some("Odlo Alliance BL Top L/S"),
+      Seq("Мужская одежда", "Футболки"),
+      Some(3599F),
+      Some(4744.27F),
       Some("Руб."),
       None
     )

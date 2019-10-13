@@ -6,6 +6,7 @@ import java.time.Clock
 import org.apache.http.client.config.{CookieSpecs, RequestConfig}
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
+import org.apache.http.protocol.HttpContext
 import org.apache.spark.sql.{Dataset, SparkSession}
 
 class ProductCrawler(partitionsNum: Int,
@@ -15,7 +16,8 @@ class ProductCrawler(partitionsNum: Int,
                      threadNum: Int = 1,
                      connectionTimeout: Int = Int.MaxValue,
                      connectionRequestTimeout: Int = Int.MaxValue,
-                     socketTimeout: Int = Int.MaxValue)(implicit spark: SparkSession, clock: Clock) {
+                     socketTimeout: Int = Int.MaxValue,
+                     hostConf: Map[String, CrawlConfiguration] = Map.empty)(implicit spark: SparkSession, clock: Clock) {
 
   def crawl(urls: Dataset[UncrawledURL]): Dataset[ProductCrawlAttempt] = {
     // TODO handle errors during URL object construction

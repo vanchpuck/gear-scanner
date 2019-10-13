@@ -5,8 +5,12 @@ import java.time.Clock
 import java.util.concurrent.{Executors, LinkedBlockingQueue, TimeUnit}
 
 import org.apache.commons.httpclient.HttpStatus
+import org.apache.http.client.protocol.HttpClientContext
+import org.apache.http.cookie.ClientCookie
 import org.apache.http.entity.ContentType
-import org.apache.http.impl.client.CloseableHttpClient
+import org.apache.http.impl.client.{BasicCookieStore, CloseableHttpClient}
+import org.apache.http.impl.cookie.BasicClientCookie
+import org.apache.http.protocol.{BasicHttpContext, HttpContext}
 import org.izolotov.crawler.parser.product.{Product, ProductParserRepo}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -16,7 +20,8 @@ class CrawlQueue(urls: Iterable[HostURL],
                  httpClient: CloseableHttpClient,
                  defaultFetchDelay: Long,
                  fetchTimeout: Long = Long.MaxValue,
-                 threadNum: Int = 1)(implicit clock: Clock) extends Iterator[ProductCrawlAttempt]{
+                 threadNum: Int = 1,
+                 hostConf: Map[String, CrawlConfiguration] = Map.empty)(implicit clock: Clock) extends Iterator[ProductCrawlAttempt]{
 
   import scala.compat.java8.OptionConverters._
   implicit val ec = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(threadNum))
@@ -31,13 +36,12 @@ class CrawlQueue(urls: Iterable[HostURL],
     .iterator
     .foreach{ group =>
     val future: Future[Iterator[ProductCrawlAttempt]] = Future{
-      // TODO close fetchers
       val fetcher = new DelayFetcher(httpClient)
       val host = group._1
       group._2.map{ unfetched =>
         val timestamp = Timestamp.from(clock.instant())
         try {
-          val attempt = fetcher.fetch(unfetched.url, defaultFetchDelay, fetchTimeout)
+          val attempt = fetcher.fetch(unfetched.url, defaultFetchDelay, fetchTimeout, createHttpContext(host, hostConf.get(host)))
           attempt.getResponse.asScala
             .map {
               response =>
@@ -92,5 +96,22 @@ class CrawlQueue(urls: Iterable[HostURL],
       // Just in case. To avoid blocking.
       throw new RuntimeException(s"Looks like CrawlQueue being stuck. remain = ${remain}")
     }
+  }
+
+  private def createHttpContext(host: String, crawlConf: Option[CrawlConfiguration]): HttpContext = {
+    val cookieStore = new BasicCookieStore();
+    crawlConf.foreach{
+      conf => conf.getCookiesAsScala().foreach{
+        cookieConf: (String, String) =>
+          val cookie = new BasicClientCookie(cookieConf._1, cookieConf._2);
+          cookie.setDomain(host)
+          cookie.setAttribute(ClientCookie.DOMAIN_ATTR, "true")
+          cookie.setPath("/")
+          cookieStore.addCookie(cookie)
+      }
+    }
+    val httpContext = new BasicHttpContext()
+    httpContext.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore)
+    httpContext
   }
 }

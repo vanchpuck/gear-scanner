@@ -75,7 +75,6 @@ object ProductCrawlerApp extends Logging {
     yaml.setBeanAccess(BeanAccess.FIELD)
     val inputStream = this.getClass().getClassLoader().getResourceAsStream(CrawlConfFileName);
     val crawlConf = yaml.load(inputStream).asInstanceOf[HostCrawlConfiguration]
-    println(crawlConf.hosts.asScala)
 
     logInfo(s"Reading URLs")
     val urls = Spark.read
@@ -95,11 +94,11 @@ object ProductCrawlerApp extends Logging {
       .crawl(urls)
       .persist()
 
-    logInfo(s"Persisting the crawling results into S3 bucket")
+    logInfo(s"Persisting the crawling results into $crawledOutPath")
     crawled.write
       .parquet(crawledOutPath)
 
-    logInfo(s"Persisting the crawling errors info S3 bucket")
+    logInfo(s"Persisting the crawling errors info $errorsOutPath")
     crawled
       .filter(rec =>
         rec.httpCode != Some(HttpStatus.SC_OK)

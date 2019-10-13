@@ -9,7 +9,7 @@ import org.jsoup.Jsoup
 
 object PlanetaSportParser extends Parser[Product]{
 
-  val StoreName = "planeta-sport.ru"
+  val StoreName = "www.planeta-sport.ru"
 
   override def parse(url: String, inStream: InputStream, charset: Charset): Product = {
     import scala.collection.JavaConverters._

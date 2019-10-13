@@ -14,7 +14,7 @@ class PlanetaSportParserSpec extends FlatSpec {
     val actual = PlanetaSportParser.parse("http://planeta-sport.ru/denali.html", inStream, Charset.forName("UTF-8"))
     val expected = Product(
       "http://planeta-sport.ru/denali.html",
-      "planeta-sport.ru",
+      "www.planeta-sport.ru",
       Some("Zamberlan"),
       Some("Ботинки 6000 NEW DENALI RR"),
       Seq("Обувь", "Мужская", "Ботинки", "Альпинистские"),
@@ -30,7 +30,7 @@ class PlanetaSportParserSpec extends FlatSpec {
     val actual = PlanetaSportParser.parse("http://planeta-sport.ru/grivel-rambo.html", inStream, Charset.forName("UTF-8"))
     val expected = Product(
       "http://planeta-sport.ru/grivel-rambo.html",
-      "planeta-sport.ru",
+      "www.planeta-sport.ru",
       Some("Grivel"),
       Some("Кошки Grivel RAMBO 4 COM"),
       Seq("Снаряжение", "Альпинизм", "Ледово-снежное снаряжение", "Альпинистские кошки"),
@@ -46,7 +46,7 @@ class PlanetaSportParserSpec extends FlatSpec {
     val actual = PlanetaSportParser.parse("http://planeta-sport.ru/grivel-rambo.html", inStream, Charset.forName("UTF-8"))
     val expected = new Product(
       "http://planeta-sport.ru/grivel-rambo.html",
-      "planeta-sport.ru",
+      "www.planeta-sport.ru",
       None,
       None,
       Seq.empty,

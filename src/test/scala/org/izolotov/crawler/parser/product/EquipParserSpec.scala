@@ -8,7 +8,7 @@ import EquipParserSpec._
 
 object EquipParserSpec {
   val ResourceDir = "parser/product/equip-parser"
-  val Host = "equip.ru"
+  val Host = EquipParser.StoreName
   val Parser = EquipParser
 }
 

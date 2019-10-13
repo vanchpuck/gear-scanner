@@ -9,7 +9,7 @@ import org.jsoup.Jsoup
 
 object EquipParser extends Parser[Product] {
 
-  val StoreName = "equip.ru"
+  val StoreName = "www.equip.ru"
 
   //TODO C.A.M.P should be cleared of dots
   override def parse(url: String, inStream: InputStream, charset: Charset): Product = {

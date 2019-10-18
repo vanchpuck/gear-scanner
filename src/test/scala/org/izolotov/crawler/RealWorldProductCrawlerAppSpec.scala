@@ -22,7 +22,7 @@ class RealWorldProductCrawlerAppSpec extends FlatSpec with DataFrameSuiteBase {
       "--table-region", "us-east-2"
     ))
     val outputPath: String = Files.list(Paths.get(outputDir)).iterator().next().toString
-    val result = spark.read.parquet(outputPath).select($"url", $"fetchError", $"document.parseError")
+    val result = spark.read.parquet(outputPath).select($"url", $"fetchError", $"document.parseError", $"document.price")
     result.show()
   }
 

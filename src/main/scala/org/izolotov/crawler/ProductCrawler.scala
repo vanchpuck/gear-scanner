@@ -31,6 +31,7 @@ class ProductCrawler(partitionsNum: Int,
     val requestTimeout = connectionRequestTimeout
     val sockTimeout = socketTimeout
     val clockInstance = clock
+    val hostCrawlConf = hostConf
     urls.map(url => HostURL(url.url, new URL(url.url).getHost))
       .repartition(partitions, $"host")
       .mapPartitions{
@@ -46,7 +47,7 @@ class ProductCrawler(partitionsNum: Int,
               .setSocketTimeout(sockTimeout)
               .build())
             .build()
-          new CrawlQueue(iterator.toList, httpClient, delay, timeout, threads)(clockInstance)
+          new CrawlQueue(iterator.toList, httpClient, delay, timeout, threads, hostConf = hostCrawlConf)(clockInstance)
       }
   }
 

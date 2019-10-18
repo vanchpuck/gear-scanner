@@ -10,7 +10,7 @@ package object crawler {
 
   case class HostURL(url: String, host: String)
 
-  class CrawlConfiguration {
+  class CrawlConfiguration extends Serializable {
     @BeanProperty var cookies: java.util.Map[String, String] = new java.util.HashMap[String, String]
 
     def this(cookiesMap: Map[String, String]){

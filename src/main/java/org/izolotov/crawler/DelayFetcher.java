@@ -5,6 +5,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
+import org.apache.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -20,6 +21,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class DelayFetcher implements Fetcher<CloseableHttpResponse> {
+
+    private static final org.apache.log4j.Logger LOG = Logger.getLogger(DelayFetcher.class);
 
     private final Lock delayLock = new ReentrantLock();
     private final Lock fetcherLock = new ReentrantLock();
@@ -71,6 +74,7 @@ public class DelayFetcher implements Fetcher<CloseableHttpResponse> {
         public FetchAttempt<CloseableHttpResponse> call() throws Exception {
             long startTime = System.currentTimeMillis();
             try {
+                LOG.info(String.format("GET %s %s", url, httpContext.toString()));
                 CloseableHttpResponse response = httpClient.execute(httpGet, httpContext);
                 long elapsedTime = System.currentTimeMillis() - startTime;
                 return new FetchAttempt<>(url, elapsedTime, response);
@@ -128,7 +132,6 @@ public class DelayFetcher implements Fetcher<CloseableHttpResponse> {
                 Worker worker = null;
                 try {
                     worker = new Worker(url, httpContext);
-                    System.out.println("Hit "+url);
                     return executor.submit(worker).get(timeout, TimeUnit.MILLISECONDS);
                 } catch (Exception exc) {
                     if (worker != null) {

@@ -8,11 +8,11 @@ import org.apache.commons.cli.{BasicParser, Options}
 import org.apache.commons.httpclient.HttpStatus
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions._
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 import org.yaml.snakeyaml.introspector.BeanAccess
 
-import scala.collection.JavaConverters._
 
 object ProductCrawlerApp extends Logging {
 
@@ -32,6 +32,7 @@ object ProductCrawlerApp extends Logging {
 
   val CrawlConfFileName = "crawl-conf.yml"
 
+  val DynamoDBTimestampFormat = "yyyy-MM-dd HH:mm:ss"
   val OutDirFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
 
   private implicit val UtcClock = Clock.systemUTC()
@@ -114,7 +115,9 @@ object ProductCrawlerApp extends Logging {
     Option(cmd.getOptionValue(TableNameArgKey)).foreach {
       tableName =>
         logInfo(s"Persisting the crawled products into DynamoDB table...")
-        crawled.write
+        crawled.toDF()
+          .withColumn("timestamp", date_format($"timestamp", DynamoDBTimestampFormat))
+          .write
           .option("region", cmd.getOptionValue(TableRegionArgKey))
           .dynamodb(tableName)
     }

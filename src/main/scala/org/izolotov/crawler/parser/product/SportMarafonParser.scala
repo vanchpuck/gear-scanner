@@ -1,6 +1,7 @@
 package org.izolotov.crawler.parser.product
 
 import java.io.InputStream
+import java.net.URL
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.Parser
@@ -21,7 +22,9 @@ object SportMarafonParser extends Parser[Product] {
       val price = Util.parsePrice(doc.select("div.catalog-detail__price").select(":not(div.catalog-detail__price_old)").first().text())
       val oldPrice = Option(doc.select("div.catalog-detail__price").select("div.catalog-detail__price_old").first())
         .map(p => Util.parsePrice(p.text()))
-      Product(url, StoreName, brand, title, category, Option(price), oldPrice, Some(Currency.Rub.toString))
+      val baseUrl = new URL(new URL(url), "/")
+      val imageUrl = new URL(baseUrl, doc.select("ul.catalog-detail__slideshow li a").first().attr("href")).toString
+      Product(url, StoreName, brand, title, category, Option(price), oldPrice, Some(Currency.Rub.toString), Some(imageUrl))
     } catch {
       case e: Exception => new Product(url = url, store = StoreName, parseError = Some(e.toString))
     }

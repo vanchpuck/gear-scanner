@@ -1,6 +1,7 @@
 package org.izolotov.crawler.parser.product
 
 import java.io.InputStream
+import java.net.URL
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.Parser
@@ -24,7 +25,9 @@ object EquipParser extends Parser[Product] {
         case somePrice => Some(Util.parsePrice(somePrice.ownText()))
       }
       val price = Option(Util.parsePrice(doc.select("div.product_price > span").first().ownText()))
-      Product(url, StoreName, brand, title, category, price, oldPrice, Some(Currency.Rub.toString))
+      val baseUrl = new URL(new URL(url), "/")
+      val imageUrl = new URL(baseUrl, doc.select("img#img_cont").first().attr("src")).toString
+      Product(url, StoreName, brand, title, category, price, oldPrice, Some(Currency.Rub.toString), Some(imageUrl))
     } catch {
       case e: Exception => new Product(url = url, store = StoreName, parseError = Some(e.toString))
     }

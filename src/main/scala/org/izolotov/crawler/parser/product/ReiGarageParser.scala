@@ -1,6 +1,7 @@
 package org.izolotov.crawler.parser.product
 
 import java.io.InputStream
+import java.net.URL
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.Parser
@@ -26,7 +27,9 @@ object ReiGarageParser extends Parser[Product] {
         .map(cat => cat("label")).drop(1)
       val price = Option(product("displayPrice").asInstanceOf[Map[String, Double]]("min").toFloat)
       val oldPrice = Option(product("displayPrice").asInstanceOf[Map[String, Double]]("compareAt").toFloat)
-      Product(url, StoreName, brand, title, category, price, oldPrice, Some(Currency.USD.toString))
+      val baseUrl = new URL(new URL(url), "/")
+      val imageUrl = new URL(baseUrl, product("media").asInstanceOf[List[Map[String, String]]](0)("link")).toString
+      Product(url, StoreName, brand, title, category, price, oldPrice, Some(Currency.USD.toString), Some(imageUrl))
     } catch {
       case e: Exception => new Product(url = url, store = StoreName, parseError = Some(e.toString))
     }

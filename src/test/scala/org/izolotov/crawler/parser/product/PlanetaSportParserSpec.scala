@@ -20,7 +20,8 @@ class PlanetaSportParserSpec extends FlatSpec {
       Seq("Обувь", "Мужская", "Ботинки", "Альпинистские"),
       Some(38108),
       Some(54440),
-      Some("Руб.")
+      Some("Руб."),
+      Some("https://opt-779097.ssl.1c-bitrix-cdn.ru/upload/iblock/47b/47be5d5f55be07340034518077f01d0b.jpg")
     )
     assert(expected == actual)
   }
@@ -36,7 +37,8 @@ class PlanetaSportParserSpec extends FlatSpec {
       Seq("Снаряжение", "Альпинизм", "Ледово-снежное снаряжение", "Альпинистские кошки"),
       Some(15900),
       None,
-      Some("Руб.")
+      Some("Руб."),
+      Some("https://opt-779097.ssl.1c-bitrix-cdn.ru/upload/iblock/515/515163fd3c28fba256b7bccab53576d1.jpg")
     )
     assert(expected == actual)
   }
@@ -50,6 +52,7 @@ class PlanetaSportParserSpec extends FlatSpec {
       None,
       None,
       Seq.empty,
+      None,
       None,
       None,
       None,

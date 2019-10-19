@@ -1,6 +1,7 @@
 package org.izolotov.crawler.parser.product
 
 import java.io.InputStream
+import java.net.URL
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.Parser
@@ -29,7 +30,9 @@ object TrekkinnParser extends Parser[Product] {
         case "" => None
         case _ => Some(Util.parsePrice(doc.select("span#precio_anterior").text))
       }
-      Product(url, StoreName, brand, title, category, Option(price), oldPrice, Some(Currency.Rub.toString))
+      val baseUrl = new URL(new URL(url), "/")
+      val imageUrl = new URL(baseUrl, doc.select("p#imagen_princial img").first().attr("src")).toString
+      Product(url, StoreName, brand, title, category, Option(price), oldPrice, Some(Currency.Rub.toString), Some(imageUrl))
     } catch {
       case e: Exception => new Product(url = url, store = StoreName, parseError = Some(e.toString))
     }

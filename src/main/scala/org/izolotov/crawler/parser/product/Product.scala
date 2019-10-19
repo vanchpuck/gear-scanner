@@ -8,4 +8,5 @@ case class Product(url: String,
                    price: Option[Float] = None,
                    oldPrice: Option[Float] = None,
                    currency: Option[String] = None,
+                   imageUrl: Option[String] = None,
                    parseError: Option[String] = None)

@@ -1,6 +1,7 @@
 package org.izolotov.crawler.parser.product
 
 import java.io.InputStream
+import java.net.URL
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.Parser
@@ -23,7 +24,9 @@ object TramontanaParser extends Parser[Product] {
         case price => Some(Util.parsePrice(price))
       }
       val price: Option[Float] = Option(Util.parsePrice(doc.select("#product-price").first.text()))
-      Product(url, StoreName, brand, title, category, price, oldPrice, Some(Currency.Rub.toString))
+      val baseUrl = new URL(new URL(url), "/")
+      val imageUrl = new URL(baseUrl, doc.select("div.product-images-list img").first().attr("src")).toString
+      Product(url, StoreName, brand, title, category, price, oldPrice, Some(Currency.Rub.toString), Some(imageUrl))
     } catch {
       case exc: Exception => Product(url = url, store = StoreName, parseError = Some(exc.toString))
     }

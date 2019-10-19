@@ -19,7 +19,8 @@ class AlpindustriaParserSpec extends FlatSpec{
       Seq("Альпинистское снаряжение", "Кошки и снегоступы"),
       Some(7794),
       Some(12990),
-      Some("Руб.")
+      Some("Руб."),
+      Some("http://alpindustria.ru/i/product/l/67867_2.jpg")
     )
     assert(expected == actual)
   }
@@ -35,7 +36,8 @@ class AlpindustriaParserSpec extends FlatSpec{
       Seq("Альпинистское снаряжение", "Кошки и снегоступы"),
       Some(17590),
       None,
-      Some("Руб.")
+      Some("Руб."),
+      Some("http://alpindustria.ru/i/product/l/-18852_1.jpg")
     )
     assert(expected == actual)
   }
@@ -49,6 +51,7 @@ class AlpindustriaParserSpec extends FlatSpec{
       None,
       None,
       Seq.empty,
+      None,
       None,
       None,
       None,

@@ -25,7 +25,8 @@ class ReiParserSpec extends FlatSpec{
       Seq("Climbing", "Climbing Hardware", "Belay and Rappel Devices"),
       Some(23.73F),
       Some(29.95F),
-      Some("USD")
+      Some("USD"),
+      Some("https://www.rei.com/media/b15ed92c-0336-4b5a-b90a-b7cb7493a89c")
     )
     assert(expected == actual)
   }
@@ -41,7 +42,8 @@ class ReiParserSpec extends FlatSpec{
       Seq("Climbing", "Mountaineering Gear", "Crampons", "Ice Climbing Crampons"),
       Some(249.95F),
       None,
-      Some("USD")
+      Some("USD"),
+      Some("https://www.rei.com/media/8056f03a-c0e5-4f1c-99dd-1a98c1ead983")
     )
     assert(expected == actual)
   }

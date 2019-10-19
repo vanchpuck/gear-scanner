@@ -1,6 +1,7 @@
 package org.izolotov.crawler.parser.product
 
 import java.io.InputStream
+import java.net.URL
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.Parser
@@ -21,6 +22,11 @@ object AlpindustriaParser extends Parser[Product] {
       val title = Option(doc.select(".product_main-title").first.text)
       val brand = Option(doc.select(".product_pat-label img[title]").first.attr("title"))
       val category = doc.select("div.breadcrumbs a").asScala.drop(1).map(e => e.text())
+      val baseUrl = new URL(new URL(url), "/")
+      val imageUrl = new URL(
+        new URL(new URL(url), "/"),
+        doc.select("div.product_gallery-item img").first().attr("src")
+      ).toString
       val salePrice: Option[Float] = doc.select("span.product_pri").text match {
         case "" => None
         case somePrice => Some(Util.parsePrice(somePrice))
@@ -29,7 +35,7 @@ object AlpindustriaParser extends Parser[Product] {
         case Some(sale) => (sale, Some(Util.parsePrice(doc.select("span.product_striked").text())))
         case None => (Util.parsePrice(doc.select("span.product_pri_all").text()), None)
       }
-      Product(url, StoreName, brand, title, category, Option(price), oldPrice, Some(Currency.Rub.toString))
+      Product(url, StoreName, brand, title, category, Option(price), oldPrice, Some(Currency.Rub.toString), Some(imageUrl))
     } catch {
       case e: Exception => new Product(url = url, store = StoreName, parseError = Some(e.toString))
     }

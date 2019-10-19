@@ -19,7 +19,8 @@ class KantParserSpec extends FlatSpec {
       Seq("Туризм", "Альпинистское снаряжение", "Кошки альпинистские"),
       Some(20590),
       None,
-      Some("Руб.")
+      Some("Руб."),
+      Some("http://kant.ru/upload/resize_cache/iblock/87a/555_455_1/87a32c28e99b1a9a375845ed95bf6946.jpg")
     )
     assert(expected == actual)
   }
@@ -35,7 +36,8 @@ class KantParserSpec extends FlatSpec {
       Seq("Туризм"),
       Some(14472),
       Some(18090),
-      Some("Руб.")
+      Some("Руб."),
+      Some("http://kant.ru/upload/resize_cache/iblock/f0b/555_455_1/f0b5d2b779715efb02af00e40f73eda7.jpg")
     )
     assert(expected == actual)
   }
@@ -49,6 +51,7 @@ class KantParserSpec extends FlatSpec {
       None,
       None,
       Seq.empty,
+      None,
       None,
       None,
       None,

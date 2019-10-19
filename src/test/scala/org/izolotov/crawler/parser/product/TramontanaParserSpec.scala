@@ -20,7 +20,8 @@ class TramontanaParserSpec extends FlatSpec {
       Seq("Альпинизм и скалолазание", "Ледовое снаряжение", "Кошки"),
       Some(17630),
       None,
-      Some("Руб.")
+      Some("Руб."),
+      Some("http://tramontana.ru/upload/iblock/fd2/400033_Cyborg_Clip_web_F15.jpg")
     )
     assert(expected == actual)
   }
@@ -36,7 +37,8 @@ class TramontanaParserSpec extends FlatSpec {
       Seq("Альпинизм и скалолазание", "Ледовое снаряжение", "Кошки"),
       Some(5355),
       Some(10710),
-      Some("Руб.")
+      Some("Руб."),
+      Some("http://tramontana.ru/upload/iblock/977/3b271250_ab0e_11e2_9a56_005056c00008_f5ebd8d5_bcb8_11e6_945f_001e6762c0a3.jpeg")
     )
     assert(expected == actual)
   }
@@ -50,6 +52,7 @@ class TramontanaParserSpec extends FlatSpec {
       None,
       None,
       Seq.empty,
+      None,
       None,
       None,
       None,

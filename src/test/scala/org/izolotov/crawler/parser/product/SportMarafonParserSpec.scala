@@ -17,7 +17,8 @@ class SportMarafonParserSpec extends FlatSpec {
       Seq("Альпинистское снаряжение", "Ледово-снежное снаряжение", "Альпинистские кошки"),
       Some(9093),
       Some(12990),
-      Some("Руб.")
+      Some("Руб."),
+      Some("http://sport-marafon.ru/upload/files/iblock/elements/9838da5b-acd1-11e2-9e97-e83935202582/92043dfb-393e-11e6-80e5-002590d0f723/92043dfb393e11e680e5002590d0f723_66048f5d42a011e680e7002590d0f723.jpg")
     )
     assert(expected == actual)
   }
@@ -33,7 +34,8 @@ class SportMarafonParserSpec extends FlatSpec {
       Seq("Альпинистское снаряжение", "Ледово-снежное снаряжение", "Альпинистские кошки"),
       Some(17860),
       None,
-      Some("Руб.")
+      Some("Руб."),
+      Some("http://sport-marafon.ru/upload/files/iblock/elements/9838da5b-acd1-11e2-9e97-e83935202582/92043dfb-393e-11e6-80e5-002590d0f723/92043dfb393e11e680e5002590d0f723_66048f5d42a011e680e7002590d0f723.jpg")
     )
     assert(expected == actual)
   }
@@ -47,6 +49,7 @@ class SportMarafonParserSpec extends FlatSpec {
       None,
       None,
       Seq.empty,
+      None,
       None,
       None,
       None,

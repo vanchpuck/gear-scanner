@@ -1,6 +1,7 @@
 package org.izolotov.crawler.parser.product
 
 import java.io.InputStream
+import java.net.URL
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.Parser
@@ -24,7 +25,9 @@ object BackcountryParser extends Parser[Product] {
       val price = Option(Util.parsePrice(doc.select("span.product-pricing__retail, span.product-pricing__sale").first().text()))
       val oldPrice = Option(doc.select("span.product-pricing__inactive").first())
         .map(p => Util.parsePrice(p.text()))
-      Product(url, StoreName, brand, title, category, price, oldPrice, Some(Currency.USD.toString))
+      val baseUrl = new URL(new URL(url), "/")
+      val imageUrl = new URL(baseUrl, doc.select("div.ui-flexzoom").first().attr("data-zoom")).toString
+      Product(url, StoreName, brand, title, category, price, oldPrice, Some(Currency.USD.toString), Some(imageUrl))
     } catch {
       case e: Exception => new Product(url = url, store = StoreName, parseError = Some(e.toString))
     }

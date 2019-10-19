@@ -1,6 +1,7 @@
 package org.izolotov.crawler.parser.product
 
 import java.io.InputStream
+import java.net.URL
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.Parser
@@ -23,7 +24,9 @@ object KantParser extends Parser[Product] {
         case null => None
         case price => Some(Util.parsePrice(price.text))
       }
-      Product(url, StoreName, brand, title, category, price, oldPrice, Some(Currency.Rub.toString))
+      val baseUrl = new URL(new URL(url), "/")
+      val imageUrl = new URL(baseUrl, doc.select("div.kant__product__fixed__image img").attr("src")).toString
+      Product(url, StoreName, brand, title, category, price, oldPrice, Some(Currency.Rub.toString), Some(imageUrl))
     } catch {
       case exc: Exception => Product(url, StoreName, parseError = Some(exc.toString))
     }

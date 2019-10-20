@@ -41,7 +41,8 @@ class CrawlQueue(urls: Iterable[HostURL],
       group._2.map{ unfetched =>
         val timestamp = Timestamp.from(clock.instant())
         try {
-          val attempt = fetcher.fetch(unfetched.url, defaultFetchDelay, fetchTimeout, createHttpContext(host, hostConf.get(host)))
+          val crawlConf = hostConf.get(host)
+          val attempt = fetcher.fetch(unfetched.url, crawlConf.map(c => c.getFetchDelay).getOrElse(defaultFetchDelay), fetchTimeout, createHttpContext(host, crawlConf))
           attempt.getResponse.asScala
             .map {
               response =>

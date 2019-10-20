@@ -9,9 +9,6 @@ import org.apache.commons.httpclient.HttpStatus
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
-import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.constructor.Constructor
-import org.yaml.snakeyaml.introspector.BeanAccess
 
 
 object ProductCrawlerApp extends Logging {
@@ -72,10 +69,7 @@ object ProductCrawlerApp extends Logging {
 
     // TODO make it possible to pass conf file as a parameter
     logInfo(s"Reading the host crawl settins")
-    val yaml = new Yaml(new Constructor(classOf[HostCrawlConfiguration]))
-    yaml.setBeanAccess(BeanAccess.FIELD)
-    val inputStream = this.getClass().getClassLoader().getResourceAsStream(CrawlConfFileName);
-    val crawlConf = yaml.load(inputStream).asInstanceOf[HostCrawlConfiguration]
+    val crawlConf: HostCrawlConfiguration = HostCrawlConfigurationReader.read(this.getClass().getClassLoader().getResourceAsStream(CrawlConfFileName))
 
     logInfo(s"Reading URLs")
     val urls = Spark.read

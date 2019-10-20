@@ -7,6 +7,7 @@ import scala.collection.JavaConverters._
 import scala.util.Try
 
 object DenSurkaParser extends JsoupParser {
+  val StoreName = "www.densurka.ru"
   override protected def parse(categoryUrl: String, doc: Document): Category = {
     val baseURL = new URL(new URL(categoryUrl), "/")
     new Category(

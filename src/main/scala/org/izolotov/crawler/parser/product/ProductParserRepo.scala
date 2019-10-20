@@ -19,6 +19,7 @@ object ProductParserRepo {
       case BackcountryParser.StoreName => BackcountryParser.parse(url, inStream, charset)
       case ReiParser.StoreName => ReiParser.parse(url, inStream, charset)
       case TrekkinnParser.StoreName => TrekkinnParser.parse(url, inStream, charset)
+      case DenSurkaParser.StoreName => DenSurkaParser.parse(url, inStream, charset)
     }
   }
 

@@ -12,10 +12,12 @@ package object crawler {
 
   class CrawlConfiguration extends Serializable {
     @BeanProperty var cookies: java.util.Map[String, String] = new java.util.HashMap[String, String]
+    @BeanProperty var fetchDelay: Long = 0
 
-    def this(cookiesMap: Map[String, String]){
+    def this(cookiesMap: Map[String, String] = Map.empty, fetchDelay: Long = 0){
       this()
-      cookies = cookiesMap.asJava
+      this.cookies = cookiesMap.asJava
+      this.fetchDelay = fetchDelay
     }
 
     def getCookiesAsScala(): mutable.Map[String, String] = cookies.asScala

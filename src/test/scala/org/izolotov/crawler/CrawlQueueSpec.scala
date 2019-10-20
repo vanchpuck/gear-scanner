@@ -99,6 +99,26 @@ class CrawlQueueSpec extends FlatSpec with BeforeAndAfter {
     )
   }
 
+  it should "apply host specific fetch delay" in {
+    val hostDelay = 100L
+    val defaultDelay = 1000L
+    val uncrawled = Seq(
+      HostURL(s"http://localhost:${Port}/product", "localhost"),
+      HostURL(s"http://localhost:${Port}/product", "localhost"),
+      HostURL(s"http://localhost:${Port}/product", "localhost")
+    )
+    val hostConf: Map[String, CrawlConfiguration] = Map("localhost" -> new CrawlConfiguration(fetchDelay = hostDelay))
+    val startTime = System.currentTimeMillis()
+    val actual = new CrawlQueue(uncrawled, HttpClients.createDefault(), defaultDelay, 10000L, hostConf = hostConf)
+    actual.foreach(
+      item =>
+        assert(item.document.get == Product(item.url, "store", Some("brand"), Some(ProductName), Seq("category"), Some(1F), None, Some(Currency.Rub.toString), None))
+    )
+    val elapsedTime = System.currentTimeMillis() - startTime
+    val pauseCount = uncrawled.length - 1
+    assert(elapsedTime > pauseCount * hostDelay && elapsedTime < pauseCount * defaultDelay)
+  }
+
   it should "not fail if no urls provided" in {
     val actual = new CrawlQueue(Seq(), HttpClients.createDefault(), 100L, 1000L).toList
     assert(actual.size == 0)

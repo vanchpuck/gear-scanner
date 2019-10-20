@@ -1,7 +1,6 @@
 package org.izolotov.crawler.parser.product
 
 import java.io.InputStream
-import java.net.URL
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.{Currency, Util}

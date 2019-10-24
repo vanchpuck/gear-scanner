@@ -21,14 +21,14 @@ object SiteMapCrawlerApp {
       .filter($"isIndex" === false)
       .select("siteMapUrl")//.as("url")
       .withColumnRenamed("siteMapUrl", "url")
-        .show()
+//        .show()
 //      // TODO remove debug code
 //      .filter($"url".rlike("^.+://alpindustria.ru/catalog/alpinistskoe-snaryajenie/koshki-snegostupy.*$"))
 ////      .filter($"siteMapUrl".startsWith("https://alpindustria.ru/catalog/alpinistskoe-snaryajenie/koshki-snegostupy/"))
 ////      .filter($"siteMapUrl" =!= "https://alpindustria.ru/catalog/alpinistskoe-snaryajenie/koshki-snegostupy/")
-//      .write
+      .write
 //      .option("delimiter", "\t")
-//      .option("header", true)
-//      .csv(args(1))
+      .option("header", true)
+      .csv(args(1))
   }
 }

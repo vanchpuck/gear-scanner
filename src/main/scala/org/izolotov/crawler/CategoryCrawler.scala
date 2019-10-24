@@ -17,7 +17,8 @@ class CategoryCrawler(partitionsNum: Int,
                       fetchTimeout: Long,
                       connectionRequestTimeout: Int = Int.MaxValue,
                       connectionTimeout: Int = Int.MaxValue,
-                      socketTimeout: Int = Int.MaxValue) {
+                      socketTimeout: Int = Int.MaxValue,
+                      hostConf: Map[String, CrawlConfiguration] = Map.empty) {
 
   def crawl(urls: Dataset[UncrawledURL]): Dataset[Option[String]] = {
     import urls.sparkSession.implicits._
@@ -28,6 +29,7 @@ class CategoryCrawler(partitionsNum: Int,
     val connectionRequestTimeout = this.connectionRequestTimeout
     val connectionTimeout = this.connectionTimeout
     val socketTimeout = this.socketTimeout
+    val hostConf = this.hostConf
 
     urls
       .map(url => HostURL(url.url, new URL(url.url).getHost))
@@ -46,7 +48,7 @@ class CategoryCrawler(partitionsNum: Int,
           .build()
         val fetcher = new DelayFetcher(httpClient)
         // TODO host could be queried in parallel to increase the throughput
-        hostURLs.map(uncrawled => new CategoryCrawlQueue(uncrawled.url, fetcher, fetchDelay, fetchTimeout))
+        hostURLs.map(uncrawled => new CategoryCrawlQueue(uncrawled.url, fetcher, fetchDelay, fetchTimeout, hostConf))
           .flatMap(urls => urls)
       }
   }

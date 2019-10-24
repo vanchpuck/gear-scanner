@@ -74,11 +74,13 @@ public class DelayFetcher implements Fetcher<CloseableHttpResponse> {
         public FetchAttempt<CloseableHttpResponse> call() throws Exception {
             long startTime = System.currentTimeMillis();
             try {
-                LOG.info(String.format("GET %s %s", url, httpContext.toString()));
+                LOG.info(String.format("GET %s %s", url, httpContext));
                 CloseableHttpResponse response = httpClient.execute(httpGet, httpContext);
                 long elapsedTime = System.currentTimeMillis() - startTime;
+                LOG.info(String.format("Fetched %s %d %d", url, response.getStatusLine().getStatusCode(), elapsedTime));
                 return new FetchAttempt<>(url, elapsedTime, response);
             } catch (IOException e) {
+                LOG.warn(String.format("Failed %s %s", url, e.toString()));
                 return new FetchAttempt(url, e);
             }
         }

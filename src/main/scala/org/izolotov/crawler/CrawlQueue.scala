@@ -5,12 +5,8 @@ import java.time.Clock
 import java.util.concurrent.{Executors, LinkedBlockingQueue, TimeUnit}
 
 import org.apache.commons.httpclient.HttpStatus
-import org.apache.http.client.protocol.HttpClientContext
-import org.apache.http.cookie.ClientCookie
 import org.apache.http.entity.ContentType
-import org.apache.http.impl.client.{BasicCookieStore, CloseableHttpClient}
-import org.apache.http.impl.cookie.BasicClientCookie
-import org.apache.http.protocol.{BasicHttpContext, HttpContext}
+import org.apache.http.impl.client.CloseableHttpClient
 import org.izolotov.crawler.parser.product.{Product, ProductParserRepo}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -42,7 +38,12 @@ class CrawlQueue(urls: Iterable[HostURL],
         val timestamp = Timestamp.from(clock.instant())
         try {
           val crawlConf = hostConf.get(host)
-          val attempt = fetcher.fetch(unfetched.url, crawlConf.map(c => c.getFetchDelay).getOrElse(defaultFetchDelay), fetchTimeout, createHttpContext(host, crawlConf))
+          val attempt = fetcher.fetch (
+            unfetched.url,
+            crawlConf.map(c => c.getFetchDelay).getOrElse(defaultFetchDelay),
+            fetchTimeout,
+            Util.createHttpContext(host, crawlConf).orNull
+          )
           attempt.getResponse.asScala
             .map {
               response =>
@@ -97,22 +98,5 @@ class CrawlQueue(urls: Iterable[HostURL],
       // Just in case. To avoid blocking.
       throw new RuntimeException(s"Looks like CrawlQueue being stuck. remain = ${remain}")
     }
-  }
-
-  private def createHttpContext(host: String, crawlConf: Option[CrawlConfiguration]): HttpContext = {
-    val cookieStore = new BasicCookieStore();
-    crawlConf.foreach{
-      conf => conf.getCookiesAsScala().foreach{
-        cookieConf: (String, String) =>
-          val cookie = new BasicClientCookie(cookieConf._1, cookieConf._2);
-          cookie.setDomain(host)
-          cookie.setAttribute(ClientCookie.DOMAIN_ATTR, "true")
-          cookie.setPath("/")
-          cookieStore.addCookie(cookie)
-      }
-    }
-    val httpContext = new BasicHttpContext()
-    httpContext.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore)
-    httpContext
   }
 }

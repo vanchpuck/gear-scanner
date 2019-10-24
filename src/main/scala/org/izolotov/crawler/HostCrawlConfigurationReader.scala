@@ -2,7 +2,6 @@ package org.izolotov.crawler
 
 import java.io.InputStream
 
-import org.izolotov.crawler.ProductCrawlerApp.CrawlConfFileName
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 import org.yaml.snakeyaml.introspector.BeanAccess

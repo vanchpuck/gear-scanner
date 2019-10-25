@@ -151,7 +151,7 @@ class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAn
       .withColumn("responseTime", lit(1L))
       .withColumn("timestamp", lit(now))
       .as[ProductCrawlAttempt]
-    assertDatasetEquals(expectedCrawled, actualCrawled)
+    assertDatasetEquals(expectedCrawled.sort($"url"), actualCrawled.sort($"url"))
 
     val expectedErrorsUrls = Seq(
       "http://localhost:8088/alpindustria-cassin-blade-runner-error.json",

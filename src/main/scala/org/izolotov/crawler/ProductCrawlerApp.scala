@@ -75,7 +75,10 @@ object ProductCrawlerApp extends Logging {
     val urls = Spark.read
       .option("delimiter", "\t")
       .option("header", true)
-      .csv(cmd.getOptionValue(UrlsPathArgKey)).as[UncrawledURL]
+      .csv(cmd.getOptionValue(UrlsPathArgKey))
+      .distinct()
+      .as[UncrawledURL]
+
 
     logInfo(s"Starting the crawling")
     val crawled  = new ProductCrawler(

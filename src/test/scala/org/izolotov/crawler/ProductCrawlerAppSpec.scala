@@ -51,7 +51,7 @@ class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAn
       "--urls-path", this.getClass.getClassLoader.getResource("product-crawler-app/input-urls/urls.csv").getPath,
       "--user-agent", "NoNameYetBot/0.1",
       "--fetcher-delay", "10",
-      "--fetcher-timeout", "2000",
+      "--fetcher-timeout", "20000",
       "--crawled-output-path", outputDir,
       "--errors-output-path", errorsDir,
       "--table-region", "us-east-2"
@@ -143,6 +143,18 @@ class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAn
         responseTime = Some(1L),
         document = None,
         fetchError = None
+      ),
+      ProductCrawlAttempt(
+        url = "http://localhost:8088/alpindustria-no-brand-vasak.json",
+        httpCode = Some(200),
+        timestamp = now,
+        responseTime = Some(1L),
+        document = Some(Product(
+          url = "http://localhost:8088/alpindustria-no-brand-vasak.json",
+          store = "json_store",
+          parseError = Some("java.lang.IllegalArgumentException: requirement failed: The Brand field can't be an empty string")
+        )),
+        fetchError = None
       )
     ).toDS()
 
@@ -155,7 +167,8 @@ class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAn
 
     val expectedErrorsUrls = Seq(
       "http://localhost:8088/alpindustria-cassin-blade-runner-error.json",
-      "http://localhost:8088/no-such-page.json"
+      "http://localhost:8088/no-such-page.json",
+      "http://localhost:8088/alpindustria-no-brand-vasak.json"
     ).toDF("url").sort("url")
 
     // Something is wrong with the full records comparison. Just checking the URLs for simplicity

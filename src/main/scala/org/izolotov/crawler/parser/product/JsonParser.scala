@@ -13,10 +13,14 @@ import org.izolotov.crawler.parser.Parser
 object JsonParser extends Parser[Product] {
 
   override def parse(url: String, inStream: InputStream, charset: Charset): Product = {
-    implicit val staffDecoder = deriveDecoder[Product]
-    parser.decode[Product](IOUtils.toString(new InputStreamReader(inStream))) match {
-      case Right(product) => product
-      case Left(error) => new Product(url = url, store = new URL(url).getHost, parseError = Some("Parsing error"))
+    try {
+      implicit val staffDecoder = deriveDecoder[Product]
+      parser.decode[Product](IOUtils.toString(new InputStreamReader(inStream))) match {
+        case Right(product) => product
+        case Left(error) => new Product(url = url, store = new URL(url).getHost, parseError = Some("Parsing error"))
+      }
+    } catch {
+      case e: Exception => new Product(url = url, store = "json_store", parseError = Some(e.toString))
     }
   }
 

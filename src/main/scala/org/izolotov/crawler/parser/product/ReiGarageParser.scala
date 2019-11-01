@@ -5,7 +5,7 @@ import java.net.URL
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.Parser
-import org.izolotov.crawler.Currency
+import org.izolotov.crawler.{Currency, Util}
 import org.json4s._
 import org.json4s.jackson.JsonMethods
 import org.jsoup.Jsoup
@@ -25,8 +25,9 @@ object ReiGarageParser extends Parser[Product] {
       val brand = Option(product("brand").asInstanceOf[Map[String, String]]("label"))
       val category = product("categories").asInstanceOf[List[Map[String, Any]]].head("path").asInstanceOf[List[Map[String, String]]]
         .map(cat => cat("label")).drop(1)
-      val price = Option(product("displayPrice").asInstanceOf[Map[String, Double]]("min").toFloat)
-      val oldPrice = Option(product("displayPrice").asInstanceOf[Map[String, Double]]("compareAt").toFloat)
+      val displayPrice = product("displayPrice").asInstanceOf[Map[String, String]]
+      val price = Option(Util.parsePrice(String.valueOf(displayPrice("min"))))
+      val oldPrice = Option(Util.parsePrice(String.valueOf(displayPrice("compareAt"))))
       val baseUrl = new URL(new URL(url), "/")
       val imageUrl = new URL(baseUrl, product("media").asInstanceOf[List[Map[String, String]]](0)("link")).toString
       Product(url, StoreName, brand, title, category, price, oldPrice, Some(Currency.USD.toString), Some(imageUrl))

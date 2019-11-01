@@ -16,13 +16,13 @@ class RealWorldProductCrawlerAppSpec extends FlatSpec with DataFrameSuiteBase {
       "--urls-path", this.getClass.getClassLoader.getResource("product-crawler-app/input-urls/real-world-urls.csv").getPath,
       "--user-agent", "NoNameYetBot/0.1",
       "--fetcher-delay", "10",
-      "--fetcher-timeout", "5000",
+      "--fetcher-timeout", "60000",
       "--crawled-output-path", outputDir,
       "--errors-output-path", errorsDir,
       "--table-region", "us-east-2"
     ))
     val outputPath: String = Files.list(Paths.get(outputDir)).iterator().next().toString
-    val result = spark.read.parquet(outputPath).select($"url", $"fetchError", $"document.parseError", $"document.price")
+    val result = spark.read.parquet(outputPath).select($"url", $"fetchError", $"document.parseError", $"document.price", $"document.oldPrice")
     result.show()
   }
 

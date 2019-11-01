@@ -71,6 +71,7 @@ object ProductCrawlerApp extends Logging {
     logInfo(s"Reading the host crawl settins")
     val crawlConf: HostCrawlConfiguration = HostCrawlConfigurationReader.read(this.getClass().getClassLoader().getResourceAsStream(CrawlConfFileName))
 
+    // TODO clean malformed URLs
     logInfo(s"Reading URLs")
     val urls = Spark.read
       .option("delimiter", "\t")

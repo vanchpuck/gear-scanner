@@ -13,10 +13,12 @@ object ReiCoopParser extends Parser[Product] {
 
   val StoreName = "www.rei.com"
 
-  override def parse(url: String, inStream: InputStream, charset: Charset): Product = {
+  override def parse(url: URL, inStream: InputStream, charset: Charset): Product = {
     implicit val formats = org.json4s.DefaultFormats
+    val urlString = url.toString
+    val host = url.getHost
     try {
-      val doc = Jsoup.parse(inStream, charset.name(), url)
+      val doc = Jsoup.parse(inStream, charset.name(), urlString)
       val data = doc.select("script[type=application/ld+json]").first.data()
       val dataMap = JsonMethods.parse(data).extract[Map[String, Any]]
       val title = Option(dataMap("name").toString)
@@ -26,14 +28,14 @@ object ReiCoopParser extends Parser[Product] {
       val category = metaDataMap("productCategoryPath").toString.split('|').drop(1)
       val price = Option(metaDataMap("displayPrice").toString.toFloat)
       val oldPrice = None
-      val baseUrl = new URL(new URL(url), "/")
+      val baseUrl = new URL(url, "/")
       val imageData = doc.select("script[data-client-store=image-data]").first.data()
       val imageDataMap = JsonMethods.parse(imageData).extract[Map[String, Any]]
       val imgUri: String = imageDataMap("media").asInstanceOf[List[Map[String, String]]](0)("uri")
       val imageUrl = new URL(baseUrl, imgUri).toString
-      Product(url, StoreName, brand, title, category, price, oldPrice, Some(Currency.USD.toString), Some(imageUrl))
+      Product(urlString, host, brand, title, category, price, oldPrice, Some(Currency.USD.toString), Some(imageUrl))
     } catch {
-      case e: Exception => new Product(url = url, store = StoreName, parseError = Some(e.toString))
+      case e: Exception => new Product(url = urlString, store = host, parseError = Some(e.toString))
     }
   }
 

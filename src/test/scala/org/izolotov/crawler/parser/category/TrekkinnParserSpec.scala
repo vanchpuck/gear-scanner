@@ -1,5 +1,6 @@
 package org.izolotov.crawler.parser.category
 
+import java.net.URL
 import java.nio.charset.Charset
 
 import org.scalatest.FlatSpec
@@ -13,7 +14,7 @@ class TrekkinnParserSpec extends FlatSpec {
 
   it should "extract URLs" in {
     val category = parser.parse(
-      "http://localhost/has-not-next",
+      new URL("http://localhost/has-not-next"),
       this.getClass.getClassLoader.getResourceAsStream(s"$categoryDir/has-not-next.html"),
       Charset.forName("UTF-8")
     )

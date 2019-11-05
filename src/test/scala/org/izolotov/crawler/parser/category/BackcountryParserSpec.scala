@@ -1,5 +1,6 @@
 package org.izolotov.crawler.parser.category
 
+import java.net.URL
 import java.nio.charset.Charset
 
 import org.scalatest.FlatSpec
@@ -13,7 +14,7 @@ class BackcountryParserSpec extends FlatSpec {
 
   it should "extract next URL if one exist" in {
     val category = parser.parse(
-      "http://localhost/has-next",
+      new URL("http://localhost/has-next"),
       this.getClass.getClassLoader.getResourceAsStream(s"$categoryDir/has-next.html"),
       Charset.forName("UTF-8")
     )
@@ -22,7 +23,7 @@ class BackcountryParserSpec extends FlatSpec {
 
   it should "not extract next URL if one doesn't exist" in {
     val category = parser.parse(
-      "http://localhost/has-not-next",
+      new URL("http://localhost/has-not-next"),
       this.getClass.getClassLoader.getResourceAsStream(s"$categoryDir/has-not-next.html"),
       Charset.forName("UTF-8")
     )
@@ -31,7 +32,7 @@ class BackcountryParserSpec extends FlatSpec {
 
   it should "extract URLs" in {
     val category = parser.parse(
-      "http://localhost/has-not-next",
+      new URL("http://localhost/has-not-next"),
       this.getClass.getClassLoader.getResourceAsStream(s"$categoryDir/has-not-next.html"),
       Charset.forName("UTF-8")
     )

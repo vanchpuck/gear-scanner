@@ -1,11 +1,14 @@
 package org.izolotov.crawler.parser.category
 
 import java.io.InputStream
+import java.net.URL
 import java.nio.charset.Charset
+
+
 
 object CategoryParserRepo {
 
-  def parse(host: String, url: String, inStream: InputStream, charset: Charset): Category = {
+  def parse(host: String, url: URL, inStream: InputStream, charset: Charset): Category = {
     // TODO add default case
     host match {
       case AlpindustriaParser.StoreName => AlpindustriaParser.parse(url, inStream, charset)

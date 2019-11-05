@@ -1,5 +1,6 @@
 package org.izolotov.crawler.parser.product
 
+import java.net.URL
 import java.nio.charset.Charset
 
 import org.scalatest.FlatSpec
@@ -11,7 +12,7 @@ class TramontanaParserSpec extends FlatSpec {
 
   it should "parse product page with no sale price" in {
     val inStream = this.getClass.getClassLoader.getResourceAsStream("parser/product/tramontana-parser/black-diamond-cyborg-clip-full-price.html")
-    val actual = TramontanaParser.parse("http://tramontana.ru/crampon.html", inStream, Charset.forName("UTF-8"))
+    val actual = TramontanaParser.parse(new URL("http://tramontana.ru/crampon.html"), inStream, Charset.forName("UTF-8"))
     val expected = new Product(
       "http://tramontana.ru/crampon.html",
       "tramontana.ru",
@@ -28,7 +29,7 @@ class TramontanaParserSpec extends FlatSpec {
 
   it should "parse product page with sale price" in {
     val inStream = this.getClass.getClassLoader.getResourceAsStream("parser/product/tramontana-parser/grivel-air-tech-gsb-sale.html")
-    val actual = TramontanaParser.parse("http://tramontana.ru/crampon.html", inStream, Charset.forName("UTF-8"))
+    val actual = TramontanaParser.parse(new URL("http://tramontana.ru/crampon.html"), inStream, Charset.forName("UTF-8"))
     val expected = new Product(
       "http://tramontana.ru/crampon.html",
       "tramontana.ru",
@@ -45,7 +46,7 @@ class TramontanaParserSpec extends FlatSpec {
 
   it should "not fail if some data required on parsing stage doesn't exist" in {
     val inStream = this.getClass.getClassLoader.getResourceAsStream("parser/product/tramontana-parser/black-diamond-cyborg-clip-no-data.html")
-    val actual = TramontanaParser.parse("http://tramontana.ru/crampon.html", inStream, Charset.forName("UTF-8"))
+    val actual = TramontanaParser.parse(new URL("http://tramontana.ru/crampon.html"), inStream, Charset.forName("UTF-8"))
     val expected = new Product(
       "http://tramontana.ru/crampon.html",
       "tramontana.ru",

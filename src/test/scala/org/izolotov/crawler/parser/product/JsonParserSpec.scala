@@ -1,5 +1,6 @@
 package org.izolotov.crawler.parser.product
 
+import java.net.URL
 import java.nio.charset.Charset
 
 import org.scalatest.FlatSpec
@@ -9,8 +10,8 @@ class JsonParserSpec extends FlatSpec {
   behavior of "Json product parser"
 
   it should "parse valid json" in {
-    val actual = JsonParser.parse(
-      "https://alpindustria.ru/petzl-d-lynx",
+    val actual = new JsonParser().parse(
+      new URL("https://alpindustria.ru/petzl-d-lynx"),
       getClass.getClassLoader.getResourceAsStream("parser/product/json-parser/alpindustria-petzl-d-lynx.json"),
       Charset.forName("UTF-8")
     )
@@ -28,8 +29,8 @@ class JsonParserSpec extends FlatSpec {
   }
 
   it should "Use the None value for the absent fields" in {
-    val actual = JsonParser.parse(
-      "https://tramontana.ru/petzl-lynx",
+    val actual = new JsonParser().parse(
+      new URL("https://tramontana.ru/petzl-lynx"),
       getClass.getClassLoader.getResourceAsStream("parser/product/json-parser/tramontana-petzl-lynx-no-currency.json"),
       Charset.forName("UTF-8")
     )

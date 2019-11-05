@@ -9,6 +9,9 @@ import org.apache.commons.httpclient.HttpStatus
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
+import org.izolotov.crawler.parser.product.{DummyParser, Product}
+
+import scala.reflect.runtime.universe._
 
 
 object ProductCrawlerApp extends Logging {
@@ -26,6 +29,7 @@ object ProductCrawlerApp extends Logging {
   val ThreadsNumberArgKey = "threads-number"
   val TableRegionArgKey = "table-region"
   val TableNameArgKey = "table-name"
+  val ParserArgKey = "parser"
 
   val CrawlConfFileName = "crawl-conf.yml"
 
@@ -60,12 +64,15 @@ object ProductCrawlerApp extends Logging {
     options.addOption("T", ThreadsNumberArgKey, true, "Number of threads in the crawl queue")
     options.addOption("r", TableRegionArgKey, true, "DynamoDB Table region")
     options.addOption("n", TableNameArgKey, true, "DynamoDB Table name")
+    options.addOption("P", ParserArgKey, true, "Default product parser")
     val parser = new BasicParser
     val cmd = parser.parse(options, args)
 
     val currTimestamp: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC"))
     val crawledOutPath = s"${cmd.getOptionValue(CrawledOutputPathArgKey)}/${currTimestamp.format(OutDirFormatter)}"
     val errorsOutPath = s"${cmd.getOptionValue(ErrorsOutputPathArgKey)}/${currTimestamp.format(OutDirFormatter)}"
+
+    val parserClass = Option(cmd.getOptionValue(ParserArgKey)).map(clazz => Class.forName(clazz)).getOrElse(classOf[DummyParser])
 
     // TODO make it possible to pass conf file as a parameter
     logInfo(s"Reading the host crawl settins")
@@ -79,17 +86,19 @@ object ProductCrawlerApp extends Logging {
       .distinct()
       .as[UncrawledURL]
 
-
     logInfo(s"Starting the crawling")
-    val crawled  = new ProductCrawler(
-      Option(cmd.getOptionValue(PartitionsNumberArgKey)).getOrElse("1").toInt,
+
+    val crawled = ProductCrawler.crawl(
       cmd.getOptionValue(UserAgentArgKey),
+      urls,
+      Option(cmd.getOptionValue(PartitionsNumberArgKey)).getOrElse("1").toInt,
       Option(cmd.getOptionValue(FetcherTimeoutArgKey)).map(_.toLong).getOrElse(Long.MaxValue),
+      parserClass,
+      typeTag[CrawlAttempt[Product]],
       cmd.getOptionValue(FetcherDelayArgKey).toLong,
       Option(cmd.getOptionValue(ThreadsNumberArgKey)).map(_.toInt).getOrElse(Runtime.getRuntime.availableProcessors()),
       hostConf = crawlConf.getHostsAsScala
     )
-      .crawl(urls)
       .persist()
 
     logInfo(s"Persisting the crawling results into $crawledOutPath")
@@ -98,6 +107,7 @@ object ProductCrawlerApp extends Logging {
 
     logInfo(s"Persisting the crawling errors info $errorsOutPath")
     crawled
+      .as[ProductCrawlAttempt]
       .filter(rec =>
         rec.httpCode != Some(HttpStatus.SC_OK)
           || rec.fetchError.isDefined

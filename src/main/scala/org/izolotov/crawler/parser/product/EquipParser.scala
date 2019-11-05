@@ -13,10 +13,11 @@ object EquipParser extends Parser[Product] {
   val StoreName = "www.equip.ru"
 
   //TODO C.A.M.P should be cleared of dots
-  override def parse(url: String, inStream: InputStream, charset: Charset): Product = {
-    import scala.collection.JavaConverters._
+  override def parse(url: URL, inStream: InputStream, charset: Charset): Product = {
+    val urlString = url.toString
+    val host = url.getHost
     try {
-      val doc = Jsoup.parse(inStream, charset.name(), url)
+      val doc = Jsoup.parse(inStream, charset.name(), urlString)
       val title = Option(doc.select("div.product_top_right h1").first.text)
       val brand = Option(doc.select("div.brand span").text)
       val category = Seq.empty
@@ -25,11 +26,11 @@ object EquipParser extends Parser[Product] {
         case somePrice => Some(Util.parsePrice(somePrice.ownText()))
       }
       val price = Option(Util.parsePrice(doc.select("div.product_price > span").first().ownText()))
-      val baseUrl = new URL(new URL(url), "/")
+      val baseUrl = new URL(url, "/")
       val imageUrl = new URL(baseUrl, doc.select("img#img_cont").first().attr("src")).toString
-      Product(url, StoreName, brand, title, category, price, oldPrice, Some(Currency.Rub.toString), Some(imageUrl))
+      Product(urlString, StoreName, brand, title, category, price, oldPrice, Some(Currency.Rub.toString), Some(imageUrl))
     } catch {
-      case e: Exception => new Product(url = url, store = StoreName, parseError = Some(e.toString))
+      case e: Exception => new Product(url = urlString, store = StoreName, parseError = Some(e.toString))
     }
   }
 

@@ -1,8 +1,8 @@
 package org.izolotov.crawler
 
 import java.time.{Clock, Instant, ZoneId}
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.apache.http.impl.client.HttpClients
 import org.eclipse.jetty.server.{Request, Server}
 import org.eclipse.jetty.server.handler.AbstractHandler
@@ -10,7 +10,7 @@ import org.scalatest.{BeforeAndAfter, FlatSpec}
 import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization
 import CrawlQueueSpec._
-import org.izolotov.crawler.parser.product.Product
+import org.izolotov.crawler.parser.product.{JsonParser, Product}
 
 object CrawlQueueSpec {
   val Port = 8082
@@ -61,7 +61,7 @@ class CrawlQueueSpec extends FlatSpec with BeforeAndAfter {
     )
 
     val startTime = System.currentTimeMillis()
-    val crawled = new CrawlQueue(uncrawled, HttpClients.createDefault(), 300L, 1000L)
+    val crawled = new CrawlQueue[Product](uncrawled, HttpClients.createDefault(), 300L, 1000L, defaultParserClass = classOf[JsonParser])
       .map(crawled => (crawled, System.currentTimeMillis() - startTime)).toList
     val elapsedTime = System.currentTimeMillis() - startTime
 
@@ -79,7 +79,7 @@ class CrawlQueueSpec extends FlatSpec with BeforeAndAfter {
       HostURL(s"http://127.0.0.1:${Port}/product", "127.0.0.1")
     )
 
-    val actual = new CrawlQueue(uncrawled, HttpClients.createDefault(), 100L, 1000L)
+    val actual = new CrawlQueue[Product](uncrawled, HttpClients.createDefault(), 100L, 1000L, defaultParserClass = classOf[JsonParser])
     assert(actual.size == 7)
     actual.foreach(
       item =>
@@ -92,7 +92,7 @@ class CrawlQueueSpec extends FlatSpec with BeforeAndAfter {
       HostURL(s"http://localhost:${Port}/product", "localhost")
     )
     val hostConf: Map[String, CrawlConfiguration] = Map("localhost" -> new CrawlConfiguration(Map(TestCookie -> "true")))
-    val actual = new CrawlQueue(uncrawled, HttpClients.createDefault(), 100L, 10000L, hostConf = hostConf)
+    val actual = new CrawlQueue[Product](uncrawled, HttpClients.createDefault(), 100L, 10000L, hostConf = hostConf, defaultParserClass = classOf[JsonParser])
     actual.foreach(
       item =>
         assert(item.document.get == Product(item.url, "store", Some("brand"), Some(CookieProductName), Seq("category"), Some(1F), None, Some(Currency.Rub.toString), None))
@@ -109,7 +109,7 @@ class CrawlQueueSpec extends FlatSpec with BeforeAndAfter {
     )
     val hostConf: Map[String, CrawlConfiguration] = Map("localhost" -> new CrawlConfiguration(fetchDelay = hostDelay))
     val startTime = System.currentTimeMillis()
-    val actual = new CrawlQueue(uncrawled, HttpClients.createDefault(), defaultDelay, 10000L, hostConf = hostConf)
+    val actual = new CrawlQueue[Product](uncrawled, HttpClients.createDefault(), defaultDelay, 10000L, hostConf = hostConf, defaultParserClass = classOf[JsonParser])
     actual.foreach(
       item =>
         assert(item.document.get == Product(item.url, "store", Some("brand"), Some(ProductName), Seq("category"), Some(1F), None, Some(Currency.Rub.toString), None))
@@ -120,7 +120,7 @@ class CrawlQueueSpec extends FlatSpec with BeforeAndAfter {
   }
 
   it should "not fail if no urls provided" in {
-    val actual = new CrawlQueue(Seq(), HttpClients.createDefault(), 100L, 1000L).toList
+    val actual = new CrawlQueue(Seq(), HttpClients.createDefault(), 100L, 1000L, defaultParserClass = classOf[JsonParser]).toList
     assert(actual.size == 0)
   }
 

@@ -10,7 +10,7 @@ import org.apache.spark.sql.functions._
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.handler.{ContextHandler, ResourceHandler}
 import org.eclipse.jetty.util.resource.Resource
-import org.izolotov.crawler.parser.product.Product
+import org.izolotov.crawler.parser.product.{JsonParser, Product}
 import org.scalatest.{BeforeAndAfter, FlatSpec}
 
 import scala.util.{Failure, Success, Try}
@@ -52,6 +52,7 @@ class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAn
       "--user-agent", "NoNameYetBot/0.1",
       "--fetcher-delay", "10",
       "--fetcher-timeout", "20000",
+      "--parser", classOf[JsonParser].getName,
       "--crawled-output-path", outputDir,
       "--errors-output-path", errorsDir,
       "--table-region", "us-east-2"

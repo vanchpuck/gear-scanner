@@ -13,6 +13,7 @@ package object crawler {
   class CrawlConfiguration extends Serializable {
     @BeanProperty var cookies: java.util.Map[String, String] = new java.util.HashMap[String, String]
     @BeanProperty var fetchDelay: Long = 0
+    @BeanProperty var parser: String = null
 
     def this(cookiesMap: Map[String, String] = Map.empty, fetchDelay: Long = 0){
       this()
@@ -21,6 +22,7 @@ package object crawler {
     }
 
     def getCookiesAsScala(): mutable.Map[String, String] = cookies.asScala
+
   }
 
   class HostCrawlConfiguration {

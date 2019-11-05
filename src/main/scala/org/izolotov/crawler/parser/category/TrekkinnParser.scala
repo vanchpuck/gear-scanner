@@ -10,8 +10,8 @@ import scala.util.Try
 object TrekkinnParser extends JsoupParser {
   val StoreName = "www.trekkinn.com"
 
-  override def parse(categoryUrl: String, doc: Document): Category = {
-    val baseURL = new URL(new URL(categoryUrl), "/")
+  override def parse(categoryUrl: URL, doc: Document): Category = {
+    val baseURL = new URL(categoryUrl, "/")
     new Category(
       None,
       doc.select("p.BoxPriceName a").asScala.map(f => f.attr("href")).map(url => Try(new URL(baseURL, url).toString).toOption)

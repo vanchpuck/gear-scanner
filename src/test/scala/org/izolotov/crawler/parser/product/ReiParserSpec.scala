@@ -1,5 +1,6 @@
 package org.izolotov.crawler.parser.product
 
+import java.net.URL
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.product.ReiParserSpec._
@@ -16,7 +17,7 @@ class ReiParserSpec extends FlatSpec{
 
   it should "parse rei-garage page correctly" in {
     val inStream = this.getClass.getClassLoader.getResourceAsStream("parser/product/rei-garage-parser/sale.html")
-    val actual = Parser.parse("https://www.rei.com/rei-garage/product.html", inStream, Charset.forName("UTF-8"))
+    val actual = Parser.parse(new URL("https://www.rei.com/rei-garage/product.html"), inStream, Charset.forName("UTF-8"))
     val expected = Product(
       "https://www.rei.com/rei-garage/product.html",
       Host,
@@ -33,7 +34,7 @@ class ReiParserSpec extends FlatSpec{
 
   it should "parse rei-coop page correctly" in {
     val inStream = this.getClass.getClassLoader.getResourceAsStream("parser/product/rei-coop-parser/full-price.html")
-    val actual = Parser.parse("https://www.rei.com/product.html", inStream, Charset.forName("UTF-8"))
+    val actual = Parser.parse(new URL("https://www.rei.com/product.html"), inStream, Charset.forName("UTF-8"))
     val expected = Product(
       "https://www.rei.com/product.html",
       Host,

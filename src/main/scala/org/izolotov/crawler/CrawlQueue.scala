@@ -52,7 +52,7 @@ class CrawlQueue[A](urls: Iterable[HostURL],
                 val content = response.getEntity.getContent
                 try {
                   val responseCode = response.getStatusLine.getStatusCode
-                  val parserClass: Class[_] = crawlConf.map(conf => conf.getParser).orNull match {
+                  val parserClass: Class[_] = crawlConf.map(conf => conf.getParserClass).orNull match {
                     case null => defaultParserClass
                     case className => Class.forName(className)//.newInstance().asInstanceOf[Parser[A]]
                   }

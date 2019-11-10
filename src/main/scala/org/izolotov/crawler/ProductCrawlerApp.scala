@@ -39,7 +39,7 @@ object ProductCrawlerApp extends Logging {
   private implicit val UtcClock = Clock.systemUTC()
 
   private lazy implicit val Spark = SparkSession.builder
-    .appName("SiteMap crawler app")
+    .appName("Product crawler app")
     .getOrCreate()
 
   case class ErrorRecord(url: String,
@@ -87,7 +87,6 @@ object ProductCrawlerApp extends Logging {
       .as[UncrawledURL]
 
     logInfo(s"Starting the crawling")
-
     val crawled = ProductCrawler.crawl(
       cmd.getOptionValue(UserAgentArgKey),
       urls,

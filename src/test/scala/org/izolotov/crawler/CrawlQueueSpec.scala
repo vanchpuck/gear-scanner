@@ -10,7 +10,7 @@ import org.scalatest.{BeforeAndAfter, FlatSpec}
 import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization
 import CrawlQueueSpec._
-import org.izolotov.crawler.parser.product.{JsonParser, Product}
+import org.izolotov.crawler.parser.product.{DummyParser, JsonParser, Product}
 
 object CrawlQueueSpec {
   val Port = 8082
@@ -96,6 +96,18 @@ class CrawlQueueSpec extends FlatSpec with BeforeAndAfter {
     actual.foreach(
       item =>
         assert(item.document.get == Product(item.url, "store", Some("brand"), Some(CookieProductName), Seq("category"), Some(1F), None, Some(Currency.Rub.toString), None))
+    )
+  }
+
+  it should "use parser from crawl conf if specified" in {
+    val uncrawled = Seq(
+      HostURL(s"http://localhost:${Port}/product", "localhost")
+    )
+    val hostConf: Map[String, CrawlConfiguration] = Map("localhost" -> new CrawlConfiguration(parserClass = classOf[JsonParser].getName))
+    val actual = new CrawlQueue[Product](uncrawled, HttpClients.createDefault(), 100L, 10000L, hostConf = hostConf, defaultParserClass = classOf[DummyParser])
+    actual.foreach(
+      item =>
+        assert(item.document.get == Product(item.url, "store", Some("brand"), Some(ProductName), Seq("category"), Some(1F), None, Some(Currency.Rub.toString), None))
     )
   }
 

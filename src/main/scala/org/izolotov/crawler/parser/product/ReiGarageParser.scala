@@ -14,10 +14,12 @@ object ReiGarageParser extends Parser[Product] {
 
   val StoreName = "www.rei.com"
 
-  override def parse(url: String, inStream: InputStream, charset: Charset): Product = {
+  override def parse(url: URL, inStream: InputStream, charset: Charset): Product = {
     implicit val formats = org.json4s.DefaultFormats
+    val urlString = url.toString
+    val host = url.getHost
     try {
-      val doc = Jsoup.parse(inStream, charset.name(), url)
+      val doc = Jsoup.parse(inStream, charset.name(), urlString)
       val data = doc.select("script#page-data").first.data()
       val map = JsonMethods.parse(data).extract[Map[String, Any]]
       val product = map("product").asInstanceOf[Map[String, Any]]
@@ -27,11 +29,11 @@ object ReiGarageParser extends Parser[Product] {
         .map(cat => cat("label")).drop(1)
       val price = Option(product("displayPrice").asInstanceOf[Map[String, Double]]("min").toFloat)
       val oldPrice = Option(product("displayPrice").asInstanceOf[Map[String, Double]]("compareAt").toFloat)
-      val baseUrl = new URL(new URL(url), "/")
+      val baseUrl = new URL(url, "/")
       val imageUrl = new URL(baseUrl, product("media").asInstanceOf[List[Map[String, String]]](0)("link")).toString
-      Product(url, StoreName, brand, title, category, price, oldPrice, Some(Currency.USD.toString), Some(imageUrl))
+      Product(urlString, host, brand, title, category, price, oldPrice, Some(Currency.USD.toString), Some(imageUrl))
     } catch {
-      case e: Exception => new Product(url = url, store = StoreName, parseError = Some(e.toString))
+      case e: Exception => new Product(url = urlString, store = host, parseError = Some(e.toString))
     }
   }
 }

@@ -9,19 +9,19 @@ import org.izolotov.crawler.parser.category.Category
 import scala.compat.java8.OptionConverters._
 import scala.util.Try
 
-class CategoryCrawlQueue(pageURL: String,
+class CategoryCrawlQueue(pageURL: URL,
                          fetcher: DelayFetcher,
                          fetchDelay: Long,
                          fetchTimeout: Long = Long.MaxValue,
                          hostConf: Map[String, CrawlConfiguration] = Map.empty) extends Iterable[Option[String]] {
 
-  class CategoryIterator(pageURL: String, fetcher: DelayFetcher, fetchDelay: Long, fetchTimeout: Long) extends Iterator[Iterable[Option[String]]] {
-    val host = new URL(pageURL).getHost
-    var nextURL: Option[String] = Option(pageURL)
+  class CategoryIterator(pageURL: URL, fetcher: DelayFetcher, fetchDelay: Long, fetchTimeout: Long) extends Iterator[Iterable[Option[String]]] {
+    val host = pageURL.getHost
+    var nextURL: Option[URL] = Option(pageURL)
     var nextCategory: Category = null//parsePage(currentURL)
 //    CategoryParserRepo.parse(null, null, null, null)
     // TODO handle the fetch errors
-    def parsePage(pageURL: String): Category = {
+    def parsePage(pageURL: URL): Category = {
       val resp = fetcher.fetch(pageURL.toString, fetchDelay, fetchTimeout, Util.createHttpContext(host, hostConf.get(host)).orNull)
       //      val exc = resp.getException.get()
       val response = resp.getResponse.asScala.get
@@ -40,12 +40,12 @@ class CategoryCrawlQueue(pageURL: String,
 
     override def next(): Iterable[Option[String]] = {
       nextCategory = parsePage(nextURL.get)
-      nextURL = nextCategory.nextURL.map(f => f.toString)
+      nextURL = nextCategory.nextURL//.map(f => f.toString)
       nextCategory.productURLs
     }
   }
 
-  val baseURL: URL = new URL(new URL(pageURL), "/")
+  val baseURL: URL = new URL(pageURL, "/")
   val categoryIterator = new CategoryIterator(pageURL, fetcher, fetchDelay, fetchTimeout)
 
   override def iterator: Iterator[Option[String]] = {

@@ -10,8 +10,8 @@ object ReiParser extends Parser[Product] {
 
   val StoreName = "www.rei.com"
 
-  override def parse(url: String, inStream: InputStream, charset: Charset): Product = {
-    val file = new URL(url).getFile
+  override def parse(url: URL, inStream: InputStream, charset: Charset): Product = {
+    val file = url.getFile
     if (file.startsWith("/rei-garage/")) {
       ReiGarageParser.parse(url, inStream, charset)
     } else {

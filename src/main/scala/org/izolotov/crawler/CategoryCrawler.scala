@@ -6,8 +6,6 @@ import org.apache.http.client.config.{CookieSpecs, RequestConfig}
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
-import org.apache.spark.sql.functions._
-import org.izolotov.crawler.parser.category.{Category, CategoryParserRepo}
 
 import scala.util.Try
 
@@ -48,7 +46,7 @@ class CategoryCrawler(partitionsNum: Int,
           .build()
         val fetcher = new DelayFetcher(httpClient)
         // TODO host could be queried in parallel to increase the throughput
-        hostURLs.map(uncrawled => new CategoryCrawlQueue(uncrawled.url, fetcher, fetchDelay, fetchTimeout, hostConf))
+        hostURLs.map(uncrawled => new CategoryCrawlQueue(new URL(uncrawled.url), fetcher, fetchDelay, fetchTimeout, hostConf))
           .flatMap(urls => urls)
       }
   }

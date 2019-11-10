@@ -37,7 +37,7 @@ case class SiteMapCrawler(userAgent: String,
           case Some(response: CloseableHttpResponse) =>
             val content = response.getEntity.getContent
             try {
-              val sitemaps = SitemapParser.parse(url, content)
+              val sitemaps = SitemapParser.parse(new URL(url), content)
               SiteMapCrawlAttempt(url, Some(response.getStatusLine.getStatusCode), Some(attempt.getResponseTime.get), None, Some(sitemaps))
             } finally {
               content.close()

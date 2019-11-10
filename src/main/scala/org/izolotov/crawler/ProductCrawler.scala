@@ -6,20 +6,24 @@ import java.time.Clock
 import org.apache.http.client.config.{CookieSpecs, RequestConfig}
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
-import org.apache.http.protocol.HttpContext
-import org.apache.spark.sql.{Dataset, SparkSession}
+import org.apache.spark.sql.{Dataset, Encoders, SparkSession}
 
-class ProductCrawler(partitionsNum: Int,
-                     userAgent: String,
-                     fetchTimeout: Long,
-                     fetchDelay: Long = 0L,
-                     threadNum: Int = 1,
-                     connectionTimeout: Int = Int.MaxValue,
-                     connectionRequestTimeout: Int = Int.MaxValue,
-                     socketTimeout: Int = Int.MaxValue,
-                     hostConf: Map[String, CrawlConfiguration] = Map.empty)(implicit spark: SparkSession, clock: Clock) {
+object ProductCrawler {
 
-  def crawl(urls: Dataset[UncrawledURL]): Dataset[ProductCrawlAttempt] = {
+  def crawl[A](
+                userAgent: String,
+                urls: Dataset[UncrawledURL],
+                partitionsNum: Int,
+                fetchTimeout: Long,
+                defaultParser: Class[_],
+                typeTag: scala.reflect.runtime.universe.TypeTag[CrawlAttempt[A]],
+                fetchDelay: Long = 0L,
+                threadNum: Int = 1,
+                connectionTimeout: Int = Int.MaxValue,
+                connectionRequestTimeout: Int = Int.MaxValue,
+                socketTimeout: Int = Int.MaxValue,
+                hostConf: Map[String, CrawlConfiguration] = Map.empty
+              )(implicit spark: SparkSession, clock: Clock): Dataset[CrawlAttempt[A]] = {
     // TODO handle errors during URL object construction
     import spark.implicits._
     val partitions = partitionsNum
@@ -47,8 +51,8 @@ class ProductCrawler(partitionsNum: Int,
               .setSocketTimeout(sockTimeout)
               .build())
             .build()
-          new CrawlQueue(iterator.toList, httpClient, delay, timeout, threads, hostConf = hostCrawlConf)(clockInstance)
-      }
+          new CrawlQueue[A](iterator.toList, httpClient, delay, timeout, threads, hostConf = hostCrawlConf, defaultParserClass = defaultParser)(clockInstance)
+      }(Encoders.product[CrawlAttempt[A]](typeTag))
   }
 
 }

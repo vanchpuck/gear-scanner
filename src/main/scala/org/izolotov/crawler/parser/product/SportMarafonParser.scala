@@ -8,7 +8,7 @@ import org.izolotov.crawler.parser.Parser
 import org.izolotov.crawler.{Currency, Util}
 import org.jsoup.Jsoup
 
-object SportMarafonParser extends Parser[Product] {
+class SportMarafonParser extends Parser[Product] {
 
   val StoreName = "sport-marafon.ru"
 

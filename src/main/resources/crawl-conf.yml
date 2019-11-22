@@ -1,6 +1,24 @@
 hosts:
   www.trekkinn.com:
+    parserClass: org.izolotov.crawler.parser.product.TrekkinnParser
     cookies:
       id_pais: 164
+  alpindustria.ru:
+    parserClass: org.izolotov.crawler.parser.product.AlpindustriaParser
   www.densurka.ru:
+    parserClass: org.izolotov.crawler.parser.product.DenSurkaParser
     fetchDelay: 10000
+  www.kant.ru:
+    parserClass: org.izolotov.crawler.parser.product.KantParser
+  sport-marafon.ru:
+    parserClass: org.izolotov.crawler.parser.product.SportMarafonParser
+  tramontana.ru:
+    parserClass: org.izolotov.crawler.parser.product.TramontanaParser
+  www.planeta-sport.ru:
+    parserClass: org.izolotov.crawler.parser.product.PlanetaSportParser
+  www.equip.ru:
+    parserClass: org.izolotov.crawler.parser.product.EquipParser
+  www.backcountry.com:
+    parserClass: org.izolotov.crawler.parser.product.BackcountryParser
+  www.rei.com:
+    parserClass: org.izolotov.crawler.parser.product.ReiParser

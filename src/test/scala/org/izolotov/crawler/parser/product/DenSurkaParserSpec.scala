@@ -9,7 +9,7 @@ import DenSurkaParserSpec._
 object DenSurkaParserSpec {
   val ResourceDir = "parser/product/den-surka-parser"
   val Host = "www.densurka.ru"
-  val Parser = DenSurkaParser
+  val Parser = new DenSurkaParser()
 }
 
 class DenSurkaParserSpec extends FlatSpec {

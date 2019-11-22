@@ -11,7 +11,7 @@ import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.handler.{ContextHandler, ResourceHandler}
 import org.eclipse.jetty.util.resource.Resource
 import org.izolotov.crawler.parser.product.{JsonParser, Product}
-import org.scalatest.{BeforeAndAfter, FlatSpec}
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FlatSpec}
 
 import scala.util.{Failure, Success, Try}
 
@@ -19,13 +19,14 @@ object ProductCrawlerAppSpec {
   val JettyPort: Int = 8088
 }
 
-class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAndAfter{
+class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAndAfterAll{
 
   behavior of "Product crawler app"
 
   var server: Server = null
 
-  before {
+  override def beforeAll {
+    super.beforeAll()
     server = new Server(ProductCrawlerAppSpec.JettyPort)
     val resourceHandler = new ResourceHandler()
     val contextHandler = new ContextHandler()
@@ -36,7 +37,8 @@ class ProductCrawlerAppSpec extends FlatSpec with DatasetSuiteBase with BeforeAn
     server.start
   }
 
-  after {
+  override def afterAll {
+    super.afterAll()
     Try(server.stop()) match {
       case Success(_) => //just do nothing
       case Failure(exc) => exc.printStackTrace()

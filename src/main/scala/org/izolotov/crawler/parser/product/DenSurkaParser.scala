@@ -8,9 +8,7 @@ import org.izolotov.crawler.{Currency, Util}
 import org.izolotov.crawler.parser.Parser
 import org.jsoup.Jsoup
 
-object DenSurkaParser extends Parser[Product] {
-
-  val StoreName = "www.densurka.ru"
+class DenSurkaParser extends Parser[Product] {
 
   /**
     * This implementation sets the NullPointerException error message if some mandatory of fields is absent
@@ -28,9 +26,9 @@ object DenSurkaParser extends Parser[Product] {
       val price = Util.parsePrice(doc.select("div.sprice span.amount").first().text())
       val oldPrice: Option[Float] = Option(doc.select("div.lprice span.amount").first()).map(p => Util.parsePrice(p.text()))
       val imageUrl = doc.select("div.products-images img").first().attr("src")
-      Product(urlString, StoreName, Option(brand.trim), title, category, Option(price), oldPrice, Some(Currency.Rub.toString), Some(imageUrl))
+      Product(urlString, host, Option(brand.trim), title, category, Option(price), oldPrice, Some(Currency.Rub.toString), Some(imageUrl))
     } catch {
-      case e: Exception => new Product(url = urlString, store = StoreName, parseError = Some(e.toString))
+      case e: Exception => new Product(url = urlString, store = host, parseError = Some(e.toString))
     }
   }
 

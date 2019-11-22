@@ -8,7 +8,7 @@ import org.scalatest.FlatSpec
 
 object ReiParserSpec {
   val Host = "www.rei.com"
-  val Parser = ReiParser
+  val Parser = new ReiParser()
 }
 
 class ReiParserSpec extends FlatSpec{

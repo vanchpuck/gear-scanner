@@ -6,7 +6,7 @@ import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.Parser
 
-object ReiParser extends Parser[Product] {
+class ReiParser extends Parser[Product] {
 
   val StoreName = "www.rei.com"
 

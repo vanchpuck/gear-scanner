@@ -10,7 +10,7 @@ import TrekkinnParserSpec._
 object TrekkinnParserSpec {
   val ResourceDir = "parser/product/trekkinn-parser"
   val Host = "www.trekkinn.com"
-  val Parser = TrekkinnParser
+  val Parser = new TrekkinnParser()
 }
 
 class TrekkinnParserSpec extends FlatSpec {

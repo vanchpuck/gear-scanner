@@ -8,9 +8,7 @@ import org.izolotov.crawler.parser.Parser
 import org.izolotov.crawler.{Currency, Util}
 import org.jsoup.Jsoup
 
-object EquipParser extends Parser[Product] {
-
-  val StoreName = "www.equip.ru"
+class EquipParser extends Parser[Product] {
 
   //TODO C.A.M.P should be cleared of dots
   override def parse(url: URL, inStream: InputStream, charset: Charset): Product = {
@@ -28,9 +26,9 @@ object EquipParser extends Parser[Product] {
       val price = Option(Util.parsePrice(doc.select("div.product_price > span").first().ownText()))
       val baseUrl = new URL(url, "/")
       val imageUrl = new URL(baseUrl, doc.select("img#img_cont").first().attr("src")).toString
-      Product(urlString, StoreName, brand, title, category, price, oldPrice, Some(Currency.Rub.toString), Some(imageUrl))
+      Product(urlString, host, brand, title, category, price, oldPrice, Some(Currency.Rub.toString), Some(imageUrl))
     } catch {
-      case e: Exception => new Product(url = urlString, store = StoreName, parseError = Some(e.toString))
+      case e: Exception => new Product(url = urlString, store = host, parseError = Some(e.toString))
     }
   }
 

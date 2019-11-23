@@ -8,9 +8,7 @@ import org.izolotov.crawler.parser.Parser
 import org.izolotov.crawler.{Currency, Util}
 import org.jsoup.Jsoup
 
-object KantParser extends Parser[Product] {
-
-  val StoreName = "www.kant.ru"
+class KantParser extends Parser[Product] {
 
   override def parse(url: URL, inStream: InputStream, charset: Charset): Product = {
     import scala.collection.JavaConverters._
@@ -28,9 +26,9 @@ object KantParser extends Parser[Product] {
       }
       val baseUrl = new URL(url, "/")
       val imageUrl = new URL(baseUrl, doc.select("div.kant__product__fixed__image img").attr("src")).toString
-      Product(urlString, StoreName, brand, title, category, price, oldPrice, Some(Currency.Rub.toString), Some(imageUrl))
+      Product(urlString, host, brand, title, category, price, oldPrice, Some(Currency.Rub.toString), Some(imageUrl))
     } catch {
-      case exc: Exception => Product(urlString, StoreName, parseError = Some(exc.toString))
+      case exc: Exception => Product(urlString, host, parseError = Some(exc.toString))
     }
   }
 

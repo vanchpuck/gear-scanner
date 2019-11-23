@@ -9,7 +9,7 @@ import org.scalatest.FlatSpec
 object BackcountryParserSpec {
   val ResourceDir = "parser/product/backcountry-parser"
   val Host = "www.backcountry.com"
-  val Parser = BackcountryParser
+  val Parser = new BackcountryParser()
 }
 
 class BackcountryParserSpec extends FlatSpec {

@@ -11,10 +11,10 @@ class KantParserSpec extends FlatSpec {
 
   it should "parse product page with no sale price" in {
     val inStream = this.getClass.getClassLoader.getResourceAsStream("parser/product/kant-parser/black-diamond-cyborg-full-price.html")
-    val actual = KantParser.parse(new URL("http://kant.ru/crampons.html"), inStream, Charset.forName("UTF-8"))
+    val actual = new KantParser().parse(new URL("http://kant.ru/crampons.html"), inStream, Charset.forName("UTF-8"))
     val expected = Product(
       "http://kant.ru/crampons.html",
-      "www.kant.ru",
+      "kant.ru",
       Some("BLACK DIAMOND"),
       Some("Кошки BLACK DIAMOND Cyborg Pro Crampons No Color"),
       Seq("Туризм", "Альпинистское снаряжение", "Кошки альпинистские"),
@@ -28,10 +28,10 @@ class KantParserSpec extends FlatSpec {
 
   it should "parse product page with sale price" in {
     val inStream = this.getClass.getClassLoader.getResourceAsStream("parser/product/kant-parser/deuter-aircontact-sale.html")
-    val actual = KantParser.parse(new URL("http://kant.ru/aircontact.html"), inStream, Charset.forName("UTF-8"))
+    val actual = new KantParser().parse(new URL("http://kant.ru/aircontact.html"), inStream, Charset.forName("UTF-8"))
     val expected = Product(
       "http://kant.ru/aircontact.html",
-      "www.kant.ru",
+      "kant.ru",
       Some("Deuter"),
       Some("Рюкзак Deuter 2018-19 Aircontact 75 + 10 arctic-navy"),
       Seq("Туризм"),
@@ -45,10 +45,10 @@ class KantParserSpec extends FlatSpec {
 
   it should "not fail if some data required on parsing stage doesn't exist" in {
     val inStream = this.getClass.getClassLoader.getResourceAsStream("parser/product/kant-parser/black-diamond-cyborg-no-title.html")
-    val actual = KantParser.parse(new URL("http://kant.ru/crampons.html"), inStream, Charset.forName("UTF-8"))
+    val actual = new KantParser().parse(new URL("http://kant.ru/crampons.html"), inStream, Charset.forName("UTF-8"))
     val expected = Product(
       "http://kant.ru/crampons.html",
-      "www.kant.ru",
+      "kant.ru",
       None,
       None,
       Seq.empty,

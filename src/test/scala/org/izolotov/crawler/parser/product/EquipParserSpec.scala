@@ -9,8 +9,8 @@ import EquipParserSpec._
 
 object EquipParserSpec {
   val ResourceDir = "parser/product/equip-parser"
-  val Host = EquipParser.StoreName
-  val Parser = EquipParser
+  val Host = "www.equip.ru"
+  val Parser = new EquipParser()
 }
 
 class EquipParserSpec extends FlatSpec{

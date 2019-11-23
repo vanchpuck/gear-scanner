@@ -8,7 +8,7 @@ import org.izolotov.crawler.parser.Parser
 import org.izolotov.crawler.{Currency, Util}
 import org.jsoup.Jsoup
 
-object AlpindustriaParser extends Parser[Product] {
+class AlpindustriaParser extends Parser[Product] {
 
   val StoreName = "alpindustria.ru"
 

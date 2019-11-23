@@ -11,7 +11,7 @@ import org.jsoup.Jsoup
 /**
   * Created by izolotov on 03.10.19.
   */
-object TrekkinnParser extends Parser[Product] {
+class TrekkinnParser extends Parser[Product] {
 
   val StoreName = "www.trekkinn.com"
 

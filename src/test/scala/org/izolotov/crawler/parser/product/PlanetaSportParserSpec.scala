@@ -12,7 +12,7 @@ class PlanetaSportParserSpec extends FlatSpec {
 
   it should "parse product page with sale price" in {
     val inStream = this.getClass.getClassLoader.getResourceAsStream("parser/product/planeta-sport-parser/zamberlan-denali-sale.html")
-    val actual = PlanetaSportParser.parse(new URL("http://planeta-sport.ru/denali.html"), inStream, Charset.forName("UTF-8"))
+    val actual = new PlanetaSportParser().parse(new URL("http://planeta-sport.ru/denali.html"), inStream, Charset.forName("UTF-8"))
     val expected = Product(
       "http://planeta-sport.ru/denali.html",
       "planeta-sport.ru",
@@ -29,7 +29,7 @@ class PlanetaSportParserSpec extends FlatSpec {
 
   it should "parse product page with no sale price" in {
     val inStream = this.getClass.getClassLoader.getResourceAsStream("parser/product/planeta-sport-parser/grivel-rambo-full-price.html")
-    val actual = PlanetaSportParser.parse(new URL("http://planeta-sport.ru/grivel-rambo.html"), inStream, Charset.forName("UTF-8"))
+    val actual = new PlanetaSportParser().parse(new URL("http://planeta-sport.ru/grivel-rambo.html"), inStream, Charset.forName("UTF-8"))
     val expected = Product(
       "http://planeta-sport.ru/grivel-rambo.html",
       "planeta-sport.ru",
@@ -46,7 +46,7 @@ class PlanetaSportParserSpec extends FlatSpec {
 
   it should "not fail if some data required on parsing stage doesn't exist" in {
     val inStream = this.getClass.getClassLoader.getResourceAsStream("parser/product/equip-parser/grivel-rambo-no-price.html")
-    val actual = PlanetaSportParser.parse(new URL("http://planeta-sport.ru/grivel-rambo.html"), inStream, Charset.forName("UTF-8"))
+    val actual = new PlanetaSportParser().parse(new URL("http://planeta-sport.ru/grivel-rambo.html"), inStream, Charset.forName("UTF-8"))
     val expected = new Product(
       "http://planeta-sport.ru/grivel-rambo.html",
       "planeta-sport.ru",

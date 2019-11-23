@@ -11,7 +11,7 @@ class AlpindustriaParserSpec extends FlatSpec{
 
   it should "parse product page with sale price" in {
     val inStream = this.getClass.getClassLoader.getResourceAsStream("parser/product/alpindustria-parser/camp-xlc-nanotech-sale.html")
-    val actual = AlpindustriaParser.parse(new URL("http://alpindustria.ru/crampon.html"), inStream, Charset.forName("UTF-8"))
+    val actual = new AlpindustriaParser().parse(new URL("http://alpindustria.ru/crampon.html"), inStream, Charset.forName("UTF-8"))
     val expected = Product(
       "http://alpindustria.ru/crampon.html",
       "alpindustria.ru",
@@ -28,7 +28,7 @@ class AlpindustriaParserSpec extends FlatSpec{
 
   it should "parse product page with no sale price" in {
     val inStream = this.getClass.getClassLoader.getResourceAsStream("parser/product/alpindustria-parser/petzl-lynx-full-price.html")
-    val actual = AlpindustriaParser.parse(new URL("http://alpindustria.ru/crampon.html"), inStream, Charset.forName("windows-1251"))
+    val actual = new AlpindustriaParser().parse(new URL("http://alpindustria.ru/crampon.html"), inStream, Charset.forName("windows-1251"))
     val expected = Product(
       "http://alpindustria.ru/crampon.html",
       "alpindustria.ru",
@@ -45,7 +45,7 @@ class AlpindustriaParserSpec extends FlatSpec{
 
   it should "not fail if some data required on parsing stage doesn't exist" in {
     val inStream = this.getClass.getClassLoader.getResourceAsStream("parser/product/alpindustria-parser/no-data.html")
-    val actual = AlpindustriaParser.parse(new URL("http://alpindustria.ru/crampon.html"), inStream, Charset.forName("UTF-8"))
+    val actual = new AlpindustriaParser().parse(new URL("http://alpindustria.ru/crampon.html"), inStream, Charset.forName("UTF-8"))
     val expected = new Product(
       "http://alpindustria.ru/crampon.html",
       "alpindustria.ru",

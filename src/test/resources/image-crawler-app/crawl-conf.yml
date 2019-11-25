@@ -1,0 +1,6 @@
+hosts:
+  www.trekkinn.com:
+    cookies:
+      id_pais: 164
+  www.densurka.ru:
+    fetchDelay: 10000

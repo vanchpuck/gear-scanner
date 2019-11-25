@@ -16,7 +16,7 @@ class ImageCrawlerAppSpec extends FlatSpec with DatasetSuiteBase {
       "--table-name", "ImageMetadata",
       "--table-region", "us-east-2",
       "--output-bucket", "org.gear-scanner.data",
-      "--error-output-path", "/tmp/errors/"//"s3://org.gear-scanner.data/image-crawl/"
+      "--error-output-path", "/tmp/errors/"
     ))
 
   }

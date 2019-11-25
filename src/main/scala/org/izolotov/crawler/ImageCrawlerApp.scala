@@ -24,7 +24,7 @@ object ImageCrawlerApp extends Logging {
     .appName("Image crawler app")
     .getOrCreate()
 
-  val CrawlConfFileName = "crawl-conf.yml"
+  val CrawConfFilePath = "image-crawler-app/crawl-conf.yml"
 
   object CliArg extends Enumeration {
     val urlsPath = "urls-path"
@@ -73,7 +73,7 @@ object ImageCrawlerApp extends Logging {
 
     // TODO make it possible to pass conf file as a parameter
     logInfo(s"Reading the host crawl settins")
-    val crawlConf: HostCrawlConfiguration = HostCrawlConfigurationReader.read(this.getClass().getClassLoader().getResourceAsStream(CrawlConfFileName))
+    val crawlConf: HostCrawlConfiguration = HostCrawlConfigurationReader.read(this.getClass.getClassLoader.getResourceAsStream(CrawConfFilePath))
     val outPath = cmd.getOptionValue(outputBucket)
     val currTimestamp: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC"))
     val errorsOutPath = s"${cmd.getOptionValue(errorOutputPath)}/${currTimestamp.format(OutDirFormatter)}"

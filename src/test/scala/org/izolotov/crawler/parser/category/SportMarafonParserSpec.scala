@@ -9,7 +9,7 @@ class SportMarafonParserSpec extends FlatSpec {
 
   behavior of "Sport Marafon product category parser"
 
-  val parser = SportMarafonParser
+  val parser = new SportMarafonParser
   val categoryDir = "parser/category/sport-marafon-parser"
 
   it should "extract next URL if one exist" in {
@@ -44,6 +44,6 @@ class SportMarafonParserSpec extends FlatSpec {
       "http://localhost/catalog/alpinistskie-koshki/elementy-koshkobot-progress-krasnoyarsk/",
       "http://localhost/catalog/alpinistskie-koshki/koshki-camp-alpinist-pro-auto-semi-auto/"
     )
-    assert(category.productURLs.map(url => url.get.toString).toSet == expected)
+    assert(category.productURLs.map(_.toString).toSet == expected)
   }
 }

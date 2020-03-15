@@ -40,6 +40,6 @@ class TramontanaParserSpec extends FlatSpec {
       "http://localhost/product/life_sport_koshki_spike_pro/",
       "http://localhost/product/grivel_koshki_ran_light/"
     )
-    assert(category.productURLs.map(url => url.get.toString) == expected)
+    assert(category.productURLs.map(_.toString) == expected)
   }
 }

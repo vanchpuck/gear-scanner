@@ -15,7 +15,7 @@ object KantParser extends JsoupParser {
     val baseURL = new URL(categoryUrl, "/")
     new Category(
       Option(doc.select("div.kant__pagination a:contains(Дальше)").first()).map(element => new URL(categoryUrl, element.attr("href"))),
-      doc.select("div.kant__catalog__item__content a").asScala.map(f => f.attr("href")).map(url => Try(new URL(baseURL, url).toString).toOption)
+      doc.select("div.kant__catalog__item__content a").asScala.map(f => f.attr("href")).map(url => new URL(baseURL, url))
     )
   }
 }

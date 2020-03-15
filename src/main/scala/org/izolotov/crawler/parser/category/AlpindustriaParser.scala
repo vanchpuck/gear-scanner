@@ -15,7 +15,7 @@ object AlpindustriaParser extends JsoupParser {
     val baseURL = new URL(categoryUrl, "/")
     new Category(
       Option(doc.select("a.next").first()).map(element => new URL(baseURL, element.attr("href"))),
-      doc.select("a._model").asScala.map(f => f.attr("href")).map(url => Try(new URL(baseURL, url).toString).toOption)
+      doc.select("a._model").asScala.map(f => f.attr("href")).map(url => new URL(baseURL, url))
     )
   }
 }

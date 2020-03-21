@@ -10,7 +10,6 @@
 
     <properties>
         <scala.version>2.12.8</scala.version>
-        <spark.version>2.4.1</spark.version>
         <scala.binary.version>2.12</scala.binary.version>
     </properties>
 
@@ -25,55 +24,6 @@
             <artifactId>scala-reflect</artifactId>
             <version>${scala.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_${scala.binary.version}</artifactId>
-            <version>${spark.version}</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <!-- make sure wrong scala version is not pulled in -->
-                    <groupId>org.scala-lang</groupId>
-                    <artifactId>scala-library</artifactId>
-                </exclusion>
-                <exclusion>
-                    <!-- make sure wrong scala version is not pulled in -->
-                    <groupId>org.scala-lang</groupId>
-                    <artifactId>scalap</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_${scala.binary.version}</artifactId>
-            <version>${spark.version}</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-hive_${scala.binary.version}</artifactId>
-            <version>${spark.version}</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>org.apache.httpcomponents</groupId>-->
-<!--            <artifactId>httpclient</artifactId>-->
-<!--            <version>4.5.2</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>com.github.crawler-commons</groupId>
             <artifactId>crawler-commons</artifactId>
@@ -89,11 +39,12 @@
             <artifactId>scala-java8-compat_${scala.binary.version}</artifactId>
             <version>0.9.1</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.elasticsearch</groupId>-->
-<!--            <artifactId>elasticsearch-spark-20_${scala.binary.version}</artifactId>-->
-<!--            <version>6.5.3</version>-->
-<!--        </dependency>-->
+        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.12</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/io.circe/circe-core -->
         <dependency>
             <groupId>io.circe</groupId>
@@ -106,34 +57,10 @@
             <artifactId>circe-parser_${scala.binary.version}</artifactId>
             <version>0.13.0</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/net.liftweb/lift-json -->
-        <dependency>
-            <groupId>net.liftweb</groupId>
-            <artifactId>lift-json_${scala.binary.version}</artifactId>
-            <version>3.4.1</version>
-        </dependency>
-
-
         <dependency>
             <groupId>io.circe</groupId>
             <artifactId>circe-generic_${scala.binary.version}</artifactId>
             <version>0.11.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scalap</artifactId>
-            <version>${scala.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.audienceproject</groupId>
-            <artifactId>spark-dynamodb_${scala.binary.version}</artifactId>
-            <version>0.4.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
@@ -150,36 +77,11 @@
             <artifactId>scanamo_${scala.binary.version}</artifactId>
             <version>1.0.0-M12-1</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.scanamo/scanamo-formats -->
-        <dependency>
-            <groupId>org.scanamo</groupId>
-            <artifactId>scanamo-formats_${scala.binary.version}</artifactId>
-            <version>1.0.0-M11</version>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/org.scanamo/scanamo-alpakka -->
         <dependency>
             <groupId>org.scanamo</groupId>
             <artifactId>scanamo-alpakka_${scala.binary.version}</artifactId>
             <version>1.0.0-M12-1</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-sqs -->
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-sqs</artifactId>
-            <version>1.11.725</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/io.circe/circe-core -->
-        <dependency>
-            <groupId>io.circe</groupId>
-            <artifactId>circe-core_${scala.binary.version}</artifactId>
-            <version>0.11.2</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/io.circe/circe-parser -->
-        <dependency>
-            <groupId>io.circe</groupId>
-            <artifactId>circe-parser_${scala.binary.version}</artifactId>
-            <version>0.11.2</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/software.amazon.awssdk/s3 -->
         <dependency>
@@ -210,11 +112,24 @@
             <artifactId>scallop_${scala.binary.version}</artifactId>
             <version>3.4.0</version>
         </dependency>
-
-
-
-
-
+        <!-- https://mvnrepository.com/artifact/org.json4s/json4s-jackson -->
+        <dependency>
+            <groupId>org.json4s</groupId>
+            <artifactId>json4s-jackson_${scala.binary.version}</artifactId>
+            <version>3.7.0-M2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>28.2-jre</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.13.1</version>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
@@ -234,12 +149,6 @@
             <version>2.4.1_0.12.0</version>
             <scope>test</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>pl.allegro.tech</groupId>-->
-<!--            <artifactId>embedded-elasticsearch</artifactId>-->
-<!--            <version>2.8.0</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
@@ -256,12 +165,6 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
             <version>1.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.scanamo</groupId>
-            <artifactId>scanamo-testkit_${scala.binary.version}</artifactId>
-            <version>1.0.0-M12-1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

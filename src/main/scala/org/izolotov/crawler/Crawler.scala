@@ -5,7 +5,8 @@ import java.sql.Timestamp
 import java.time.Clock
 import java.util.concurrent.ConcurrentHashMap
 
-import org.apache.commons.httpclient.HttpStatus
+import org.apache.http.HttpStatus
+
 import org.apache.http.client.config.{CookieSpecs, RequestConfig}
 import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.entity.ContentType

@@ -4,9 +4,8 @@ import java.net.{MalformedURLException, URL}
 import java.time.Clock
 import java.util.concurrent.Executors
 
-import org.izolotov.crawler.parser.product._
+import com.google.common.util.concurrent.ThreadFactoryBuilder
 import org.izolotov.crawler.parser._
-//import org.izolotov.crawler.parser.{BinaryDataParser, Parser, category, product}
 import org.izolotov.crawler.processor.{CategoryProcessor, ImageProcessor, Processor, ProductProcessor}
 import org.rogach.scallop.ScallopConf
 import org.scanamo.DynamoFormat
@@ -88,11 +87,11 @@ object CrawlerApp {
 
   implicit val clock = Clock.systemUTC()
 
-  def crawl1[A](records: Iterable[CrawlQueueRecord],
-                conf: (CrawlQueueRecord) => HostConf[_]): Unit = {
-    val crawlingContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(2))
-    val processingContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(2))
-    implicit val awaitContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(1))
+  def crawl[A](records: Iterable[CrawlQueueRecord],
+               conf: (CrawlQueueRecord) => HostConf[_])
+              (implicit crawlingContext: ExecutionContext, processingContext: ExecutionContext): Unit = {
+    implicit val awaitContext = ExecutionContext.global
+
     val futures = records.map{
       record => {
         val hostConf = conf(record)
@@ -106,11 +105,11 @@ object CrawlerApp {
     Await.result(Future.sequence(futures), Duration.Inf)
   }
 
-  def crawl(queue: CrawlQueue,
-               conf: (CrawlQueueRecord) => HostConf[_],
-               maxEmptyRespCount: Int = 3,
-               sqsWaitTime: Int = 0)
-              (implicit crawlingContext: ExecutionContext, processingContext: ExecutionContext): Unit = {
+  def processQueue(queue: CrawlQueue,
+                   conf: (CrawlQueueRecord) => HostConf[_],
+                   maxEmptyRespCount: Int = 3,
+                   sqsWaitTime: Int = 0)
+                  (implicit crawlingContext: ExecutionContext, processingContext: ExecutionContext): Unit = {
     var count = 0;
     while (count < maxEmptyRespCount) {
       val records: Iterable[CrawlQueueRecord] = queue.pull()
@@ -118,7 +117,7 @@ object CrawlerApp {
         count += 1
       } else {
         count = 0
-        crawl1(records, conf)
+        crawl(records, conf)(crawlingContext, processingContext)
       }
     }
   }
@@ -140,9 +139,9 @@ object CrawlerApp {
       new CategoryProcessor(queue, dynamo.save),
       new ImageProcessor(imageStore.upload, dynamo.save)
     )
-    val crawlngContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(2))
-    val processingContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(2))
-    crawl(queue, crawlConfHelper.getHostConf, 3)(crawlngContext, processingContext)
+    val crawlingContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(conf.crawlerThreads(), new ThreadFactoryBuilder().setDaemon(true).build))
+    val processingContext = ExecutionContext.global
+    processQueue(queue, crawlConfHelper.getHostConf, conf.sqsMaxMissCount())(crawlingContext, processingContext)
   }
 
 }

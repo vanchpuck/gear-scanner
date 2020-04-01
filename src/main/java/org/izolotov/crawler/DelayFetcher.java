@@ -1,11 +1,12 @@
 package org.izolotov.crawler;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.HttpContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -22,7 +23,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class DelayFetcher implements Fetcher<CloseableHttpResponse> {
 
-    private static final Logger LOG = LogManager.getLogger(DelayFetcher.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DelayFetcher.class);
 
     private final Lock delayLock = new ReentrantLock();
     private final Lock fetcherLock = new ReentrantLock();
@@ -95,7 +96,8 @@ public class DelayFetcher implements Fetcher<CloseableHttpResponse> {
 
     public DelayFetcher(@Nonnull CloseableHttpClient httpClient) {
         this.httpClient = httpClient;
-        this.executor = Executors.newSingleThreadExecutor();
+        // TODO shutdown
+        this.executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setDaemon(true).build());
     }
 
     @Override

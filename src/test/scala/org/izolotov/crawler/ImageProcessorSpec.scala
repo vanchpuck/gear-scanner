@@ -43,8 +43,6 @@ class ImageProcessorSpec extends FlatSpec {
       CrawlAttempt(ImageURL2, 0L, None, None, None, Some(S3Image(new URL(ImageURL2).getHost, Some(s"java.lang.IllegalArgumentException: requirement failed: ${imageStore.NullValueErrorMessage}"))))
     )
 
-    crawlDB.foreach(println)
-
     assert(crawlDBExpected.toSet == crawlDB.toSet)
     assert(imageData.filter(rec => rec._2 != null).map(rec => (new URL(rec._1).getHost, rec._2)).toSet == imageStore.toSet)
   }

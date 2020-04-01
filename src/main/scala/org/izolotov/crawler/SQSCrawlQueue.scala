@@ -19,6 +19,7 @@ class SQSCrawlQueue(client: SqsClient, queueName: String, waitTimeSeconds: Int =
   private val queueURL = client.getQueueUrl(GetQueueUrlRequest.builder.queueName(queueName).build).queueUrl()
 
   def add(message: CrawlQueueRecord): Unit = {
+    Log.info(s"Sending message to SQS: $message")
     client.sendMessage(SendMessageRequest.builder()
       .queueUrl(queueURL)
       .messageBody(write(message))

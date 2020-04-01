@@ -15,7 +15,7 @@ object EquipParser extends JsoupParser {
     val baseURL = new URL(categoryUrl, "/")
     new Category(
       Option(doc.select("div.pagelist a:contains(След.)").first()).map(element => new URL(baseURL, element.attr("href"))),
-      doc.select("div.name a").asScala.map(f => f.attr("href")).map(url => Try(new URL(baseURL, url).toString).toOption)
+      doc.select("div.name a").asScala.map(f => f.attr("href")).map(url => new URL(baseURL, url))
     )
   }
 }

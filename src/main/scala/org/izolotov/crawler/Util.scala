@@ -39,4 +39,19 @@ object Util {
     }
   }
 
+  def httpContext(host: String, conf: Map[String, _]): HttpContext = {
+    val cookieStore = new BasicCookieStore()
+    conf.foreach {
+      cookieConf: (String, _) =>
+        val cookie = new BasicClientCookie(cookieConf._1, cookieConf._2.toString);
+        cookie.setDomain(host)
+        cookie.setAttribute(ClientCookie.DOMAIN_ATTR, "true")
+        cookie.setPath("/")
+        cookieStore.addCookie(cookie)
+    }
+    val httpContext = new BasicHttpContext()
+    httpContext.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore)
+    httpContext
+  }
+
 }

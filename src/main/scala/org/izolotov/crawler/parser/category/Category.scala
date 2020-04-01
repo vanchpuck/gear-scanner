@@ -2,6 +2,8 @@ package org.izolotov.crawler.parser.category
 
 import java.net.URL
 
-import scala.util.Try
+object Category {
+  val Kind = "category"
+}
 
-case class Category(nextURL: Option[URL], productURLs: Iterable[Option[String]])
+case class Category(nextURL: Option[URL], productURLs: Iterable[URL])

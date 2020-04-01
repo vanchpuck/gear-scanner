@@ -46,6 +46,6 @@ class KantParserSpec extends FlatSpec {
       "http://localhost/catalog/product/240920/",
       "http://localhost/catalog/product/449101/"
     )
-    assert(category.productURLs.map(url => url.get.toString) == expected)
+    assert(category.productURLs.map(_.toString) == expected)
   }
 }

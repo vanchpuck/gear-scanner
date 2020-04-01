@@ -1,4 +1,4 @@
-package org.izolotov.crawler
+package org.izolotov.crawler.parser
 
 import java.io.InputStream
 import java.net.URL
@@ -6,7 +6,6 @@ import java.nio.charset.Charset
 
 import crawlercommons.sitemaps.SiteMapParser
 import org.apache.commons.io.IOUtils
-import org.izolotov.crawler.parser.Parser
 
 object SitemapParser extends Parser[Seq[SiteMap]]{
 

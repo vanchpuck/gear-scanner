@@ -2,6 +2,10 @@ package org.izolotov.crawler.parser.product
 
 import com.google.common.base.Strings
 
+object Product {
+  val Kind = "product"
+}
+
 case class Product(url: String,
                    store: String,
                    brand: Option[String] = None,

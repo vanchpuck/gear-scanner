@@ -46,6 +46,6 @@ class ReiCoopParserSpec extends FlatSpec {
       s"http://localhost/product/115404/wild-country-ascent-lite-belay-carabiner",
       s"http://localhost/product/115403/wild-country-ascent-hms-locking-carabiner"
     )
-    assert(category.productURLs.map(url => url.get.toString) == expected)
+    assert(category.productURLs.map(_.toString) == expected)
   }
 }

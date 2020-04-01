@@ -45,7 +45,7 @@ class BackcountryParserSpec extends FlatSpec {
       "http://localhost/grivel-super-asymmetric-bar?skid=GRV0092-ONECOL-S160MM&ti=UExQIENhdDpNb3VudGFpbmVlcmluZyBDcmFtcG9uczozOjY6YmMtbW91bnRhaW5lZXJpbmctY3JhbXBvbnM=",
       "http://localhost/grivel-g10-air-tech-crampon-spare-parts?skid=GRV0109-ONECOL-COMBACX2&ti=UExQIENhdDpNb3VudGFpbmVlcmluZyBDcmFtcG9uczozOjc6YmMtbW91bnRhaW5lZXJpbmctY3JhbXBvbnM="
     )
-    assert(category.productURLs.map(url => url.get.toString) == expected)
+    assert(category.productURLs.map(_.toString) == expected)
   }
 
 }

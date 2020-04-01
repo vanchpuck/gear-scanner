@@ -18,7 +18,6 @@ class TrekkinnParserSpec extends FlatSpec {
       this.getClass.getClassLoader.getResourceAsStream(s"$categoryDir/has-not-next.html"),
       Charset.forName("UTF-8")
     )
-    category.productURLs.map(url => url.get.toString).foreach(println)
     val expected = Seq(
       "http://localhost/горные/black-diamond-easy-rider-via-ferrata/137116930/p",
       "http://localhost/горные/petzl-kit-corax/137053812/p",
@@ -33,7 +32,7 @@ class TrekkinnParserSpec extends FlatSpec {
       "http://localhost/горные/ocun-climbing-twist-lady-set/137086692/p",
       "http://localhost/горные/singing-rock-packet-ferrata-ii/136813097/p"
     )
-    assert(category.productURLs.map(url => url.get.toString) == expected)
+    assert(category.productURLs.map(_.toString) == expected)
   }
 
 }

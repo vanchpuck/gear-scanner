@@ -44,7 +44,7 @@ class AlpindustriaParserSpec extends FlatSpec {
       "http://localhost/catalog/alpinistskoe-snaryajenie/koshki-snegostupy/-15136/?id=274726",
       "http://localhost/catalog/alpinistskoe-snaryajenie/koshki-snegostupy/-14601/?id=270169"
     )
-    assert(category.productURLs.map(url => url.get.toString) == expected)
+    assert(category.productURLs.map(_.toString) == expected)
   }
 
 }

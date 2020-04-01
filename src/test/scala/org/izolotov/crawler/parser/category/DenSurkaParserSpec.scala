@@ -47,7 +47,7 @@ class DenSurkaParserSpec extends FlatSpec {
       "http://localhost/product/fortress_3p",
       "http://localhost/product/mercury_65"
     )
-    assert(category.productURLs.map(url => url.get.toString) == expected)
+    assert(category.productURLs.map(_.toString) == expected)
   }
 
 }

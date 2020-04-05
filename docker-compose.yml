@@ -1,0 +1,11 @@
+version: '3'
+services:
+  gear-scanner-crawler:
+    image: 848625190772.dkr.ecr.us-east-2.amazonaws.com/gear-scanner-crawler:latest
+    logging:
+      driver: awslogs
+      options:
+        awslogs-create-group: "true"
+        awslogs-group: "/ecs/gear-scanner-crawler"
+        awslogs-region: "us-east-2"
+        awslogs-stream-prefix: "gear-scanner-crawler"

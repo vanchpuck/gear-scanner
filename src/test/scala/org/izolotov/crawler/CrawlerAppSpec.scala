@@ -6,7 +6,7 @@ import software.amazon.awssdk.services.sqs.SqsClient
 
 class CrawlerAppSpec extends FlatSpec {
 
-  it should "run the whole crawler cycle for category" in {
+  ignore should "run the whole crawler cycle for category" in {
     val queue = new SQSCrawlQueue(SqsClient.builder.region(Region.US_EAST_2).build, "CrawlQueue")
 //    queue.add(CrawlQueueRecord("https://alpindustria.ru/catalog/alpinistskoe-snaryajenie/ledovoe-snaryajenie/ledobury/", "category"))
 //    queue.add(CrawlQueueRecord("https://alpindustria.ru/i/product/l/232494_1.jpg", "image"))

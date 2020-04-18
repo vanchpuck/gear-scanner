@@ -2,17 +2,19 @@ package org.izolotov.crawler.processor
 
 import org.izolotov.crawler.parser.category.Category
 import org.izolotov.crawler.parser.product.Product
-import org.izolotov.crawler.{CrawlAttempt, CrawlQueue, CrawlQueueRecord}
+import org.izolotov.crawler.{CrawlAttempt, CrawlQueueRecord}
 
-class CategoryProcessor(crawlQueue: CrawlQueue, storeToDB: (CrawlAttempt[Category]) => Unit) extends Processor[Category] {
-  override def process(attempt: CrawlAttempt[Category]): Unit = {
+class CategoryProcessor(addToCrawlQueue: (CrawlQueueRecord) => Unit,
+                        storeToDB: (CrawlAttempt[Category]) => Unit,
+                        addToDLQueue: (CrawlAttempt[Category]) => Unit = null) extends Processor[Category] {
+  override def process(attempt: CrawlAttempt[Category]): CrawlAttempt[Category] = {
     storeToDB.apply(attempt)
     // TODO add logging
-    attempt.document
-      .foreach{
-        doc =>
-          doc.productURLs.foreach(url => crawlQueue.add(CrawlQueueRecord(url.toString, Product.Kind)))
-          doc.nextURL.foreach(url => crawlQueue.add(CrawlQueueRecord(url.toString, Category.Kind)))
-      }
+    attempt.document.map{
+      doc =>
+        doc.productURLs.foreach(url => addToCrawlQueue(CrawlQueueRecord(url.toString, Product.Kind)))
+        doc.nextURL.foreach(url => addToCrawlQueue(CrawlQueueRecord(url.toString, Category.Kind)))
+    }.getOrElse(Option(addToDLQueue).map(function => function(attempt)))
+    attempt
   }
 }

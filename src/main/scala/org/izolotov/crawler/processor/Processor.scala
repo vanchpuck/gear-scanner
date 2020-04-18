@@ -4,6 +4,6 @@ import org.izolotov.crawler.CrawlAttempt
 
 trait Processor[A] {
 
-  def process(fetchAttempt: CrawlAttempt[A]): Unit
+  def process(fetchAttempt: CrawlAttempt[A]): CrawlAttempt[A]
 
 }

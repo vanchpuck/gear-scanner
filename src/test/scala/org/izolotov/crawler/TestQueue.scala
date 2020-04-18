@@ -2,15 +2,15 @@ package org.izolotov.crawler
 
 import scala.collection.mutable
 
-class TestQueue extends CrawlQueue {
+class TestQueue[A] extends ProcessingQueue[A] {
 
-  private val queue = new mutable.Queue[CrawlQueueRecord]()
+  private val queue = new mutable.Queue[A]()
 
-  override def add(message: CrawlQueueRecord): Unit = {
+  override def add(message: A): Unit = {
     queue += message
   }
 
-  override def pull[A](numOfMessages: Int): Iterable[CrawlQueueRecord] = {
+  override def pull(numOfMessages: Int): Iterable[A] = {
     for (i <- 0 to numOfMessages; item <- queue.dequeueFirst(_ => true)) yield item
   }
 }

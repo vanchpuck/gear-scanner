@@ -22,7 +22,7 @@ object CategoryProcessorSpec {
 class CategoryProcessorSpec extends FlatSpec {
 
   it should "add crawl result to db, add next category URL and product URLs to crawl queue" in {
-    val crawlQueue = new TestQueue()
+    val crawlQueue = new TestQueue[CrawlQueueRecord]()
     val crawlDB: ListBuffer[CrawlAttempt[Category]] = new ListBuffer
 
     val attempts = Seq(
@@ -30,7 +30,7 @@ class CategoryProcessorSpec extends FlatSpec {
       (CategoryURL3, None, Seq())
     ).map(category => CrawlAttempt(category._1, 0L, None, None, None, Some(Category(category._2, category._3))))
 
-    val processor = new CategoryProcessor(crawlQueue, crawlDB.+=)
+    val processor = new CategoryProcessor(crawlQueue.add, crawlDB.+=)
     attempts.foreach(processor.process)
 
     val queueExpected = Seq(

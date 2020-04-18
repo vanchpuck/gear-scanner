@@ -1,17 +1,20 @@
 package org.izolotov.crawler.processor
 
 import org.izolotov.crawler.parser.product
-import org.izolotov.crawler.{CrawlAttempt, CrawlQueue, CrawlQueueRecord}
+import org.izolotov.crawler.{CrawlAttempt, CrawlQueueRecord}
 
-class ProductProcessor(crawlQueue: CrawlQueue, storeToDB: (CrawlAttempt[product.Product]) => Unit) extends Processor[product.Product] {
+class ProductProcessor(addToCrawlQueue: (CrawlQueueRecord) => Unit,
+                       storeToDB: (CrawlAttempt[product.Product]) => Unit,
+                       addToDLQueue: (CrawlAttempt[product.Product]) => Unit = null) extends Processor[product.Product] {
 
-  override def process(fetchAttempt: CrawlAttempt[product.Product]): Unit = {
+  override def process(fetchAttempt: CrawlAttempt[product.Product]): CrawlAttempt[product.Product] = {
+    def addToDL = Option(addToDLQueue).map(function => function(fetchAttempt))
     storeToDB.apply(fetchAttempt)
-    for (
-      doc <- fetchAttempt.document;
-      imgUrl <- doc.imageUrl
-    ) yield {
-      crawlQueue.add(CrawlQueueRecord(imgUrl, S3Image.Kind))
-    }
+    fetchAttempt.document.map{
+      doc =>
+        doc.imageUrl.map(imgUrl => addToCrawlQueue(CrawlQueueRecord(imgUrl, S3Image.Kind)))
+        doc.parseError.map(_ => addToDL)
+    }.getOrElse(addToDL)
+    fetchAttempt
   }
 }

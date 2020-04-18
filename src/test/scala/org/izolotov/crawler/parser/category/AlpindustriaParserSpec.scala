@@ -37,12 +37,12 @@ class AlpindustriaParserSpec extends FlatSpec {
       Charset.forName("UTF-8")
     )
     val expected = Seq(
-      "http://localhost/catalog/alpinistskoe-snaryajenie/koshki-snegostupy/14743/?id=14742",
-      "http://localhost/catalog/alpinistskoe-snaryajenie/koshki-snegostupy/29431/?id=29431",
-      "http://localhost/catalog/alpinistskoe-snaryajenie/koshki-snegostupy/-33403/?id=339812",
-      "http://localhost/catalog/alpinistskoe-snaryajenie/koshki-snegostupy/138761/?id=138761",
-      "http://localhost/catalog/alpinistskoe-snaryajenie/koshki-snegostupy/-15136/?id=274726",
-      "http://localhost/catalog/alpinistskoe-snaryajenie/koshki-snegostupy/-14601/?id=270169"
+      "http://localhost/catalog/alpinistskoe-snaryajenie/koshki-snegostupy/14743/",
+      "http://localhost/catalog/alpinistskoe-snaryajenie/koshki-snegostupy/29431/",
+      "http://localhost/catalog/alpinistskoe-snaryajenie/koshki-snegostupy/-33403/",
+      "http://localhost/catalog/alpinistskoe-snaryajenie/koshki-snegostupy/138761/",
+      "http://localhost/catalog/alpinistskoe-snaryajenie/koshki-snegostupy/-15136/",
+      "http://localhost/catalog/alpinistskoe-snaryajenie/koshki-snegostupy/-14601/",
     )
     assert(category.productURLs.map(_.toString) == expected)
   }

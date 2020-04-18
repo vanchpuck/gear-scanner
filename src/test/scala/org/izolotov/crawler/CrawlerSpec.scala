@@ -50,8 +50,9 @@ object CrawlerSpec {
   class TestProcessor() extends Processor[Product] {
     private val _processed = new ArrayBuffer[CrawlAttempt[Product]]()
     def processed = _processed
-    override def process(fetchAttempt: CrawlAttempt[Product]): Unit = {
+    override def process(fetchAttempt: CrawlAttempt[Product]): CrawlAttempt[Product] = {
       _processed.append(fetchAttempt)
+      fetchAttempt
     }
   }
 }

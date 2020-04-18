@@ -15,7 +15,9 @@ object BackcountryParser extends JsoupParser {
     val baseURL = new URL(categoryUrl, "/")
     new Category(
       Option(doc.select("li.pag-next a").first()).map(element => new URL(baseURL, element.attr("href"))),
-      doc.select("a.ui-pl-link").asScala.map(f => f.attr("href")).map(url => new URL(baseURL, url))
+      doc.select("a.ui-pl-link").asScala
+        .map(f => f.attr("href").replaceAll("\\?.*$", ""))
+        .map(url => new URL(baseURL, url))
     )
   }
 }

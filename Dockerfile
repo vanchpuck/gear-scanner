@@ -13,6 +13,6 @@ CMD java -cp gear-scanner.jar org.izolotov.crawler.CrawlerApp\
     --aws-region us-east-2 \
     --sqs-queue-name CrawlQueue \
     --sqs-dl-queue-name DeadLetterCrawlQueue \
-    --sqs-wait-time 2 \
-    --crawl-table products \
+    --sqs-wait-time 5 \
+    --crawl-table GearScannerTest \
     --image-bucket-arn arn:aws:s3:us-east-2:848625190772:accesspoint/internet

@@ -11,7 +11,6 @@ import org.rogach.scallop.ScallopConf
 import org.scanamo.DynamoFormat
 import org.scanamo._
 import org.scanamo.syntax._
-
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.sqs.SqsClient
 
@@ -77,6 +76,7 @@ object CrawlerApp {
     val timeout = opt[Long](default = Some(Long.MaxValue))
     val awsRegion = opt[String](required = true)
     val sqsQueueName = opt[String](required = true)
+    val sqsDlQueueName = opt[String](required = false)
     val sqsWaitTime = opt[Int](default = Some(0))
     val sqsMaxMissCount = opt[Int](default = Some(3))
     val crawlTable = opt[String](required = true)
@@ -105,7 +105,7 @@ object CrawlerApp {
     Await.result(Future.sequence(futures), Duration.Inf)
   }
 
-  def processQueue(queue: CrawlQueue,
+  def processQueue(queue: SQSQueue[CrawlQueueRecord],
                    conf: (CrawlQueueRecord) => HostConf[_],
                    maxEmptyRespCount: Int = 3,
                    sqsWaitTime: Int = 0)
@@ -127,21 +127,25 @@ object CrawlerApp {
     implicit val urlStringFormat = DynamoFormat.coercedXmap[URL, String, MalformedURLException](new URL(_))(_.toString)
     implicit val iterableListFormat = DynamoFormat.xmap[Iterable[URL], List[URL]](
       list => Right(list))(_.toList)
+    implicit val Formats = org.json4s.DefaultFormats
     val conf = new Conf(args)
-    val queue = new SQSCrawlQueue(SqsClient.builder.region(Region.of(conf.awsRegion())).build, conf.sqsQueueName(), conf.sqsWaitTime())
+    val sqsClient = SqsClient.builder.region(Region.of(conf.awsRegion())).build
+    val crawlQueue = new SQSQueue[CrawlQueueRecord](sqsClient, conf.sqsQueueName())
+    val deadLetterQueue = new SQSQueue[CrawlAttempt[_]](sqsClient, conf.sqsDlQueueName())
+//    val crawlQueue = new SQSCrawlQueue(sqsClient, conf.sqsQueueName(), conf.sqsWaitTime())
     val dynamo = new DynamoDBHelper(conf.crawlTable(), conf.awsRegion())
     val imageStore = new ImageStore(conf.imageBucketArn())
     val crawlConfHelper = new RecordConfHelper(
       conf.userAgent(),
       conf.delay(),
       conf.timeout(),
-      new ProductProcessor(queue, dynamo.save),
-      new CategoryProcessor(queue, dynamo.save),
-      new ImageProcessor(imageStore.upload, dynamo.save)
+      new ProductProcessor(crawlQueue.add, dynamo.save, deadLetterQueue.add),
+      new CategoryProcessor(crawlQueue.add, dynamo.save, deadLetterQueue.add),
+      new ImageProcessor(imageStore.upload, dynamo.save, deadLetterQueue.add)
     )
     val crawlingContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(conf.crawlerThreads(), new ThreadFactoryBuilder().setDaemon(true).build))
     val processingContext = ExecutionContext.global
-    processQueue(queue, crawlConfHelper.getHostConf, conf.sqsMaxMissCount())(crawlingContext, processingContext)
+    processQueue(crawlQueue, crawlConfHelper.getHostConf, conf.sqsMaxMissCount())(crawlingContext, processingContext)
   }
 
 }

@@ -1,33 +1,35 @@
 package org.izolotov.crawler
 
 import com.typesafe.scalalogging.Logger
-import org.izolotov.crawler.SQSCrawlQueue._
 import org.json4s.jackson.Serialization.{read, write}
 import software.amazon.awssdk.services.sqs.SqsClient
-import software.amazon.awssdk.services.sqs.model.{DeleteMessageRequest, GetQueueUrlRequest, ReceiveMessageRequest, SendMessageRequest}
-
+import software.amazon.awssdk.services.sqs.model.{DeleteMessageRequest, GetQueueUrlRequest, Message, ReceiveMessageRequest, SendMessageRequest}
 import scala.collection.JavaConverters._
 
-object SQSCrawlQueue {
-  private val Log = Logger[SQSCrawlQueue]
+import SQSQueue._
+
+object SQSQueue {
+  private val Log = Logger[SQSQueue[_]]
 }
 
-class SQSCrawlQueue(client: SqsClient, queueName: String, waitTimeSeconds: Int = 0) extends CrawlQueue {
-
-  private implicit val Formats = org.json4s.DefaultFormats
+class SQSQueue[A <: AnyRef](client: SqsClient,
+                            queueName: String,
+                            waitTimeSeconds: Int = 0)
+                           (implicit formats: org.json4s.Formats,
+                            manifest: scala.reflect.Manifest[A]) extends ProcessingQueue[A] {
 
   private val queueURL = client.getQueueUrl(GetQueueUrlRequest.builder.queueName(queueName).build).queueUrl()
 
-  def add(message: CrawlQueueRecord): Unit = {
-    Log.info(s"Sending message to SQS: $message")
+  def add(message: A): Unit = {
+    Log.info(s"Sending to the '$queueName' SQS queue: $message")
     client.sendMessage(SendMessageRequest.builder()
       .queueUrl(queueURL)
-      .messageBody(write(message))
+      .messageBody(write(message)(formats))
       .build())
   }
 
-  def pull[A](numOfMessages: Int = 10): Iterable[CrawlQueueRecord] = {
-    Log.info("Pulling messages from SQS")
+  def pull(numOfMessages: Int = 10): Iterable[A] = {
+    Log.info(s"Pulling messages from the '$queueName' SQS queue")
     val receiveMessageRequest = ReceiveMessageRequest.builder()
       .queueUrl(queueURL)
       .waitTimeSeconds(waitTimeSeconds)
@@ -36,7 +38,7 @@ class SQSCrawlQueue(client: SqsClient, queueName: String, waitTimeSeconds: Int =
     // TODO handle failed messages (Dead letter queue maybe)
     // TODO add logging
     client.receiveMessage(receiveMessageRequest).messages.asScala
-      .map(message => (message, read[CrawlQueueRecord](message.body())))
+      .map(message => (message, read[A](message.body())(formats, manifest)))
       .map{
         pair =>
           client.deleteMessage(DeleteMessageRequest.builder.queueUrl(queueURL).receiptHandle(pair._1.receiptHandle()).build())

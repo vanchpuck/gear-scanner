@@ -9,7 +9,7 @@ class SportMarafonParserSpec extends FlatSpec {
 
   behavior of "Sport Marafon product category parser"
 
-  val parser = new SportMarafonParser
+  val parser = SportMarafonParser
   val categoryDir = "parser/category/sport-marafon-parser"
 
   it should "extract next URL if one exist" in {

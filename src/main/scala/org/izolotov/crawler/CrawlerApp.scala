@@ -59,6 +59,7 @@ object CrawlerApp {
             case "www.rei.com" => crawlerConf(category.ReiCoopParser)
             case "www.trekkinn.com" => crawlerConf(category.TrekkinnParser)
             case "www.densurka.ru" => crawlerConf(category.DenSurkaParser)
+            case "sport-marafon.ru" => crawlerConf(category.SportMarafonParser)
           }
           HostConf(conf._1, conf._2, categoryProcessor)
         }

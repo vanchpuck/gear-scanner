@@ -30,7 +30,7 @@ object Crawler {
       new DelayFetcher(
         HttpClients.custom()
           // TODO user agent
-          .setUserAgent("sdf")
+          .setUserAgent(conf.userAgent)
           .setConnectionManager(new PoolingHttpClientConnectionManager)
           .setDefaultRequestConfig(RequestConfig.custom()
             .setCookieSpec(CookieSpecs.STANDARD)
@@ -43,7 +43,7 @@ object Crawler {
       // TODO maybe use Promise instead of future
       // TODO add httpContext
       val fetched: FetchAttempt[CloseableHttpResponse] =
-        fetcher.fetch(url, 1000L, 20000L, conf.cookies.map(cookies => Util.httpContext(host, cookies)).orNull)
+        fetcher.fetch(url, conf.delay, conf.timeout, conf.cookies.map(cookies => Util.httpContext(host, cookies)).orNull)
       parse(fetched, parser)
     }
   }

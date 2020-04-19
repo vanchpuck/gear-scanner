@@ -5,6 +5,7 @@ import java.time.Clock
 import java.util.concurrent.Executors
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder
+import com.typesafe.scalalogging.Logger
 import org.izolotov.crawler.parser._
 import org.izolotov.crawler.processor.{CategoryProcessor, ImageProcessor, Processor, ProductProcessor}
 import org.rogach.scallop.ScallopConf
@@ -86,6 +87,8 @@ object CrawlerApp {
     verify()
   }
 
+  private val Log = Logger[CrawlerApp.type]
+
   implicit val clock = Clock.systemUTC()
 
   def crawl[A](records: Iterable[CrawlQueueRecord],
@@ -95,6 +98,7 @@ object CrawlerApp {
 
     val futures = records.map{
       record => {
+        Log.info(s"Processing record: $record")
         val hostConf = conf(record)
         val parser = hostConf.parser.asInstanceOf[Parser[A]]
         val processor = hostConf.processor.asInstanceOf[Processor[A]]
@@ -118,7 +122,11 @@ object CrawlerApp {
         count += 1
       } else {
         count = 0
-        crawl(records, conf)(crawlingContext, processingContext)
+        try {
+          crawl(records, conf)(crawlingContext, processingContext)
+        } catch {
+          case e: Exception => Log.warn(s"Error during the record batch processing: ${e.toString}")
+        }
       }
     }
   }
@@ -133,7 +141,6 @@ object CrawlerApp {
     val sqsClient = SqsClient.builder.region(Region.of(conf.awsRegion())).build
     val crawlQueue = new SQSQueue[CrawlQueueRecord](sqsClient, conf.sqsQueueName())
     val deadLetterQueue = new SQSQueue[CrawlAttempt[_]](sqsClient, conf.sqsDlQueueName())
-//    val crawlQueue = new SQSCrawlQueue(sqsClient, conf.sqsQueueName(), conf.sqsWaitTime())
     val dynamo = new DynamoDBHelper(conf.crawlTable(), conf.awsRegion())
     val imageStore = new ImageStore(conf.imageBucketArn())
     val crawlConfHelper = new RecordConfHelper(

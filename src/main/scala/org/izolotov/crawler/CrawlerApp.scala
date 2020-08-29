@@ -77,6 +77,7 @@ object CrawlerApp {
     val delay = opt[Long](default = Some(0L))
     val timeout = opt[Long](default = Some(Long.MaxValue))
     val awsRegion = opt[String](required = true)
+    val sqsClassifierQueueName = opt[String](required = true)
     val sqsQueueName = opt[String](required = true)
     val sqsDlQueueName = opt[String](required = false)
     val sqsWaitTime = opt[Int](default = Some(0))
@@ -139,6 +140,7 @@ object CrawlerApp {
     implicit val Formats = org.json4s.DefaultFormats
     val conf = new Conf(args)
     val sqsClient = SqsClient.builder.region(Region.of(conf.awsRegion())).build
+    val classifierQueue = new SQSQueue[CrawlAttempt[product.Product]](sqsClient, conf.sqsClassifierQueueName())
     val crawlQueue = new SQSQueue[CrawlQueueRecord](sqsClient, conf.sqsQueueName())
     val deadLetterQueue = new SQSQueue[CrawlAttempt[_]](sqsClient, conf.sqsDlQueueName())
     val dynamo = new DynamoDBHelper(conf.crawlTable(), conf.awsRegion())
@@ -147,7 +149,7 @@ object CrawlerApp {
       conf.userAgent(),
       conf.delay(),
       conf.timeout(),
-      new ProductProcessor(crawlQueue.add, dynamo.save, deadLetterQueue.add),
+      new ProductProcessor(crawlQueue.add, classifierQueue.add, deadLetterQueue.add),
       new CategoryProcessor(crawlQueue.add, dynamo.save, deadLetterQueue.add),
       new ImageProcessor(imageStore.upload, dynamo.save, deadLetterQueue.add)
     )

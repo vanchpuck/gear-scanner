@@ -7,7 +7,7 @@ import org.izolotov.crawler.CrawlAttempt
 import scala.util.{Failure, Success, Try}
 
 class ImageProcessor(addToImageDB: (String, Array[Byte]) => Unit,
-                     storeToDB: (CrawlAttempt[S3Image]) => Unit,
+                     addToProcessingQueue: (CrawlAttempt[S3Image]) => Unit,
                      addToDLQueue: (CrawlAttempt[Array[Byte]]) => Unit = null) extends Processor[Array[Byte]] {
 
   override def process(attempt: CrawlAttempt[Array[Byte]]): CrawlAttempt[Array[Byte]] = {
@@ -20,8 +20,8 @@ class ImageProcessor(addToImageDB: (String, Array[Byte]) => Unit,
         }
     }
     s3Img.getOrElse(Option(addToDLQueue).map(function => function(attempt)))
-    // TODO remove file from S3 if can't write to Dynamo
-    storeToDB.apply(CrawlAttempt(attempt.url, attempt.timestamp, attempt.httpCode, attempt.responseTime, attempt.fetchError, s3Img))
+    // TODO remove file from S3 if can't write to Dynamo/SQS
+    addToProcessingQueue(CrawlAttempt(attempt.url, attempt.timestamp, attempt.httpCode, attempt.responseTime, attempt.fetchError, s3Img))
     attempt
   }
 

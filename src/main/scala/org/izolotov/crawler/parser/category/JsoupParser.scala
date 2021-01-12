@@ -10,11 +10,11 @@ import org.jsoup.{Jsoup, nodes}
 import scala.tools.nsc.interpreter.InputStream
 import org.jsoup.nodes.Document
 
-abstract class JsoupParser extends Parser[Category]{
+abstract class JsoupParser[T] extends Parser[T]{
 
-  override def parse(categoryUrl: URL, inStream: InputStream, charset: Charset): Category = {
+  override def parse(categoryUrl: URL, inStream: InputStream, charset: Charset): T = {
     parse(categoryUrl, Jsoup.parse(inStream, charset.name(), categoryUrl.toString))
   }
 
-  protected def parse(categoryUrl: URL, doc: Document): Category
+  protected def parse(categoryUrl: URL, doc: Document): T
 }

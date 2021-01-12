@@ -1,5 +1,6 @@
 package org.izolotov.crawler
 
+import org.izolotov.crawler.parser.origin.OriginCategory
 import org.scalatest.FlatSpec
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.sqs.SqsClient
@@ -13,8 +14,11 @@ class CrawlerAppSpec extends FlatSpec {
 //    queue.add(CrawlQueueRecord("sport-marafon.ru/catalog/alpinistskie-kaski/", "category"))
 //    queue.add(CrawlQueueRecord("https://tramontana.ru/catalog/koshki_2/", "category"))
 //    queue.add(CrawlQueueRecord("https://www.rei.com/product/130561/camp-usa-stalker-universal-crampons", "product"))
-    queue.add(CrawlQueueRecord("https://tramontana.ru/product/petzl_koshki_sarken/", "product"))
+//    queue.add(CrawlQueueRecord("https://tramontana.ru/product/petzl_koshki_sarken/", "product"))
+    queue.add((CrawlQueueRecord("https://grivel.com/collections/crampons", OriginCategory.Kind)))
 //    queue.add(CrawlQueueRecord("https://tramontana.ru/brands/petzl/ledovoe_snaryazhenie/", "category"))
+    queue.add(CrawlQueueRecord("https://tramontana.ru/catalog/koshki_2/?SECTION_CODE=koshki_2&set_filter=y&arrFilter_2_740967158=Y", "category"))
+
     "https://tramontana.ru/brands/petzl/ledovoe_snaryazhenie/"
 
     CrawlerApp.main(Array(
@@ -24,6 +28,7 @@ class CrawlerAppSpec extends FlatSpec {
       "--sqs-max-miss-count", "3",
       "--aws-region", "us-east-2",
       "--sqs-classifier-queue-name", "ProductClassifierQueue",
+//      "--sqs-processing-queue-name", "ProcessingQueue",
       "--sqs-queue-name", "CrawlQueue",
       "--sqs-dl-queue-name", "DeadLetterCrawlQueue",
       "--sqs-wait-time", "2",

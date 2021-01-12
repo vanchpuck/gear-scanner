@@ -7,7 +7,7 @@ import org.jsoup.nodes.Document
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-object TrekkinnParser extends JsoupParser {
+object TrekkinnParser extends JsoupParser[Category] {
   val StoreName = "www.trekkinn.com"
 
   override def parse(categoryUrl: URL, doc: Document): Category = {

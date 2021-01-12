@@ -7,7 +7,7 @@ import org.jsoup.nodes.Document
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-object ReiCoopParser extends JsoupParser {
+object ReiCoopParser extends JsoupParser[Category] {
 
   val StoreName = "www.rei.com"
 

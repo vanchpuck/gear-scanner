@@ -19,7 +19,7 @@ object GrivelParser extends JsoupParser[OriginCategory] {
           new OriginProduct(
             BrandName,
             wrapper.select(".ProductItem__Title").text(),
-            new URL(baseURL, wrapper.select(".ProductItem__Wrapper noscript img:not(.ProductItem__Image--alternate)").attr("src")).toString,
+            new URL(baseURL, wrapper.select(".ProductItem__Wrapper noscript img:not(.ProductItem__Image--alternate)").attr("src")),
           )
         })
     )

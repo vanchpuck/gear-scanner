@@ -30,7 +30,7 @@ class OriginalCategoryProcessorSpec extends FlatSpec {
     val processingQueue = new TestQueue[CrawlAttempt[OriginCategory]]()
 
     val attempts = Seq(
-      (CategoryURL1, CategoryURL2, Seq(OriginProduct("petzl", "lynx", "http://image.com")))
+      (CategoryURL1, CategoryURL2, Seq(OriginProduct("petzl", "lynx", new URL("http://image.com"))))
     ).map(category => CrawlAttempt(category._1, 0L, None, None, None, Some(OriginCategory(Some(new URL(category._2)), category._3))))
 
     val processor = new OriginalCategoryProcessor(crawlQueue.add, processingQueue.add)

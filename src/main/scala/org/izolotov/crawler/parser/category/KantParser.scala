@@ -7,7 +7,7 @@ import org.jsoup.nodes.Document
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-object KantParser extends JsoupParser {
+object KantParser extends JsoupParser[Category] {
 
   val StoreName = "www.kant.ru"
 

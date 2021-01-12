@@ -7,7 +7,7 @@ import org.jsoup.nodes.Document
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-object TramontanaParser extends JsoupParser {
+object TramontanaParser extends JsoupParser[Category] {
 
   val StoreName = "tramontana.ru"
 

@@ -6,8 +6,10 @@ import java.util.concurrent.Executors
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.typesafe.scalalogging.Logger
-import org.izolotov.crawler.parser._
-import org.izolotov.crawler.processor.{CategoryProcessor, ImageProcessor, Processor, ProductProcessor}
+import org.izolotov.crawler.parser.category.Category
+import org.izolotov.crawler.parser.{product, _}
+import org.izolotov.crawler.parser.origin.{GrivelParser, OriginCategory, OriginProduct}
+import org.izolotov.crawler.processor.{CategoryProcessor, ImageProcessor, OriginalCategoryProcessor, Processor, ProductProcessor, S3Image}
 import org.rogach.scallop.ScallopConf
 import org.scanamo.DynamoFormat
 import org.scanamo._
@@ -20,6 +22,8 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 
 object CrawlerApp {
 
+  case class Document[A](kind: String, data: A)
+
   case class HostConf[A](conf: CrawlConf, parser: Parser[A], processor: Processor[A])
 
   class RecordConfHelper(userAgent: String,
@@ -27,7 +31,8 @@ object CrawlerApp {
                                     timeout: Long,
                                     productProcessor: ProductProcessor,
                                     categoryProcessor: CategoryProcessor,
-                                    imageProcessor: ImageProcessor) {
+                                    imageProcessor: ImageProcessor,
+                                    originalProcessor: OriginalCategoryProcessor) {
 
     private def crawlerConf[A](parser: Parser[A], delay: Long = this.delay, cookies: Option[Map[String, _]] = None): (CrawlConf, Parser[A]) = {
       (CrawlConf(userAgent, delay, timeout, cookies), parser)
@@ -67,6 +72,12 @@ object CrawlerApp {
         case "image" => {
           val conf = crawlerConf(new BinaryDataParser())
           HostConf(conf._1, conf._2, imageProcessor)
+        }
+        case OriginCategory.Kind => {
+          val conf = new URL(record.url).getHost match {
+            case "grivel.com" => crawlerConf(GrivelParser)
+          }
+          HostConf(conf._1, conf._2, originalProcessor)
         }
       }
     }
@@ -137,7 +148,16 @@ object CrawlerApp {
     implicit val urlStringFormat = DynamoFormat.coercedXmap[URL, String, MalformedURLException](new URL(_))(_.toString)
     implicit val iterableListFormat = DynamoFormat.xmap[Iterable[URL], List[URL]](
       list => Right(list))(_.toList)
+    implicit val iterableListFormat1 = DynamoFormat.xmap[Iterable[OriginProduct], List[OriginProduct]](
+      list => Right(list))(_.toList)
+    implicit val productFormat = DynamoFormat.coercedXmap[product.Product, Document[product.Product], Null](_.data)(new Document[product.Product](product.Product.Kind, _))
+    implicit val categoryFormat  = DynamoFormat.coercedXmap[Category, Document[Category], Null](_.data)(new Document[Category](Category.Kind, _))
+    implicit val s3ImageFormat  = DynamoFormat.coercedXmap[S3Image, Document[S3Image], Null](_.data)(new Document[S3Image](S3Image.Kind, _))
+    implicit val originalCategoryFormat  = DynamoFormat.coercedXmap[OriginCategory, Document[OriginCategory], Null](_.data)(new Document[OriginCategory](OriginCategory.Kind, _))
+    implicit val originalProductFormat  = DynamoFormat.coercedXmap[OriginProduct, Document[OriginProduct], Null](_.data)(new Document[OriginProduct](OriginProduct.Kind, _))
+
     implicit val Formats = org.json4s.DefaultFormats
+
     val conf = new Conf(args)
     val sqsClient = SqsClient.builder.region(Region.of(conf.awsRegion())).build
     val classifierQueue = new SQSQueue[CrawlAttempt[product.Product]](sqsClient, conf.sqsClassifierQueueName())
@@ -149,9 +169,11 @@ object CrawlerApp {
       conf.userAgent(),
       conf.delay(),
       conf.timeout(),
-      new ProductProcessor(crawlQueue.add, classifierQueue.add, deadLetterQueue.add),
+//      new ProductProcessor(crawlQueue.add, classifierQueue.add, dynamo.save, deadLetterQueue.add),
+      new ProductProcessor(crawlQueue.add, dynamo.save, deadLetterQueue.add),
       new CategoryProcessor(crawlQueue.add, dynamo.save, deadLetterQueue.add),
-      new ImageProcessor(imageStore.upload, dynamo.save, deadLetterQueue.add)
+      new ImageProcessor(imageStore.upload, dynamo.save, deadLetterQueue.add),
+      new OriginalCategoryProcessor(crawlQueue.add, dynamo.save, deadLetterQueue.add)
     )
     val crawlingContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(conf.crawlerThreads(), new ThreadFactoryBuilder().setDaemon(true).build))
     val processingContext = ExecutionContext.global

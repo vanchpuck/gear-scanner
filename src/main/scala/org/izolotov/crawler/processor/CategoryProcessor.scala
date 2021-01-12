@@ -5,10 +5,10 @@ import org.izolotov.crawler.parser.product.Product
 import org.izolotov.crawler.{CrawlAttempt, CrawlQueueRecord}
 
 class CategoryProcessor(addToCrawlQueue: (CrawlQueueRecord) => Unit,
-                        storeToDB: (CrawlAttempt[Category]) => Unit,
+                        addToProcessingQueue: (CrawlAttempt[Category]) => Unit,
                         addToDLQueue: (CrawlAttempt[Category]) => Unit = null) extends Processor[Category] {
   override def process(attempt: CrawlAttempt[Category]): CrawlAttempt[Category] = {
-    storeToDB.apply(attempt)
+    addToProcessingQueue(attempt)
     // TODO add logging
     attempt.document.map{
       doc =>

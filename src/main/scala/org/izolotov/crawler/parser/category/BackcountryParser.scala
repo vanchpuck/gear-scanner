@@ -7,7 +7,7 @@ import org.jsoup.nodes.Document
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-object BackcountryParser extends JsoupParser {
+object BackcountryParser extends JsoupParser[Category] {
 
   val StoreName = "www.backcountry.com"
 

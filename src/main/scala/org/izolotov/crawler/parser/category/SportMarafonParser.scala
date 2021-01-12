@@ -8,7 +8,7 @@ import scala.collection.JavaConverters._
 import scala.util.Try
 
 
-object SportMarafonParser extends JsoupParser {
+object SportMarafonParser extends JsoupParser[Category] {
 
 //  val StoreName = "sport-marafon.ru"
 

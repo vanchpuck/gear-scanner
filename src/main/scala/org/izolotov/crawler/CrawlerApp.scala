@@ -8,7 +8,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.typesafe.scalalogging.Logger
 import org.izolotov.crawler.parser.category.Category
 import org.izolotov.crawler.parser.{product, _}
-import org.izolotov.crawler.parser.origin.{GrivelParser, OriginCategory, OriginProduct}
+import org.izolotov.crawler.parser.origin.{GrivelParser, OriginCategory, OriginProduct, PetzlParser}
 import org.izolotov.crawler.processor.{CategoryProcessor, ImageProcessor, OriginalCategoryProcessor, Processor, ProductProcessor, S3Image}
 import org.rogach.scallop.ScallopConf
 import org.scanamo.DynamoFormat
@@ -76,6 +76,7 @@ object CrawlerApp {
         case OriginCategory.Kind => {
           val conf = new URL(record.url).getHost match {
             case "grivel.com" => crawlerConf(GrivelParser)
+            case "petzl.ru" => crawlerConf(PetzlParser)
           }
           HostConf(conf._1, conf._2, originalProcessor)
         }

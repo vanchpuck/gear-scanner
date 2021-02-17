@@ -7,6 +7,7 @@ import java.util.concurrent.Executors
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.typesafe.scalalogging.Logger
 import org.izolotov.crawler.parser.category.Category
+import org.izolotov.crawler.parser.origin.{GrivelParser, OriginCategory, OriginProduct}
 import org.izolotov.crawler.parser.{product, _}
 import org.izolotov.crawler.parser.origin.{GrivelParser, OriginCategory, OriginProduct, PetzlParser}
 import org.izolotov.crawler.processor.{CategoryProcessor, ImageProcessor, OriginalCategoryProcessor, Processor, ProductProcessor, S3Image}

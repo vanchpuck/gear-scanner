@@ -1,7 +1,7 @@
 package org.izolotov.crawler.processor
 
+import org.izolotov.crawler.parser.origin.OriginCategory
 import org.izolotov.crawler.{CrawlAttempt, CrawlQueueRecord}
-import org.izolotov.crawler.parser.origin.{OriginCategory}
 
 class OriginalCategoryProcessor(addToCrawlQueue: (CrawlQueueRecord) => Unit,
                                 storeToDB: (CrawlAttempt[OriginCategory]) => Unit,

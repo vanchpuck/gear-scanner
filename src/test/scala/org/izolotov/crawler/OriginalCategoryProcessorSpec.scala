@@ -2,6 +2,8 @@ package org.izolotov.crawler
 
 import java.net.URL
 
+import org.izolotov.crawler.parser.origin.{OriginCategory, OriginProduct}
+import org.izolotov.crawler.parser.origin.OriginCategory
 import org.izolotov.crawler.processor.OriginalCategoryProcessor
 
 //import org.izolotov.crawler.parser.category.Category
@@ -11,7 +13,6 @@ import org.scalatest.FlatSpec
 
 import scala.collection.mutable.ListBuffer
 import CategoryProcessorSpec._
-import org.izolotov.crawler.parser.origin.{OriginCategory, OriginProduct}
 
 object OriginalCategoryProcessorSpec {
   val Store = "TestStore"

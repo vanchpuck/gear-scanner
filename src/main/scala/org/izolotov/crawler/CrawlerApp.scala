@@ -7,9 +7,8 @@ import java.util.concurrent.Executors
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.typesafe.scalalogging.Logger
 import org.izolotov.crawler.parser.category.Category
-import org.izolotov.crawler.parser.origin.{GrivelParser, OriginCategory, OriginProduct}
+import org.izolotov.crawler.parser.origin.{BlackDiamondParser, CampParser, DmmParser, EdelridParser, GrivelParser, LaSportivaParser, MilletParser, OcunParser, OriginCategory, OriginProduct, OspreyParser, PetzlParser, ScarpaParser, SingingRockParser}
 import org.izolotov.crawler.parser.{product, _}
-import org.izolotov.crawler.parser.origin.{GrivelParser, OriginCategory, OriginProduct, PetzlParser}
 import org.izolotov.crawler.processor.{CategoryProcessor, ImageProcessor, OriginalCategoryProcessor, Processor, ProductProcessor, S3Image}
 import org.rogach.scallop.ScallopConf
 import org.scanamo.DynamoFormat
@@ -78,6 +77,21 @@ object CrawlerApp {
           val conf = new URL(record.url).getHost match {
             case "grivel.com" => crawlerConf(GrivelParser)
             case "petzl.ru" => crawlerConf(PetzlParser)
+            case "www.blackdiamondequipment.ru" => crawlerConf(BlackDiamondParser)
+            case "www.lasportiva.com" => crawlerConf(LaSportivaParser)
+            case "www.edelrid.de" => crawlerConf(EdelridParser)
+            case "www.singingrock.com" => crawlerConf(SingingRockParser)
+            case "www.camp-usa.com" => crawlerConf(CampParser)
+            case "www.scarpa.com" => crawlerConf(ScarpaParser)
+            case "www.millet-mountain.com" => crawlerConf(MilletParser)
+            case "www.ospreyeurope.com" => crawlerConf(OspreyParser)
+            case "www.ocun.com" => crawlerConf(OcunParser)
+            case "dmmwales.com" => crawlerConf(DmmParser)
+              // sivera
+              // red-fox
+              // pieps
+              // saleva
+              // arcteryx
           }
           HostConf(conf._1, conf._2, originalProcessor)
         }

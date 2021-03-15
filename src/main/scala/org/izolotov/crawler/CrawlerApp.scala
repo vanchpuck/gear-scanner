@@ -7,7 +7,7 @@ import java.util.concurrent.Executors
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.typesafe.scalalogging.Logger
 import org.izolotov.crawler.parser.category.Category
-import org.izolotov.crawler.parser.origin.{BlackDiamondParser, CampParser, DmmParser, EdelridParser, GrivelParser, LaSportivaParser, MilletParser, OcunParser, OriginCategory, OriginProduct, OspreyParser, PetzlParser, ScarpaParser, SingingRockParser}
+import org.izolotov.crawler.parser.origin.{BlackDiamondParser, CampParser, ClimbingTechnologyParser, DmmParser, EdelridParser, GrivelParser, LaSportivaParser, MilletParser, OcunParser, OriginCategory, OriginProduct, OspreyParser, PetzlParser, SalewaParser, ScarpaParser, SingingRockParser}
 import org.izolotov.crawler.parser.{product, _}
 import org.izolotov.crawler.processor.{CategoryProcessor, ImageProcessor, OriginalCategoryProcessor, Processor, ProductProcessor, S3Image}
 import org.rogach.scallop.ScallopConf
@@ -77,7 +77,7 @@ object CrawlerApp {
           val conf = new URL(record.url).getHost match {
             case "grivel.com" => crawlerConf(GrivelParser)
             case "petzl.ru" => crawlerConf(PetzlParser)
-            case "www.blackdiamondequipment.ru" => crawlerConf(BlackDiamondParser)
+            case "blackdiamondequipment.ru" => crawlerConf(BlackDiamondParser)
             case "www.lasportiva.com" => crawlerConf(LaSportivaParser)
             case "www.edelrid.de" => crawlerConf(EdelridParser)
             case "www.singingrock.com" => crawlerConf(SingingRockParser)
@@ -87,11 +87,13 @@ object CrawlerApp {
             case "www.ospreyeurope.com" => crawlerConf(OspreyParser)
             case "www.ocun.com" => crawlerConf(OcunParser)
             case "dmmwales.com" => crawlerConf(DmmParser)
+            case "www.salewa.com" => crawlerConf(SalewaParser)
+            case "www.climbingtechnology.com" => crawlerConf(ClimbingTechnologyParser)
               // sivera
               // red-fox
               // pieps
-              // saleva
               // arcteryx
+              // kong
           }
           HostConf(conf._1, conf._2, originalProcessor)
         }

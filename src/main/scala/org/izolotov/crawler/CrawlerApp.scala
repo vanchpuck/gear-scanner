@@ -7,7 +7,7 @@ import java.util.concurrent.Executors
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.typesafe.scalalogging.Logger
 import org.izolotov.crawler.parser.category.Category
-import org.izolotov.crawler.parser.origin.{BlackDiamondParser, CampParser, ClimbingTechnologyParser, DmmParser, EdelridParser, GrivelParser, LaSportivaParser, MilletParser, OcunParser, OriginCategory, OriginProduct, OspreyParser, PetzlParser, SalewaParser, ScarpaParser, SingingRockParser}
+import org.izolotov.crawler.parser.origin.{BlackDiamondParser, CampParser, ClimbingTechnologyParser, DmmParser, EdelridParser, GrivelParser, KongParser, LaSportivaParser, MilletParser, OcunParser, OriginCategory, OriginProduct, OspreyParser, PetzlParser, SalewaParser, ScarpaParser, SingingRockParser}
 import org.izolotov.crawler.parser.{product, _}
 import org.izolotov.crawler.processor.{CategoryProcessor, ImageProcessor, OriginalCategoryProcessor, Processor, ProductProcessor, S3Image}
 import org.rogach.scallop.ScallopConf
@@ -89,11 +89,11 @@ object CrawlerApp {
             case "dmmwales.com" => crawlerConf(DmmParser)
             case "www.salewa.com" => crawlerConf(SalewaParser)
             case "www.climbingtechnology.com" => crawlerConf(ClimbingTechnologyParser)
+            case "www.kong.it" => crawlerConf(KongParser)
               // sivera
               // red-fox
               // pieps
               // arcteryx
-              // kong
           }
           HostConf(conf._1, conf._2, originalProcessor)
         }
@@ -123,10 +123,10 @@ object CrawlerApp {
 
   def crawl[A](records: Iterable[CrawlQueueRecord],
                conf: (CrawlQueueRecord) => HostConf[_])
-              (implicit crawlingContext: ExecutionContext, processingContext: ExecutionContext): Unit = {
-    implicit val awaitContext = ExecutionContext.global
+              (implicit crawlingContext: ExecutionContext, processingContext: ExecutionContext): Iterable[Future[CrawlAttempt[A]]] = {
+//    implicit val awaitContext = ExecutionContext.global
 
-    val futures = records.map{
+    records.map{
       record => {
         Log.info(s"Processing record: $record")
         val hostConf = conf(record)
@@ -137,7 +137,7 @@ object CrawlerApp {
           .map(attempt => processor.process(attempt))(processingContext)
       }
     }
-    Await.result(Future.sequence(futures), Duration.Inf)
+//    Await.result(Future.sequence(futures), Duration.Inf)
   }
 
   def processQueue(queue: SQSQueue[CrawlQueueRecord],
@@ -145,6 +145,8 @@ object CrawlerApp {
                    maxEmptyRespCount: Int = 3,
                    sqsWaitTime: Int = 0)
                   (implicit crawlingContext: ExecutionContext, processingContext: ExecutionContext): Unit = {
+    implicit val awaitContext = ExecutionContext.global
+    val futures = Iterable[Future[CrawlAttempt[_]]]()
     var count = 0;
     while (count < maxEmptyRespCount) {
       val records: Iterable[CrawlQueueRecord] = queue.pull()
@@ -153,12 +155,14 @@ object CrawlerApp {
       } else {
         count = 0
         try {
-          crawl(records, conf)(crawlingContext, processingContext)
+          futures ++ crawl(records, conf)(crawlingContext, processingContext)
         } catch {
           case e: Exception => Log.warn(s"Error during the record batch processing: ${e.toString}")
         }
       }
     }
+    Log.info("All records have been processed. Shutting down gracefully...")
+    Await.result(Future.sequence(futures), Duration.Inf)
   }
 
   def main(args: Array[String]): Unit = {
@@ -179,7 +183,7 @@ object CrawlerApp {
     val conf = new Conf(args)
     val sqsClient = SqsClient.builder.region(Region.of(conf.awsRegion())).build
     val classifierQueue = new SQSQueue[CrawlAttempt[product.Product]](sqsClient, conf.sqsClassifierQueueName())
-    val crawlQueue = new SQSQueue[CrawlQueueRecord](sqsClient, conf.sqsQueueName())
+    val crawlQueue = new SQSQueue[CrawlQueueRecord](sqsClient, conf.sqsQueueName(), waitTimeSeconds = conf.sqsWaitTime())
     val deadLetterQueue = new SQSQueue[CrawlAttempt[_]](sqsClient, conf.sqsDlQueueName())
     val dynamo = new DynamoDBHelper(conf.crawlTable(), conf.awsRegion())
     val imageStore = new ImageStore(conf.imageBucketArn())
@@ -195,7 +199,7 @@ object CrawlerApp {
     )
     val crawlingContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(conf.crawlerThreads(), new ThreadFactoryBuilder().setDaemon(true).build))
     val processingContext = ExecutionContext.global
-    processQueue(crawlQueue, crawlConfHelper.getHostConf, conf.sqsMaxMissCount())(crawlingContext, processingContext)
+    processQueue(crawlQueue, crawlConfHelper.getHostConf, conf.sqsMaxMissCount(), conf.sqsWaitTime())(crawlingContext, processingContext)
   }
 
 }

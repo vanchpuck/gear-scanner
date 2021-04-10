@@ -1,6 +1,7 @@
 package org.izolotov.crawler.parser.category
 import java.net.URL
 
+import org.izolotov.crawler.parser.JsoupParser
 import org.jsoup.nodes.Document
 
 import scala.collection.JavaConverters._

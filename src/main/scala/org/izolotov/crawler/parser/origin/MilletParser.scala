@@ -3,7 +3,7 @@ package org.izolotov.crawler.parser.origin
 import java.net.URL
 
 import com.google.common.base.Strings
-import org.izolotov.crawler.parser.category.JsoupParser
+import org.izolotov.crawler.parser.JsoupParser
 import org.jsoup.nodes.Document
 
 object MilletParser extends JsoupParser[OriginCategory] {

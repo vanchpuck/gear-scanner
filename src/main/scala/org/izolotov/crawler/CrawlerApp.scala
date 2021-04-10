@@ -2,7 +2,8 @@ package org.izolotov.crawler
 
 import java.net.{MalformedURLException, URL}
 import java.time.Clock
-import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.{ExecutorService, Executors, ThreadPoolExecutor, TimeUnit}
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.typesafe.scalalogging.Logger
@@ -17,7 +18,6 @@ import org.scanamo.syntax._
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.sqs.SqsClient
 
-import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 object CrawlerApp {
@@ -121,11 +121,21 @@ object CrawlerApp {
 
   implicit val clock = Clock.systemUTC()
 
+  def crawl[A](record: CrawlQueueRecord,
+               conf: (CrawlQueueRecord) => HostConf[_])
+              (implicit crawlingContext: ExecutionContext, processingContext: ExecutionContext): Future[CrawlAttempt[A]] = {
+    Log.info(s"Processing record: $record")
+    val hostConf = conf(record)
+    val parser = hostConf.parser.asInstanceOf[Parser[A]]
+    val processor = hostConf.processor.asInstanceOf[Processor[A]]
+    val crawlConf = hostConf.conf
+    Crawler.crawl(record.url)(clock, crawlingContext, crawlConf, parser)
+      .map(attempt => processor.process(attempt))(processingContext)
+  }
+
   def crawl[A](records: Iterable[CrawlQueueRecord],
                conf: (CrawlQueueRecord) => HostConf[_])
               (implicit crawlingContext: ExecutionContext, processingContext: ExecutionContext): Iterable[Future[CrawlAttempt[A]]] = {
-//    implicit val awaitContext = ExecutionContext.global
-
     records.map{
       record => {
         Log.info(s"Processing record: $record")
@@ -137,32 +147,38 @@ object CrawlerApp {
           .map(attempt => processor.process(attempt))(processingContext)
       }
     }
-//    Await.result(Future.sequence(futures), Duration.Inf)
   }
 
   def processQueue(queue: SQSQueue[CrawlQueueRecord],
                    conf: (CrawlQueueRecord) => HostConf[_],
                    maxEmptyRespCount: Int = 3,
                    sqsWaitTime: Int = 0)
-                  (implicit crawlingContext: ExecutionContext, processingContext: ExecutionContext): Unit = {
-    implicit val awaitContext = ExecutionContext.global
-    val futures = Iterable[Future[CrawlAttempt[_]]]()
+                  (implicit executorService: ExecutorService): Unit = {
+    val crawlingContext = ExecutionContext.fromExecutor(executorService)
+    val processingContext = ExecutionContext.global
     var count = 0;
+    val recordsCounter = new AtomicInteger(0)
     while (count < maxEmptyRespCount) {
+      println("step")
+      println(recordsCounter.get())
       val records: Iterable[CrawlQueueRecord] = queue.pull()
-      if (records.isEmpty) {
+      if (records.isEmpty && recordsCounter.compareAndSet(0, 0)) {
         count += 1
       } else {
         count = 0
         try {
-          futures ++ crawl(records, conf)(crawlingContext, processingContext)
+          records.foreach{
+            record =>
+              println(recordsCounter.incrementAndGet())
+              crawl(record, conf)(crawlingContext, processingContext).asInstanceOf[Future[CrawlAttempt[_]]]
+                .onComplete{_ => println("completed"); println(recordsCounter.decrementAndGet())}(processingContext)
+          }
         } catch {
           case e: Exception => Log.warn(s"Error during the record batch processing: ${e.toString}")
         }
       }
     }
-    Log.info("All records have been processed. Shutting down gracefully...")
-    Await.result(Future.sequence(futures), Duration.Inf)
+    Log.info("All records have been processed")
   }
 
   def main(args: Array[String]): Unit = {
@@ -191,15 +207,13 @@ object CrawlerApp {
       conf.userAgent(),
       conf.delay(),
       conf.timeout(),
-//      new ProductProcessor(crawlQueue.add, classifierQueue.add, dynamo.save, deadLetterQueue.add),
       new ProductProcessor(crawlQueue.add, dynamo.save, deadLetterQueue.add),
       new CategoryProcessor(crawlQueue.add, dynamo.save, deadLetterQueue.add),
       new ImageProcessor(imageStore.upload, dynamo.save, deadLetterQueue.add),
       new OriginalCategoryProcessor(crawlQueue.add, dynamo.save, deadLetterQueue.add)
     )
-    val crawlingContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(conf.crawlerThreads(), new ThreadFactoryBuilder().setDaemon(true).build))
-    val processingContext = ExecutionContext.global
-    processQueue(crawlQueue, crawlConfHelper.getHostConf, conf.sqsMaxMissCount(), conf.sqsWaitTime())(crawlingContext, processingContext)
+    val executorService = Executors.newFixedThreadPool(conf.crawlerThreads(), new ThreadFactoryBuilder().setDaemon(true).build)
+    processQueue(crawlQueue, crawlConfHelper.getHostConf, conf.sqsMaxMissCount(), conf.sqsWaitTime())(executorService)
   }
 
 }

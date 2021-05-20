@@ -76,7 +76,7 @@ object CrawlerApp {
         case OriginCategory.Kind => {
           val conf = new URL(record.url).getHost match {
             case "grivel.com" => crawlerConf(GrivelParser)
-            case "petzl.ru" => crawlerConf(PetzlParser)
+            case "www.petzl.com" => crawlerConf(PetzlParser)
             case "blackdiamondequipment.ru" => crawlerConf(BlackDiamondParser)
             case "www.lasportiva.com" => crawlerConf(LaSportivaParser)
             case "www.edelrid.de" => crawlerConf(EdelridParser)
@@ -159,8 +159,7 @@ object CrawlerApp {
     var count = 0;
     val recordsCounter = new AtomicInteger(0)
     while (count < maxEmptyRespCount) {
-      println("step")
-      println(recordsCounter.get())
+      Log.info(s"Queued: ${recordsCounter.get()}")
       val records: Iterable[CrawlQueueRecord] = queue.pull()
       if (records.isEmpty && recordsCounter.compareAndSet(0, 0)) {
         count += 1

@@ -1,14 +1,12 @@
-package org.izolotov.crawler.parser.category
+package org.izolotov.crawler.parser
 
-import java.io.InputStream
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.izolotov.crawler.parser.Parser
-import org.jsoup.{Jsoup, nodes}
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 
 import scala.tools.nsc.interpreter.InputStream
-import org.jsoup.nodes.Document
 
 abstract class JsoupParser[T] extends Parser[T]{
 

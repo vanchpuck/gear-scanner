@@ -10,25 +10,15 @@ class PetzlParserSpec extends FlatSpec {
   val parser = PetzlParser
   val originalDir = "parser/origin/petzl"
 
-  it should "extract product names and next URL" in {
+  it should "extract product names" in {
     val original = parser.parse(
       new URL("http://localhost/urls"),
-      this.getClass.getClassLoader.getResourceAsStream(s"$originalDir/has-next.html"),
-      Charset.forName("UTF-8")
-    )
-    val expectedNextUrl = new URL("http://localhost/?div=catalog&cat=sport&cat_id=63&num_on_page=15&page=1")
-    val expectedHeadProduct = OriginProduct("petzl", "LYNX", new URL("http://localhost/UserFiles/product/m/LYNX_3157_001.jpg").toString)
-    assert(original.nextURL.get == expectedNextUrl)
-    assert(original.products.head == expectedHeadProduct)
-  }
-
-  it should "not extract next URL if one doesn't exist" in {
-    val original = parser.parse(
-      new URL("http://localhost/has-not-next"),
       this.getClass.getClassLoader.getResourceAsStream(s"$originalDir/has-not-next.html"),
       Charset.forName("UTF-8")
     )
+    val expectedHeadProduct = OriginProduct("petzl", "LEOPARD LLF", "https://www.petzl.com/sfc/servlet.shepherd/version/download/068w0000002DQKzAAO")
     assert(original.nextURL == None)
+    assert(original.products.head == expectedHeadProduct)
   }
 
 }

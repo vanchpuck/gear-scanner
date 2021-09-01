@@ -8,10 +8,10 @@ import org.apache.http.impl.client.HttpClients
 
 import scala.util.Try
 
-class DefaultScraper[Doc]()(implicit clock: Clock) extends Scraper[Doc] {
+class DefaultScraper[Doc, Attempt >: ScrapingAttempt[Doc]]()(implicit clock: Clock) extends Scraper[Doc, Attempt] {
 
 //  override def extract[T <: Target, Raw, Attempt <: ResponseTrait[Doc]](target: T)(implicit fetcher: Fetcher[T, Raw], parser: Parsable[Raw, Doc]): Attempt =
-  override def extract[T <: Target, Raw, Attempt >: ResponseTrait[Doc]](target: T)(implicit fetcher: Fetcher[T, Raw], parser: Parsable[Raw, Doc]): Attempt = {
+  def extract[T <: Target, Raw](target: T)(implicit fetcher: Fetcher[T, Raw], parser: Parsable[Raw, Doc]): Attempt = {
     val startTime = clock.instant.toEpochMilli
     val raw = Try(fetcher.fetch(target))
     val responseTime = clock.instant.toEpochMilli - startTime

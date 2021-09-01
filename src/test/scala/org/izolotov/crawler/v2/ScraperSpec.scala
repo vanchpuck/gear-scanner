@@ -12,7 +12,7 @@ class ScraperSpec extends FlatSpec{
     implicit val clock = Clock.systemUTC()
     implicit val httpParser = new HttpParser()
     implicit val scraper = new HttpFetcher()
-    val resp = new DefaultScraper[String]().extract(HttpWebPage("https://alpindustria.ru/catalog/alpinistskoe-snaryajenie/verevki-stropy-repshnury/-35009/?id=347256"))
+    val resp = new DefaultScraper[String, ScrapingAttempt[String]]().extract(HttpWebPage("https://alpindustria.ru/catalog/alpinistskoe-snaryajenie/verevki-stropy-repshnury/-35009/?id=347256"))
     println(resp)
   }
 

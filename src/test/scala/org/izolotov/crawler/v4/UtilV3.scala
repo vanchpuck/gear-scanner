@@ -1,5 +1,9 @@
 package org.izolotov.crawler.v4
 
+import java.net.URL
+import java.util.concurrent.Executors
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder
 import org.apache.http.HttpEntity
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet}
@@ -11,6 +15,8 @@ import org.scalatest.FlatSpec
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 class UtilV3 extends FlatSpec {
 
@@ -25,12 +31,13 @@ class UtilV3 extends FlatSpec {
     }
 
     override def hasNext: Boolean = {
-      println("hasNext")
+      val a = queue.length > 0
+//      println(s"hasNext: ${a}")
       queue.length > 0
     }
 
     override def next(): String = {
-      println("next")
+//      println("next")
       queue.dequeue()
     }
   }
@@ -73,20 +80,6 @@ class UtilV3 extends FlatSpec {
 //    }
 //  }
 
-  trait HttpResponse[A] {
-    def protocolVersion(): String
-
-    def statusCode(): Int
-
-    def statusText(): String
-
-    def headers(): Map[String, Iterable[String]]
-
-    def body(): A
-  }
-
-  case class HttpResponseImpl[A](protocolVersion: String, statusCode: Int, statusText: String, headers: Map[String, Iterable[String]], body: A) extends HttpResponse[A]
-
   trait Fetcher[Raw] {
     def fetch(url: String): Raw
   }
@@ -96,16 +89,81 @@ class UtilV3 extends FlatSpec {
   }
 
   object Crawler {
-    def read(data: Iterable[String]): FetcherBuilder = {
+    def read(data: Iterable[String]): InitialBranchBuilder = {
       val q = new mutable.Queue[String]()
       q ++= data
-      new FetcherBuilder(new CrawlingQueue(data))
+//      new FetcherBuilder(new CrawlingQueue(data))
+      new InitialBranchBuilder(new CrawlingQueue(data))
     }
   }
 
-  sealed trait Redirectable[Doc]{
+//  trait FetcherBranchBuilder {
+//    def fetch[Raw](fetcher: String => Raw): ParserBranchBuilder[Raw]
+//  }
+
+//  trait Builder {
+//
+//  }
+
+  class FetcherBranchBuilder(queue: CrawlingQueue, predicate: String => Boolean) {
+    def fetch[Raw](fetcher: String => Raw): ParserBranchBuilder[Raw] = {
+      new ParserBranchBuilder[Raw](queue, {case url if predicate.apply(url) => {println("FetcherBranchBuilder"); fetcher.apply(url)}})
+    }
+  }
+  class SuccessiveFetcherBranchBuilder[Doc](queue: CrawlingQueue, predicate: String => Boolean, partial: PartialFunction[String, Doc]) {
+    def fetch[Raw](fetcher: String => Raw): SuccessiveParserBranchBuilder[Raw, Doc] = {
+      new SuccessiveParserBranchBuilder[Raw, Doc](queue, {case url if predicate.apply(url) => fetcher.apply(url)}, partial)
+    }
+  }
+  class FinalFetcherBranchBuilder[Doc](queue: CrawlingQueue, partial: PartialFunction[String, Doc]) {
+    def fetch[Raw](fetcher: String => Raw): FinalParserBranchBuilder[Raw, Doc] = {
+      new FinalParserBranchBuilder[Raw, Doc](queue, {case url => fetcher.apply(url)}, partial)
+    }
+  }
+
+  class ParserBranchBuilder[Raw](queue: CrawlingQueue, fetcher: PartialFunction[String, Raw]) {
+    def parse[Doc](parser: Raw => Doc): SubsequentBranchBuilder[Doc] = {
+      new SubsequentBranchBuilder[Doc](queue, fetcher.andThen(parser))
+    }
+  }
+  class SuccessiveParserBranchBuilder[Raw, Doc](queue: CrawlingQueue, fetcher: PartialFunction[String, Raw], partial: PartialFunction[String, Doc]) {
+    def parse(parser: Raw => Doc): SubsequentBranchBuilder[Doc] = {
+      new SubsequentBranchBuilder[Doc](queue, partial.orElse(fetcher.andThen(parser)))
+    }
+  }
+  class FinalParserBranchBuilder[Raw, Doc](queue: CrawlingQueue, fetcher: PartialFunction[String, Raw], partial: PartialFunction[String, Doc]) {
+    def parse(parser: Raw => Doc): FinalBranchBuilder[Doc] = {
+      new FinalBranchBuilder[Doc](queue, partial.orElse(fetcher.andThen(parser)))
+    }
+  }
+
+  class SubsequentBranchBuilder[Doc](queue: CrawlingQueue, partialParser: PartialFunction[String, Doc]) {
+    def when(predicate: String => Boolean): SuccessiveFetcherBranchBuilder[Doc] = {
+      new SuccessiveFetcherBranchBuilder(queue, predicate, partialParser)
+    }
+
+    def otherwise(): FinalFetcherBranchBuilder[Doc] = {
+      new FinalFetcherBranchBuilder[Doc](queue, partialParser)
+    }
+  }
+  class FinalBranchBuilder[Doc](queue: CrawlingQueue, parser: String => Doc) {
+    def write(processor: Doc => Unit): PipelineRunner = {
+      new PipelineRunner(queue, parser.andThen(processor))
+    }
+  }
+
+  class InitialBranchBuilder(queue: CrawlingQueue) {
+    def fetch[Raw](fetcher: String => Raw): ParserBuilder[Raw] = {
+      new FetcherBuilder(queue).fetch(fetcher)
+    }
+
+    def when(predicate: String => Boolean): FetcherBranchBuilder = {
+      new FetcherBranchBuilder(queue, predicate)
+    }
 
   }
+
+  sealed trait Redirectable[Doc]{}
 
   sealed trait Redirect[Doc] extends Redirectable[Doc] {
     def target(): String
@@ -116,34 +174,40 @@ class UtilV3 extends FlatSpec {
   case class MetaRedirect[Doc](target: String, doc: Doc) extends Redirect[Doc]
 
   class FetcherBuilder(queue: CrawlingQueue) {
-    def fetch[Raw](fetcher: Fetcher[Raw]): ParserBuilder[Raw] = {
-      new ParserBuilder[Raw](queue, fetcher.fetch)
+    def fetch[Raw](fetcher: String => Raw): ParserBuilder[Raw] = {
+      new ParserBuilder[Raw](queue, fetcher)
     }
   }
 
   class ParserBuilder[Raw](queue: CrawlingQueue, fetcher: String => Raw) {
-//    def parse[Doc](parser: Parser[Raw, Redirectable[Doc]]): ProcessorBuilder[Doc] = {
-    def parse[Doc](parser: Parser[Raw, Redirectable[Doc]]): RedirectHandlerBuilder[Doc] = {
-      new RedirectHandlerBuilder[Doc](queue, fetcher.andThen(parser.parse))
+    def parse[Doc](parser: Raw => Redirectable[Doc]): ProcessorProxyBuilder[Doc] = {
+      new ProcessorProxyBuilder[Doc](queue, fetcher.andThen(parser))
     }
   }
+//
+//  trait RedirectHandlerBuilderInt[Doc] {
+//    def followRedirect(deep: Int): WriterBuilder[Doc]
+//  }
+//
+//  trait WriterBuilderInt[Doc] {
+//    def write(processor: Redirectable[Doc] => Unit): PipelineRunner
+//  }
 
-  trait RedirectHandler {
-    def handle[A](redirectable: Redirectable[A], queue: CrawlingQueue): Redirectable[A]
+  // TODO rename to proxy
+  class ProcessorProxyBuilder[Doc](queue: CrawlingQueue, parser: String => Redirectable[Doc]) {
+    def followRedirect(deep: Int): WriterBuilder[Doc] = {
+      new RedirectHandlerBuilder[Doc](queue, parser: String => Redirectable[Doc]).followRedirect(deep)
+    }
+
+    def write(processor: Redirectable[Doc] => Unit): PipelineRunner = {
+      new WriterBuilder[Doc](queue, parser).write(processor)
+    }
+
   }
 
-//  object DefaultRedirectHandler extends RedirectHandler {
-//    def handle[A](redirectable: Redirectable[A], queue: CrawlingQueue): Redirectable[A] = {
-//      redirectable match {
-//        case d: Direct[A] => d
-//        case hr: HeaderRedirect[A] => {
-//          println("Add: " + hr.target)
-//          queue.add(hr.target)
-//          hr
-//        }
-//        case mr: MetaRedirect[A] => mr
-//      }
-//    }
+
+//  trait RedirectHandler {
+//    def handle[A](redirectable: Redirectable[A], queue: CrawlingQueue): Redirectable[A]
 //  }
 
   class RedirectHandlerBuilder[Doc](var queue: CrawlingQueue, parser: String => Redirectable[Doc]) {
@@ -161,30 +225,52 @@ class UtilV3 extends FlatSpec {
         }
     }
 
-    def followRedirect(deep: Int): ProcessorBuilder[Doc] = {
-      new ProcessorBuilder[Doc](queue, parser.andThen(a))
+    def followRedirect(deep: Int): WriterBuilder[Doc] = {
+      new WriterBuilder[Doc](queue, parser.andThen(a))
     }
   }
 
-  class ProcessorBuilder[Doc](queue: CrawlingQueue, redirectHandler: String => Redirectable[Doc]) {
-    def process(processor: Redirectable[Doc] => Unit): PipelineRunner = {
+  class WriterBuilder[Doc](queue: CrawlingQueue, redirectHandler: String => Redirectable[Doc]) {
+    def write(processor: Redirectable[Doc] => Unit): PipelineRunner = {
       new PipelineRunner(queue, redirectHandler.andThen(processor))
     }
   }
 
+  val executorService1 = Executors.newFixedThreadPool(1, new ThreadFactoryBuilder().setDaemon(true).build)
+  val executorService2 = Executors.newFixedThreadPool(1, new ThreadFactoryBuilder().setDaemon(true).build)
+  val executorService3 = Executors.newFixedThreadPool(1, new ThreadFactoryBuilder().setDaemon(true).build)
+  val globalExecutor = Executors.newFixedThreadPool(2, new ThreadFactoryBuilder().setDaemon(true).build)
+  val globalExecutor1 = Executors.newFixedThreadPool(3, new ThreadFactoryBuilder().setDaemon(true).build)
+  val ec1 = ExecutionContext.fromExecutor(globalExecutor1)
+
   class PipelineRunner(queue: CrawlingQueue, writer: String => Unit) {
+    val moderator = new FixedDelayModerator(2000L)
+    val map = Map(
+      "example.com" -> (new FixedDelayModerator(3000L), ec1),
+      "www.facebook.com" -> (new FixedDelayModerator(3000L), ec1),
+      "google.com" -> (new FixedDelayModerator(3000L), ec1)
+    )
     def crawl(): Unit = {
+      val q = new FetcherQueue(2, 3000L)
       queue.foreach{
-        println("step")
-        url => writer.apply(url)
+        url => {
+//          println("step")
+//          moderator.extract(url, writer.apply)
+          q.fetch(new URL(url), writer.apply)
+        }
       }
+//      println("Finish")
     }
   }
 
-  class DefaultHttpFetcher()(implicit httpClient: CloseableHttpClient) extends Fetcher[CloseableHttpResponse] {
+  trait Fetcher1[Raw] {
+    def fetch(url: String): Raw
+  }
+
+  class DefaultHttpFetcher()(implicit httpClient: CloseableHttpClient) extends Fetcher1[CloseableHttpResponse] {
     override def fetch(url: String): CloseableHttpResponse = {
       println("Fetch: " + url)
-      val httpGet = new HttpGet(url);
+      val httpGet = new HttpGet(url)
       val response: CloseableHttpResponse = httpClient.execute(httpGet)
       response
     }
@@ -223,17 +309,57 @@ class UtilV3 extends FlatSpec {
     }
   }
 
+  object EquipParser extends JSoupParser[Int] {
+    override def parseDocument(document: Document): Int = {
+      document.siblingIndex()
+    }
+  }
+
   case class Holder(title: String)
 
   implicit val httpClient = HttpClients.createDefault()
 
+  def examplePredicate(url: String): Boolean = {if (url.startsWith("http://example.com")) true else false}
+  def facebookPredicate(url: String): Boolean = {if (url.startsWith("https://www.facebook.com")) true else false}
+  def googlePredicate(url: String): Boolean = {if (url.startsWith("https://google.com")) true else false}
+
   it should ".." in {
-    Crawler.read(Seq("http://example.com"))
-      .fetch(new DefaultHttpFetcher())
-      .parse(new HttpResponseParser(KantParser.parse))
-      .followRedirect(1)
-      .process(u => println(u))
-      .crawl()
+    println("!")
+    Crawler.read(
+      Seq(
+        "http://example.com?a=1", "http://example.com?a=2", "http://example.com?a=3", "http://example.com?a=4",
+        "https://www.facebook.com/?a=1",
+        "https://google.com?a=1", "https://google.com?a=2"
+      ))
+      .when(examplePredicate)
+        .fetch(new DefaultHttpFetcher().fetch)
+        .parse(new HttpResponseParser(KantParser.parse).parse)
+      .when(facebookPredicate)
+        .fetch(new DefaultHttpFetcher().fetch)
+        .parse(new HttpResponseParser(KantParser.parse).parse)
+      .otherwise
+        .fetch(new DefaultHttpFetcher().fetch)
+        .parse(new HttpResponseParser(KantParser.parse).parse)
+        .write(u => {println(s"${System.currentTimeMillis()} ${u}")})
+        .crawl()
+
+
+//    Crawler.read(
+//      Seq(
+//        "http://example.com?a=1", "http://example.com?a=2", "http://example.com?a=3", "http://example.com?a=4",
+//        "https://www.facebook.com/?a=1",
+//        "https://google.com?a=1", "https://google.com?a=2"
+//      ))
+//      .fetch(new DefaultHttpFetcher().fetch)
+//      .parse(new HttpResponseParser(KantParser.parse).parse)
+//      .followRedirect(1)
+//      .write(u => {println(s"${System.currentTimeMillis()} ${u}")})
+//      .crawl()
+
+    Thread.sleep(25000L)
+    case class A(a: Int, b: Int)
+    val p: Serializable = A(1, 2)
+
   }
 
 }

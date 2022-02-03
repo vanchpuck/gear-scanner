@@ -4,7 +4,7 @@ import java.net.URL
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.product.ReiGarageParserSpec._
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
 object ReiGarageParserSpec {
   val ResourceDir = "parser/product/rei-garage-parser"
@@ -12,7 +12,7 @@ object ReiGarageParserSpec {
   val Parser = ReiGarageParser
 }
 
-class ReiGarageParserSpec extends FlatSpec {
+class ReiGarageParserSpec extends AnyFlatSpec {
 
   behavior of "Rei garage product parser"
 

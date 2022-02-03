@@ -3,10 +3,10 @@ package org.izolotov.crawler.parser.product
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
 // TODO handle the case where there is no item in stock
-class TramontanaParserSpec extends FlatSpec {
+class TramontanaParserSpec extends AnyFlatSpec {
 
   behavior of "Tramontana product parser"
 

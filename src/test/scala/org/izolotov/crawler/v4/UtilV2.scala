@@ -1,8 +1,8 @@
 package org.izolotov.crawler.v4
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class UtilV2 extends FlatSpec {
+class UtilV2 extends AnyFlatSpec {
 
   trait Stage[A] {
     def execute(url: String): A

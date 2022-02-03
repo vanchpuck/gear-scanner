@@ -17,7 +17,7 @@ class AlpindustriaParser extends ProductParser {
     val doc = Jsoup.parse(inStream, charset.name(), urlString)
     val title = Option(doc.select(".product_main-title").first.text)
     val brand = Option(doc.select(".product_pat-label img[title]").first.attr("title"))
-    val category = doc.select("div.breadcrumbs a").asScala.drop(1).map(e => e.text())
+    val category = doc.select("div.breadcrumbs a").asScala.drop(1).map(e => e.text()).toSeq
     val baseUrl = new URL(url, "/")
     val imageUrl = new URL(
       baseUrl,

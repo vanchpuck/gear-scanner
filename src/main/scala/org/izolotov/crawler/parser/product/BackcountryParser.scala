@@ -23,7 +23,7 @@ class BackcountryParser extends Parser[Product] {
       val doc = Jsoup.parse(inStream, charset.name(), urlString)
       val title = Option(doc.select("h1.product-name").first.ownText())
       val brand = Option(doc.select("span.qa-brand-name").first.text)
-      val category = doc.select("a.qa-breadcrumb-link").asScala.map(e => e.text())
+      val category = doc.select("a.qa-breadcrumb-link").asScala.map(e => e.text()).toSeq
       val price = Option(Util.parsePrice(doc.select("span.product-pricing__retail, span.product-pricing__sale").first().text()))
       val oldPrice = Option(doc.select("span.product-pricing__inactive").first())
         .map(p => Util.parsePrice(p.text()))

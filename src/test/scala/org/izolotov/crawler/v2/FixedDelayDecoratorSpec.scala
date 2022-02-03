@@ -3,11 +3,11 @@ package org.izolotov.crawler.v2
 import java.time.Clock
 
 import org.apache.http.impl.client.HttpClients
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
 import scala.concurrent.ExecutionContext
 
-class FixedDelayDecoratorSpec extends FlatSpec{
+class FixedDelayDecoratorSpec extends AnyFlatSpec{
 
   it should ".." in {
     val url = "https://alpindustria.ru/catalog/alpinistskoe-snaryajenie/verevki-stropy-repshnury/-35009/?id=347256"

@@ -3,9 +3,9 @@ package org.izolotov.crawler.parser.product
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class JsonParserSpec extends FlatSpec {
+class JsonParserSpec extends AnyFlatSpec {
 
   behavior of "Json product parser"
 

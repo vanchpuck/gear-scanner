@@ -26,7 +26,7 @@ class TrekkinnParser extends Parser[Product] {
       val doc = Jsoup.parse(inStream, charset.name(), urlString)
       val title = Option(doc.select("h1.productName").first.text)
       val brand = Option(doc.select("div.logoMarca a").first.attr("title"))
-      val category = doc.select("div.path_det a").asScala.drop(2).map(e => e.text())
+      val category = doc.select("div.path_det a").asScala.drop(2).map(e => e.text()).toSeq
       val price = Util.parsePrice(doc.select("p#total_dinamic").first().text())
       val oldPrice = doc.select("span#descuento").first().text() match {
         case "" => None

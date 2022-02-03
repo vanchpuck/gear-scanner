@@ -3,9 +3,9 @@ package org.izolotov.crawler.parser.origin
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class KongParserSpec extends FlatSpec {
+class KongParserSpec extends AnyFlatSpec {
 
   val parser = KongParser
   val originalDir = "parser/origin/kong"

@@ -3,9 +3,9 @@ package org.izolotov.crawler.parser.origin
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class PetzlParserSpec extends FlatSpec {
+class PetzlParserSpec extends AnyFlatSpec {
 
   val parser = PetzlParser
   val originalDir = "parser/origin/petzl"

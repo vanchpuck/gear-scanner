@@ -11,14 +11,16 @@ import org.apache.http.entity.ContentType
 import org.apache.http.impl.client.{CloseableHttpClient, HttpClients}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
+//import org.scalatest.FlatSpec
+import shapeless.ops.hlist.ToTraversable
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 
-class UtilV3 extends FlatSpec {
+class UtilV3 extends AnyFlatSpec {
 
   case class QueueItem(url: String, depth: Int)
 
@@ -147,8 +149,8 @@ class UtilV3 extends FlatSpec {
     }
   }
   class FinalBranchBuilder[Doc](queue: CrawlingQueue, parser: String => Doc) {
-    def write(processor: Doc => Unit): PipelineRunner = {
-      new PipelineRunner(queue, parser.andThen(processor))
+    def write()(implicit writer: Doc => Unit): PipelineRunner = {
+      new PipelineRunner(queue, parser.andThen(writer))
     }
   }
 
@@ -163,7 +165,7 @@ class UtilV3 extends FlatSpec {
 
   }
 
-  sealed trait Redirectable[Doc]{}
+  sealed trait Redirectable[Doc] extends Product {}
 
   sealed trait Redirect[Doc] extends Redirectable[Doc] {
     def target(): String
@@ -278,6 +280,17 @@ class UtilV3 extends FlatSpec {
 
   case class Prod[Body](code: Int, body: Body)
 
+  class SimpleHttpResponseParser[Body](bodyParser: HttpEntity => Body) extends Parser[CloseableHttpResponse, Prod[Body]] {
+    override def parse(response: CloseableHttpResponse): Prod[Body] = {
+      val d = bodyParser.apply(response.getEntity)
+      newProd(response, d)
+    }
+
+    private def newProd(response: CloseableHttpResponse, body: Body): Prod[Body] = {
+      Prod(response.getStatusLine.getStatusCode, body)
+    }
+  }
+
   class HttpResponseParser[Body](bodyParser: HttpEntity => Redirectable[Body]) extends Parser[CloseableHttpResponse, Redirectable[Prod[Body]]] {
     override def parse(response: CloseableHttpResponse): Redirectable[Prod[Body]] = {
       response.getStatusLine.getStatusCode match {
@@ -323,6 +336,14 @@ class UtilV3 extends FlatSpec {
   def facebookPredicate(url: String): Boolean = {if (url.startsWith("https://www.facebook.com")) true else false}
   def googlePredicate(url: String): Boolean = {if (url.startsWith("https://google.com")) true else false}
 
+
+  implicit def write(doc: Product): Unit = {
+    println(doc)
+//    println(doc)
+  }
+//  new FinalBranchBuilder[Direct[String]](null, null).write()
+//  new Direct[String]("str").productIterator.foreach(println)
+
   it should ".." in {
     println("!")
     Crawler.read(
@@ -340,7 +361,8 @@ class UtilV3 extends FlatSpec {
       .otherwise
         .fetch(new DefaultHttpFetcher().fetch)
         .parse(new HttpResponseParser(KantParser.parse).parse)
-        .write(u => {println(s"${System.currentTimeMillis()} ${u}")})
+//        .write(u => {println(s"${System.currentTimeMillis()} ${u}")})
+        .write()
         .crawl()
 
 
@@ -358,7 +380,7 @@ class UtilV3 extends FlatSpec {
 
     Thread.sleep(25000L)
     case class A(a: Int, b: Int)
-    val p: Serializable = A(1, 2)
+//    val p: Serializable = A(1, 2)
 
   }
 

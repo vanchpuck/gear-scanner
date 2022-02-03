@@ -3,9 +3,9 @@ package org.izolotov.crawler.parser.origin
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class ScarpaParserSpec extends FlatSpec {
+class ScarpaParserSpec extends AnyFlatSpec {
 
   val parser = ScarpaParser
   val originalDir = "parser/origin/scarpa"

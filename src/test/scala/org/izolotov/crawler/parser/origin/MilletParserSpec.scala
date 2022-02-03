@@ -3,9 +3,9 @@ package org.izolotov.crawler.parser.origin
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class MilletParserSpec extends FlatSpec {
+class MilletParserSpec extends AnyFlatSpec {
 
   val parser = MilletParser
   val originalDir = "parser/origin/millet"

@@ -1,10 +1,10 @@
 package org.izolotov.crawler
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
 import scala.collection.JavaConverters._
 
-class HostCrawlConfigurationReaderSpec extends FlatSpec {
+class HostCrawlConfigurationReaderSpec extends AnyFlatSpec {
 
   behavior of "HostCrawlConfigurationReader"
 

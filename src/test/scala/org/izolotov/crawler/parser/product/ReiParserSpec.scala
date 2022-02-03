@@ -4,14 +4,14 @@ import java.net.URL
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.product.ReiParserSpec._
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
 object ReiParserSpec {
   val Host = "www.rei.com"
   val Parser = new ReiParser()
 }
 
-class ReiParserSpec extends FlatSpec{
+class ReiParserSpec extends AnyFlatSpec{
 
   behavior of "REI Parser"
 

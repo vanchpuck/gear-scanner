@@ -6,7 +6,7 @@ import java.nio.charset.Charset
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
-import scala.tools.nsc.interpreter.InputStream
+import java.io.InputStream
 
 abstract class JsoupParser[T] extends Parser[T]{
 

@@ -20,7 +20,7 @@ class TramontanaParser extends Parser[Product] {
       val doc = Jsoup.parse(inStream, charset.name(), urlString)
       val brand = Option(doc.select("#product-all-brands > span").first.text())
       val title = Option(doc.select("h1.text-uppercase").first.text())
-      val category = doc.select(".breadcrumb-item").asScala.map(e => e.text())
+      val category = doc.select(".breadcrumb-item").asScala.map(e => e.text()).toSeq
       val oldPrice: Option[Float] = doc.select("#product-old-price").text() match {
         case "" => None
         case price => Some(Util.parsePrice(price))

@@ -1,8 +1,8 @@
 package org.izolotov.crawler
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class UtilSpec extends FlatSpec {
+class UtilSpec extends AnyFlatSpec {
 
   behavior of "Price parser"
 

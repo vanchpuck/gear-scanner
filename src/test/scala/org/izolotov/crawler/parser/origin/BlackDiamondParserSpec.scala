@@ -3,9 +3,9 @@ package org.izolotov.crawler.parser.origin
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class BlackDiamondParserSpec extends FlatSpec {
+class BlackDiamondParserSpec extends AnyFlatSpec {
 
   val parser = BlackDiamondParser
   val originalDir = "parser/origin/black-diamond"

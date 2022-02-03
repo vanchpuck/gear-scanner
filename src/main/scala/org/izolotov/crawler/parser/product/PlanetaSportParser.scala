@@ -20,7 +20,7 @@ class PlanetaSportParser extends Parser[Product]{
       val doc = Jsoup.parse(inStream, charset.name(), urlString)
       val title = Option(doc.select("h1.productHeader").first.ownText)
       val brand = Option(doc.select("h1.productHeader b").text)
-      val category = doc.select("li.breadcrumbs__item a").asScala.drop(1).dropRight(1).map(e => e.text())
+      val category = doc.select("li.breadcrumbs__item a").asScala.drop(1).dropRight(1).map(e => e.text()).toSeq
       val oldPrice: Option[Float] = doc.select("span.oldPrise").text() match {
         case "" => None
         case somePrice => Some(Util.parsePrice(somePrice))

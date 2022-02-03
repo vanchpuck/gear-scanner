@@ -3,9 +3,9 @@ package org.izolotov.crawler.parser.category
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class TrekkinnParserSpec extends FlatSpec {
+class TrekkinnParserSpec extends AnyFlatSpec {
 
   behavior of "Backcountry product category parser"
 

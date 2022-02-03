@@ -4,11 +4,11 @@ import java.time.Clock
 import java.util.concurrent.Executors
 
 import org.apache.http.impl.client.HttpClients
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
 import scala.concurrent.ExecutionContext
 
-class HostQueueProxySpec extends FlatSpec {
+class HostQueueProxySpec extends AnyFlatSpec {
 
   it should "..." in {
     val url1 = "https://alpindustria.ru/catalog/alpinistskoe-snaryajenie/verevki-stropy-repshnury/-35009/?id=347256"

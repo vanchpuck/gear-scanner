@@ -9,13 +9,14 @@ import org.eclipse.jetty.server.handler.AbstractHandler
 import org.izolotov.crawler.parser.product.{JsonParser, Product}
 import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization
-import org.scalatest.{BeforeAndAfter, FlatSpec}
+import org.scalatest.{BeforeAndAfter}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 import CrawlerSpec._
 import org.izolotov.crawler.processor.Processor
+import org.scalatest.flatspec.AnyFlatSpec
 
 object CrawlerSpec {
   val Port = 8082
@@ -57,7 +58,7 @@ object CrawlerSpec {
   }
 }
 
-class CrawlerSpec extends FlatSpec with BeforeAndAfter {
+class CrawlerSpec extends AnyFlatSpec with BeforeAndAfter {
 
   var server: Server = null
 

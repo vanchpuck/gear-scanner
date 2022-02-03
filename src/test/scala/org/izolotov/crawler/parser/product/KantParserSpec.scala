@@ -3,9 +3,9 @@ package org.izolotov.crawler.parser.product
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class KantParserSpec extends FlatSpec {
+class KantParserSpec extends AnyFlatSpec {
 
   behavior of "Kant product parser"
 

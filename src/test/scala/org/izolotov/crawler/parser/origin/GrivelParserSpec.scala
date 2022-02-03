@@ -3,9 +3,9 @@ package org.izolotov.crawler.parser.origin
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class GrivelParserSpec extends FlatSpec {
+class GrivelParserSpec extends AnyFlatSpec {
 
   val parser = GrivelParser
   val originalDir = "parser/origin/grivel"

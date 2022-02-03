@@ -22,7 +22,7 @@ class DenSurkaParser extends Parser[Product] {
       val title = Option(doc.select("h1").first.text)
       val pattern = "^(.*)\\s*–.*$".r
       val pattern(brand) = doc.select("div.field__item a img").attr("alt")
-      val category = doc.select("span.breadcrumb span a").asScala.drop(1).map(e => e.attr("title"))
+      val category = doc.select("span.breadcrumb span a").asScala.drop(1).map(e => e.attr("title")).toSeq
       val price = Util.parsePrice(doc.select("div.sprice span.amount").first().text())
       val oldPrice: Option[Float] = Option(doc.select("div.lprice span.amount").first()).map(p => Util.parsePrice(p.text()))
       val imageUrl = doc.select("div.products-images img").first().attr("src")

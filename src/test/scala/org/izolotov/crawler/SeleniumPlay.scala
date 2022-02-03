@@ -15,17 +15,16 @@ import com.browserup.bup.filters.{RequestFilter, ResponseFilter}
 import com.browserup.bup.mitm.TrustSource
 import com.browserup.bup.proxy.CaptureType
 import com.browserup.bup.util.{HttpMessageContents, HttpMessageInfo}
-import com.google.gson.Gson
+//import com.google.gson.Gson
 import io.netty.handler.codec.http.{HttpRequest, HttpResponse}
-import javax.ws.rs.client.ClientBuilder
-import javax.ws.rs.core.MediaType
-import javax.ws.rs.core.Response.Status.Family
+//import javax.ws.rs.client.ClientBuilder
+//import javax.ws.rs.core.MediaType
+//import javax.ws.rs.core.Response.Status.Family
 import org.apache.commons.io.IOUtils
 import org.apache.http.impl.client.HttpClients
 import org.json4s.DefaultFormats
 import org.openqa.selenium.Proxy.ProxyType
 import org.openqa.selenium.{Capabilities, Proxy}
-import org.scalatest.FlatSpec
 import org.openqa.selenium.chrome.{ChromeDriver, ChromeDriverService, ChromeOptions}
 import org.openqa.selenium.devtools.idealized.Domains
 import org.openqa.selenium.devtools.v91.emulation.Emulation
@@ -40,14 +39,16 @@ import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxOptions}
 import org.openqa.selenium.logging.LogType
 import org.openqa.selenium.remote.http.{ClientConfig, HttpClient}
 import org.openqa.selenium.remote.{CapabilityType, DesiredCapabilities, RemoteWebDriver}
+import org.scalatest.flatspec.AnyFlatSpec
 
 import scala.reflect.ClassTag
 import scala.util.parsing.json.JSON
 
-class SeleniumPlay extends FlatSpec {
+class SeleniumPlay extends AnyFlatSpec {
 
   it should "..." in {
-    val url = "http://www.buran.ru/"
+//    val url = "http://www.buran.ru/"
+    val url = "http://ya.ru/"
 //    val url = "https://arcteryx.com/ca/en/shop/womens/kole-down-jacket"
 
     import org.openqa.selenium.logging.LogType
@@ -99,6 +100,7 @@ class SeleniumPlay extends FlatSpec {
 
 //    opts.setExperimentalOption("whitelisted-ips", "0.0.0.0")
     opts.addArguments("--remote-debugging-port=9222")
+//    opts.addArguments("--remote-debugging-port")
     opts.addArguments("--headless")
 //     opts.setExperimentalOption("debuggerAddress", "127.0.0.1:9222/devtools/page/CA7D4CCA6BB35AFF1CCB0C18888B47E3")
 //    opts.addArguments( "--remote-debugging-address=0.0.0.0")
@@ -170,18 +172,20 @@ class SeleniumPlay extends FlatSpec {
     val devTools = new DevTools(cdpInfo.getDomains, connection)
     devTools.createSessionIfThereIsNotOne()
     devTools.send(Network.enable(Optional.empty(), Optional.empty(), Optional.empty()))
-    devTools.addListener(Network.responseReceived(), new Consumer[ResponseReceived] {
-      override def accept(entry: ResponseReceived): Unit = {
-        if (entry.getResponse.getUrl == url) {
-          println(entry.getResponse.getStatus)
-        }
-//        System.out.println("Request URI : " + entry.getRequest.getUrl + "\n" + " With method : " + entry.getRequest.getMethod + "\n")
-//        entry.getRequest.getMethod
-      }
+    // TODO requestIntercepted
+    devTools.addListener(Network.responseReceived(), (entry: ResponseReceived) => {
+      println(entry.getResponse.getUrl + " " + entry.getResponse.getStatus)
+//      if (entry.getResponse.getUrl == url) {
+//        println(entry.getResponse.getStatus)
+//      }
+      //        System.out.println("Request URI : " + entry.getRequest.getUrl + "\n" + " With method : " + entry.getRequest.getMethod + "\n")
+      //        entry.getRequest.getMethod
     })
 
     driver.get(url)
+    devTools.send(Network.disable());
     driver.quit()
+
 
 //    val targetInfo = devTools.send(Target.getTargets).asScala.head
 //    val targetId = targetInfo.getTargetId

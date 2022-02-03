@@ -18,7 +18,7 @@ class KantParser extends Parser[Product] {
       val doc = Jsoup.parse(inStream, charset.name(), urlString)
       val title = Option(doc.select("div.kant__product__fixed__title").first().ownText())
       val brand = Option(doc.select("div.kant__product__detail-item > span:containsOwn(Бренд) + span").first().text())
-      val category = doc.select(".list_links > li > a").asScala.drop(1).map(_.ownText())
+      val category = doc.select(".list_links > li > a").asScala.drop(1).map(_.ownText()).toSeq
       val price: Option[Float] = Option(Util.parsePrice(doc.select("span.kant__product__price__new").first().text))
       val oldPrice: Option[Float] = doc.select("span.kant__product__price__old").first match {
         case null => None

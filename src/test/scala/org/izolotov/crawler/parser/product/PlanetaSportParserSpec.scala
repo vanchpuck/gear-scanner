@@ -3,12 +3,12 @@ package org.izolotov.crawler.parser.product
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
 /**
   * Created by izolotov on 22.04.19.
   */
-class PlanetaSportParserSpec extends FlatSpec {
+class PlanetaSportParserSpec extends AnyFlatSpec {
 
   it should "parse product page with sale price" in {
     val inStream = this.getClass.getClassLoader.getResourceAsStream("parser/product/planeta-sport-parser/zamberlan-denali-sale.html")

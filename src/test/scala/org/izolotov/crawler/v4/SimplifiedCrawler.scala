@@ -2,11 +2,9 @@ package org.izolotov.crawler.v4
 
 import org.apache.http.client.methods.CloseableHttpResponse
 import org.izolotov.crawler.v4.Util.CrawlerBuilder
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-import scala.tools.nsc.PipelineMain.Pipeline
-
-class SimplifiedCrawler extends FlatSpec {
+class SimplifiedCrawler extends AnyFlatSpec {
 
   it should "..." in {
 //    val a = CrawlerBuilder.read(Seq("sd", "sdfsd"))

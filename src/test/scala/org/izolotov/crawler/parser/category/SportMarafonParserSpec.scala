@@ -3,9 +3,9 @@ package org.izolotov.crawler.parser.category
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class SportMarafonParserSpec extends FlatSpec {
+class SportMarafonParserSpec extends AnyFlatSpec {
 
   behavior of "Sport Marafon product category parser"
 

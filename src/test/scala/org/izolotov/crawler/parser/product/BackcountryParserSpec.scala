@@ -4,7 +4,7 @@ import java.net.URL
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.product.BackcountryParserSpec._
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
 object BackcountryParserSpec {
   val ResourceDir = "parser/product/backcountry-parser"
@@ -12,7 +12,7 @@ object BackcountryParserSpec {
   val Parser = new BackcountryParser()
 }
 
-class BackcountryParserSpec extends FlatSpec {
+class BackcountryParserSpec extends AnyFlatSpec {
 
   behavior of "Backcountry product parser"
 

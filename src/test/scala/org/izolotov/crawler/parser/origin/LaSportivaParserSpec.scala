@@ -3,9 +3,9 @@ package org.izolotov.crawler.parser.origin
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class LaSportivaParserSpec extends FlatSpec {
+class LaSportivaParserSpec extends AnyFlatSpec {
 
   val parser = LaSportivaParser
   val originalDir = "parser/origin/la-sportiva"

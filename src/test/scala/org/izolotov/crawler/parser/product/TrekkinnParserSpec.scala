@@ -3,7 +3,7 @@ package org.izolotov.crawler.parser.product
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 import TrekkinnParserSpec._
 
 
@@ -13,7 +13,7 @@ object TrekkinnParserSpec {
   val Parser = new TrekkinnParser()
 }
 
-class TrekkinnParserSpec extends FlatSpec {
+class TrekkinnParserSpec extends AnyFlatSpec {
 
   it should "parse product page with no sale price" in {
     val url = new URL("http", Host, "/product.html")

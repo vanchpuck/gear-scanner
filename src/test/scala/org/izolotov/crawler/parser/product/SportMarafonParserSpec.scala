@@ -3,9 +3,9 @@ package org.izolotov.crawler.parser.product
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class SportMarafonParserSpec extends FlatSpec {
+class SportMarafonParserSpec extends AnyFlatSpec {
 
   it should "parse product page with sale price" in {
     val inStream = this.getClass.getClassLoader.getResourceAsStream("parser/product/sport-marafon-parser/camp-c-12-sale.html")

@@ -4,7 +4,7 @@ import java.net.URL
 import java.nio.charset.Charset
 
 import org.izolotov.crawler.parser.product.ReiCoopParserSpec._
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
 object ReiCoopParserSpec {
   val ResourceDir = "parser/product/rei-coop-parser"
@@ -12,7 +12,7 @@ object ReiCoopParserSpec {
   val Parser = ReiCoopParser
 }
 
-class ReiCoopParserSpec extends FlatSpec {
+class ReiCoopParserSpec extends AnyFlatSpec {
 
   behavior of "Rei coop product parser"
 

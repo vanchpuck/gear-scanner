@@ -3,9 +3,9 @@ package org.izolotov.crawler.parser.origin
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class DmmParserSpec extends FlatSpec {
+class DmmParserSpec extends AnyFlatSpec {
 
   val parser = DmmParser
   val originalDir = "parser/origin/dmm"

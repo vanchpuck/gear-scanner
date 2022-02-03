@@ -8,10 +8,10 @@ import org.apache.http.impl.client.HttpClients
 import org.izolotov.crawler.parser.product.Product
 import org.izolotov.crawler.v4
 import org.openqa.selenium.WebDriver
-import org.scalatest.FlatSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 import CrawlerSpec._
+import org.scalatest.flatspec.AnyFlatSpec
 
 object CrawlerSpec {
 
@@ -31,7 +31,7 @@ object CrawlerSpec {
   }
 }
 
-class CrawlerSpec extends FlatSpec {
+class CrawlerSpec extends AnyFlatSpec {
 
   it should "..." in {
     val factory: (String) => ScrapingQueue = HostQueueFactory.create

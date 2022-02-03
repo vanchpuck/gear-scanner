@@ -3,9 +3,9 @@ package org.izolotov.crawler.parser.product
 import java.net.URL
 import java.nio.charset.Charset
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class AlpindustriaParserSpec extends FlatSpec{
+class AlpindustriaParserSpec extends AnyFlatSpec{
 
   behavior of "Alpindustria product parser"
 

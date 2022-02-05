@@ -3,15 +3,20 @@ package org.izolotov.crawler.v4
 import java.net.URL
 import java.util.concurrent.Executors
 
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsyncClientBuilder
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import org.apache.http.HttpEntity
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet}
 import org.apache.http.entity.ContentType
 import org.apache.http.impl.client.{CloseableHttpClient, HttpClients}
+import org.izolotov.crawler.DynamoDBHelper.Log
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatest.flatspec.AnyFlatSpec
+import org.scanamo.{DynamoFormat, Scanamo, Table}
+import shapeless.Generic
 //import org.scalatest.FlatSpec
 import shapeless.ops.hlist.ToTraversable
 
@@ -109,7 +114,7 @@ class UtilV3 extends AnyFlatSpec {
 
   class FetcherBranchBuilder(queue: CrawlingQueue, predicate: String => Boolean) {
     def fetch[Raw](fetcher: String => Raw): ParserBranchBuilder[Raw] = {
-      new ParserBranchBuilder[Raw](queue, {case url if predicate.apply(url) => {println("FetcherBranchBuilder"); fetcher.apply(url)}})
+      new ParserBranchBuilder[Raw](queue, {case url if predicate.apply(url) => fetcher.apply(url)})
     }
   }
   class SuccessiveFetcherBranchBuilder[Doc](queue: CrawlingQueue, predicate: String => Boolean, partial: PartialFunction[String, Doc]) {
@@ -134,7 +139,7 @@ class UtilV3 extends AnyFlatSpec {
     }
   }
   class FinalParserBranchBuilder[Raw, Doc](queue: CrawlingQueue, fetcher: PartialFunction[String, Raw], partial: PartialFunction[String, Doc]) {
-    def parse(parser: Raw => Doc): FinalBranchBuilder[Doc] = {
+    def parse(parser: Raw => Doc)(implicit gen : shapeless.Generic[Doc]): FinalBranchBuilder[Doc] = {
       new FinalBranchBuilder[Doc](queue, partial.orElse(fetcher.andThen(parser)))
     }
   }
@@ -149,7 +154,7 @@ class UtilV3 extends AnyFlatSpec {
     }
   }
   class FinalBranchBuilder[Doc](queue: CrawlingQueue, parser: String => Doc) {
-    def write()(implicit writer: Doc => Unit): PipelineRunner = {
+    def write(writer: Doc => Unit): PipelineRunner = {
       new PipelineRunner(queue, parser.andThen(writer))
     }
   }
@@ -165,15 +170,18 @@ class UtilV3 extends AnyFlatSpec {
 
   }
 
-  sealed trait Redirectable[Doc] extends Product {}
+
+  sealed trait Redirectable[Doc] extends Product with Serializable {
+    def url(): String
+  }
 
   sealed trait Redirect[Doc] extends Redirectable[Doc] {
     def target(): String
   }
 
-  case class Direct[Doc](doc: Doc) extends Redirectable[Doc]
-  case class HeaderRedirect[Doc](target: String) extends Redirect[Doc]
-  case class MetaRedirect[Doc](target: String, doc: Doc) extends Redirect[Doc]
+  case class Direct[Doc](url: String, doc: Doc) extends Redirectable[Doc]
+  case class HeaderRedirect[Doc](url: String, target: String) extends Redirect[Doc]
+  case class MetaRedirect[Doc](url: String, target: String, doc: Doc) extends Redirect[Doc]
 
   class FetcherBuilder(queue: CrawlingQueue) {
     def fetch[Raw](fetcher: String => Raw): ParserBuilder[Raw] = {
@@ -253,7 +261,7 @@ class UtilV3 extends AnyFlatSpec {
       "google.com" -> (new FixedDelayModerator(3000L), ec1)
     )
     def crawl(): Unit = {
-      val q = new FetcherQueue(2, 3000L)
+      val q = new FetcherQueue(1, 3000L)
       queue.foreach{
         url => {
 //          println("step")
@@ -278,7 +286,7 @@ class UtilV3 extends AnyFlatSpec {
     }
   }
 
-  case class Prod[Body](code: Int, body: Body)
+  case class Prod[Body](url: String, code: Int, body: Body)
 
   class SimpleHttpResponseParser[Body](bodyParser: HttpEntity => Body) extends Parser[CloseableHttpResponse, Prod[Body]] {
     override def parse(response: CloseableHttpResponse): Prod[Body] = {
@@ -287,30 +295,30 @@ class UtilV3 extends AnyFlatSpec {
     }
 
     private def newProd(response: CloseableHttpResponse, body: Body): Prod[Body] = {
-      Prod(response.getStatusLine.getStatusCode, body)
+      Prod("test", response.getStatusLine.getStatusCode, body)
     }
   }
 
   class HttpResponseParser[Body](bodyParser: HttpEntity => Redirectable[Body]) extends Parser[CloseableHttpResponse, Redirectable[Prod[Body]]] {
     override def parse(response: CloseableHttpResponse): Redirectable[Prod[Body]] = {
       response.getStatusLine.getStatusCode match {
-        case 302 => HeaderRedirect("http://example.com")
+        case 302 => HeaderRedirect("test", "http://example.com")
         case _ => bodyParser.apply(response.getEntity) match {
-          case d: Direct[Body] => Direct(newProd(response, d.doc))
-          case r: MetaRedirect[Body] => MetaRedirect("http://example.com", newProd(response, r.doc))
+          case d: Direct[Body] => Direct("test", newProd(response, d.doc))
+          case r: MetaRedirect[Body] => MetaRedirect("test", "http://example.com", newProd(response, r.doc))
         }
       }
     }
 
     private def newProd(response: CloseableHttpResponse, body: Body): Prod[Body] = {
-      Prod(response.getStatusLine.getStatusCode, body)
+      Prod("test", response.getStatusLine.getStatusCode, body)
     }
   }
 
   abstract class JSoupParser[A] {
     def parse(entity: HttpEntity): Redirectable[A] = {
       val document = Jsoup.parse(entity.getContent, ContentType.getOrDefault(entity).getCharset.toString, "http://example.com")
-      Direct(parseDocument(document))
+      Direct("test", parseDocument(document))
     }
 
     def parseDocument(document: Document): A
@@ -337,14 +345,63 @@ class UtilV3 extends AnyFlatSpec {
   def googlePredicate(url: String): Boolean = {if (url.startsWith("https://google.com")) true else false}
 
 
-  implicit def write(doc: Product): Unit = {
-    println(doc)
-//    println(doc)
+  class DynamoDBHelper(tableName: String, region: String) {
+
+    private val client = AmazonDynamoDBAsyncClientBuilder.standard().withRegion(region).withCredentials(new DefaultAWSCredentialsProviderChain()).build()
+    private val scanamo = Scanamo(client)
+
+//    def write[A](data: A)(implicit format: DynamoFormat[A]): Unit = {
+//      println(data)
+//      val table = new Table[A](tableName)(format)
+//      scanamo.exec{
+//        println("executing")
+//        table.put(data)
+//      }
+//      println("success")
+//    }
+    def write[A](data: A)(implicit format: DynamoFormat[A]): Unit = {
+      println(data)
+      val table = new Table[A](tableName)(format)
+      scanamo.exec{
+        println("executing")
+        table.put(data)
+      }
+      println("success")
+    }
   }
+
+//  implicit val write: A => Unit = new DynamoDBHelper("", "").write
+
+//  implicit def write[Doc](doc: Doc)(implicit gen : shapeless.Generic[Doc]): Unit = {
+//    val gen1 = Generic[Redirectable[Prod[String]]]
+//    gen1.to(null).head
+//    val genn = Generic[Doc]
+////    gen.to(doc)
+//
+//    val h = genn.to(null).head
+//    println(doc)
+////    h.head
+////    println(gen.to(doc).)
+////    println(doc)
+//  }
+
+//  implicit class Writer[Doc]() {
+//    def write(doc: Product)(implicit gen : shapeless.Generic[Doc]): Unit = {
+//      Generic[Doc]
+//      println(doc)
+//    }
+//  }
 //  new FinalBranchBuilder[Direct[String]](null, null).write()
 //  new Direct[String]("str").productIterator.foreach(println)
 
+  case class Pr(url: String, value: Int)
+
   it should ".." in {
+
+    import org.scanamo.generic.auto._
+    val helper = new DynamoDBHelper("GearScannerTest", "us-east-2")
+//    helper.write(Direct("test1", Prod("test", 200, "sdf")))
+//    val writer = new Writer[Redirectable[Prod[String]]]
     println("!")
     Crawler.read(
       Seq(
@@ -362,7 +419,7 @@ class UtilV3 extends AnyFlatSpec {
         .fetch(new DefaultHttpFetcher().fetch)
         .parse(new HttpResponseParser(KantParser.parse).parse)
 //        .write(u => {println(s"${System.currentTimeMillis()} ${u}")})
-        .write()
+        .write(helper.write)
         .crawl()
 
 
@@ -378,7 +435,7 @@ class UtilV3 extends AnyFlatSpec {
 //      .write(u => {println(s"${System.currentTimeMillis()} ${u}")})
 //      .crawl()
 
-    Thread.sleep(25000L)
+    Thread.sleep(55000L)
     case class A(a: Int, b: Int)
 //    val p: Serializable = A(1, 2)
 
